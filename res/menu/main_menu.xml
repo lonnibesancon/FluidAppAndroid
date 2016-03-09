@@ -49,6 +49,21 @@
   <item android:title="Slicing distance"
         android:id="@+id/action_clipDist" />
 
+  <item android:title="Data"
+        android:id="@+id/action_data"/>
+
+  <item android:title="Plane"
+        android:id="@+id/action_plane"/>
+
+  <item android:title="Data+Plane"
+        android:id="@+id/action_data_plane"/>
+
+  <item android:title="Seeding"
+        android:id="@+id/action_seeding"/>
+
+  <item android:title="Change IP"
+        android:id="@+id/change_IP" />
+
   <!-- <item android:title="Test"
         android:id="@+id/action_test" /> -->
 

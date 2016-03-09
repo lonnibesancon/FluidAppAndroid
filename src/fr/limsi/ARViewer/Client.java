@@ -16,7 +16,7 @@ import java.net.Socket;
 public class Client extends AsyncTask<String, String, String>{
 
 
-	protected String hostName = "192.168.0.132" ;
+	protected String hostName = "192.168.1.41" ;
     protected int portNumber = 8500;
     //protected Socket clientSocket ;
     protected DatagramSocket clientSocket ;
@@ -45,6 +45,10 @@ public class Client extends AsyncTask<String, String, String>{
     public Client(){
         super();
         Log.e("Client created", "Client Created");
+    }
+
+    public Client(String hostName){
+    	this.hostName = hostName ;
     }
 
     @Override
@@ -118,6 +122,11 @@ public class Client extends AsyncTask<String, String, String>{
                 this.valuesupdated = false ;
                 firstConnection = false ;
             }
+        }
+
+        if(closeConnection==true){
+            connected = false ;
+            clientSocket.close();
         }
 
         return "";

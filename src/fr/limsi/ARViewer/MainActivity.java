@@ -50,7 +50,7 @@ import com.google.atap.tangoservice.*;
 // import com.lannbox.rfduinotest.RFduinoService;
 
 public class MainActivity extends BaseARActivity
- implements View.OnTouchListener, GestureDetector.OnDoubleTapListener, Tango.OnTangoUpdateListener, SensorEventListener //, BluetoothAdapter.LeScanCallback //, View.OnLongClickListener
+ implements View.OnTouchListener, GestureDetector.OnDoubleTapListener, Tango.OnTangoUpdateListener, SensorEventListener, InteractionMode //, BluetoothAdapter.LeScanCallback //, View.OnLongClickListener
     // , CameraPreview.SizeCallback
 {
     private static final String TAG = Config.APP_TAG;
@@ -92,6 +92,8 @@ public class MainActivity extends BaseARActivity
     private long mLastTimestamp = 0;
 
     private Client client ;
+
+    private int interactionMode = sliceTangibleOnly;
 
     // private CameraPreview mCameraPreview;
     //
@@ -277,6 +279,7 @@ public class MainActivity extends BaseARActivity
 
         this.client = new Client();
         this.client.execute();
+        FluidMechanics.setInteractionMode(this.interactionMode);
 
         // mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_AUTORECOVERY, true); // default is true
 
@@ -863,6 +866,27 @@ public class MainActivity extends BaseARActivity
             case R.id.action_clipDist:
                 showDistanceDialog();
                 break;
+
+            case R.id.action_data:
+                changeInteractionMode(dataTangibleOnly);
+                break;
+
+            case R.id.action_plane:
+                changeInteractionMode(sliceTangibleOnly);
+                break ;
+
+            case R.id.action_data_plane:
+                changeInteractionMode(dataSliceTouchTangible);
+                break ;
+
+            case R.id.action_seeding:
+                changeInteractionMode(seedPoint);
+                break ;
+
+            case R.id.change_IP:
+                changeIP();
+                break ;
+
         }
 
         if (handledSetting) {
@@ -1089,4 +1113,16 @@ public class MainActivity extends BaseARActivity
         }
             
    } 
+
+   public void changeIP(){
+        this.client.closeConnection = false ;
+        this.client = new Client();
+        this.client.execute();
+
+   }
+
+   public void changeInteractionMode(int mode){
+        this.interactionMode = mode ;
+        FluidMechanics.setInteractionMode(mode);
+   }
 }

@@ -43,6 +43,7 @@
 #include <QCAR/CameraCalibration.h>
 #include <QCAR/UpdateCallback.h>
 #include <QCAR/DataSet.h>
+#include "interactionMode.h"
 // #include <QCAR/Image.h>
 
 #define NEW_STYLUS_RENDER
@@ -68,6 +69,7 @@ extern "C" {
 	JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_setTangoValues(JNIEnv* env, jobject obj, jdouble tx, jdouble ty, jdouble tz, jdouble rx, jdouble ry, jdouble rz, jdouble q);
     JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_setGyroValues(JNIEnv* env, jobject obj, jdouble rx, jdouble ry, jdouble rz, jdouble q);
     JNIEXPORT jstring JNICALL Java_fr_limsi_ARViewer_FluidMechanics_getData(JNIEnv* env, jobject obj);
+    JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_setInteractionMode(JNIEnv* env, jobject obj, jint mode);
 }
 
 // (end of JNI interface)
@@ -119,16 +121,20 @@ struct FluidMechanics::Impl
 
 	void setTangoValues(double tx, double ty, double tz, double rx, double ry, double rz, double q);
 	void setGyroValues(double rx, double ry, double rz, double q);
-
 	std::string getData();
+	void setInteractionMode(int mode);
 
 	Vector3 posToDataCoords(const Vector3& pos); // "pos" is in eye coordinates
 	Vector3 dataCoordsToPos(const Vector3& dataCoordsToPos);
 
 	Quaternion currentSliceRot ;
-	Vector3 currentTangoPos ;
+	Vector3 currentSlicePos ;
+	Quaternion currentDataRot ;
+	Vector3 currentDataPos ;
+
 	Vector3 prevVec ;
 	bool tangoEnabled = false ;
+	int interactionMode = sliceTangibleOnly ;
 
 
 	FluidMechanics* app;
@@ -189,7 +195,9 @@ struct FluidMechanics::Impl
 
 FluidMechanics::Impl::Impl(const std::string& baseDir)
  : currentSliceRot(Quaternion(Vector3::unitX(), M_PI)),
-   currentTangoPos(Vector3::zero()),
+   currentSlicePos(Vector3::zero()),
+   currentDataPos(Vector3::zero()),
+   currentDataRot(Quaternion(Vector3::unitX(), M_PI)),
    prevVec(Vector3::zero()),
    buttonIsPressed(false) 
 {
@@ -885,6 +893,10 @@ void FluidMechanics::Impl::setMatrices(const Matrix4& volumeMatrix, const Matrix
 	updateSlicePlanes();
 }
 
+void FluidMechanics::Impl::setInteractionMode(int mode){
+	this->interactionMode = mode ;
+}
+
 void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, double rx, double ry, double rz, double q){
 	if(!data ){
 		return ;
@@ -895,7 +907,14 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 		Vector3 trans = quat.inverse() * (vec-prevVec);
 		trans *= Vector3(1,-1,-1);	//Tango... -_-"
 		trans *= 300 ;	
-		currentTangoPos += trans ;
+
+		if(interactionMode == sliceTangibleOnly){
+			currentSlicePos += trans ;	
+		}
+		else if(interactionMode == dataTangibleOnly){
+			currentDataPos +=trans ;
+		}
+		
 		//updateTangoSlice();
 	}
 	prevVec = vec ;
@@ -909,11 +928,20 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 
 	//LOGD("Current Rot = %s", Utility::toString(currentSliceRot).c_str());
 	if(tangoEnabled){
-		Quaternion rot = currentSliceRot;
-		rot = rot * Quaternion(rot.inverse() * (-Vector3::unitZ()), rz);
-		rot = rot * Quaternion(rot.inverse() * -Vector3::unitY(), ry);
-		rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), rx);
-		currentSliceRot = rot;
+		if(interactionMode == sliceTangibleOnly){
+			Quaternion rot = currentSliceRot;
+			rot = rot * Quaternion(rot.inverse() * (-Vector3::unitZ()), rz);
+			rot = rot * Quaternion(rot.inverse() * -Vector3::unitY(), ry);
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), rx);
+			currentSliceRot = rot;
+		}
+		else if(interactionMode == dataTangibleOnly){
+			Quaternion rot = currentDataRot;
+			rot = rot * Quaternion(rot.inverse() * (-Vector3::unitZ()), rz);
+			rot = rot * Quaternion(rot.inverse() * -Vector3::unitY(), ry);
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), rx);
+			currentDataRot = rot;
+		}
 		//updateTangoSlice();
 	}
 	
@@ -923,13 +951,27 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 void FluidMechanics::Impl::updateTangoSlice(){
 	Matrix4 m ;
 	synchronized(state->modelMatrix) {
-		//LOGD("Tango Pos = %s", Utility::toString(currentTangoPos).c_str());
+		//LOGD("Tango Pos = %s", Utility::toString(currentSlicePos).c_str());
 		//LOGD("Tango Rot = %s", Utility::toString(currentSliceRot).c_str());
-		m = Matrix4::makeTransform(currentTangoPos, currentSliceRot);
+		if(interactionMode == sliceTangibleOnly){
+			m = Matrix4::makeTransform(currentSlicePos, currentSliceRot);
+		}
+		else if(interactionMode == dataTangibleOnly){
+			m = Matrix4::makeTransform(currentDataPos, currentDataRot);
+		}	
+
 	}
-	synchronized(state->stylusModelMatrix) {
-		state->stylusModelMatrix = m;
+	if(interactionMode == sliceTangibleOnly){
+		synchronized(state->stylusModelMatrix) {
+			state->stylusModelMatrix = m;
+		}
 	}
+	else if(interactionMode == dataTangibleOnly){
+		synchronized(state->modelMatrix) {
+			state->modelMatrix = m ;
+		}
+	}
+	
 
 	updateSlicePlanes();
 }
@@ -2173,6 +2215,26 @@ JNIEXPORT jstring Java_fr_limsi_ARViewer_FluidMechanics_getData(JNIEnv* env, job
 	
 }
 
+
+JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_setInteractionMode(JNIEnv* env, jobject obj, jint mode){
+	try {
+		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
+
+		if (!App::getInstance())
+			throw std::runtime_error("init() was not called");
+
+		if (App::getType() != App::APP_TYPE_FLUID)
+			throw std::runtime_error("Wrong application type");
+
+		FluidMechanics* instance = dynamic_cast<FluidMechanics*>(App::getInstance());
+		android_assert(instance);
+		instance->setInteractionMode(mode);
+
+	} catch (const std::exception& e) {
+		throwJavaException(env, e.what());
+	}
+}
+
 FluidMechanics::FluidMechanics(const InitParams& params)
  : NativeApp(params, SettingsPtr(new FluidMechanics::Settings), StatePtr(new FluidMechanics::State)),
    impl(new Impl(params.baseDir))
@@ -2186,7 +2248,8 @@ bool FluidMechanics::loadDataSet(const std::string& fileName)
 {
 	impl->setMatrices(Matrix4::makeTransform(Vector3(0, 0, 400)),
 	                  Matrix4::makeTransform(Vector3(0, 0, 400)));
-	impl->currentTangoPos = Vector3(0, 0, 400);
+	impl->currentSlicePos = Vector3(0, 0, 400);
+	impl->currentDataPos = Vector3(0,0,400);
 	return impl->loadDataSet(fileName);
 }
 
@@ -2229,6 +2292,10 @@ void FluidMechanics::renderObjects()
 void FluidMechanics::updateSurfacePreview()
 {
 	impl->updateSurfacePreview();
+}
+
+void FluidMechanics::setInteractionMode(int mode){
+	impl->setInteractionMode(mode);
 }
 
 std::string FluidMechanics::getData(){

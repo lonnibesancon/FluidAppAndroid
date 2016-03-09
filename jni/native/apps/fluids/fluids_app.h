@@ -20,6 +20,7 @@ public:
 
 	void setTangoValues(double tx, double ty, double tz, double rx, double ry, double rz, double q);
     void setGyroValues(double rx, double ry, double rz, double q);
+    void setInteractionMode(int mode);
 
     std::string getData();
 
