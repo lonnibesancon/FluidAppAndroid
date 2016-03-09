@@ -53,8 +53,11 @@
   <item android:title="Slicing distance"
         android:id="@+id/action_clipDist" />
 
-  <item android:title="Data"
-        android:id="@+id/action_data"/>
+  <item android:title="Data Tangible"
+        android:id="@+id/action_dataTangible"/>
+  
+  <item android:title="Data Touch"
+        android:id="@+id/action_dataTouch"/>
 
   <item android:title="Plane"
         android:id="@+id/action_plane"/>

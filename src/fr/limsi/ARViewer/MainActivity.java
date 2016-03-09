@@ -858,9 +858,13 @@ public class MainActivity extends BaseARActivity
                 showDistanceDialog();
                 break;
 
-            case R.id.action_data:
+            case R.id.action_dataTangible:
                 changeInteractionMode(dataTangibleOnly);
                 break;
+
+            case R.id.action_dataTouch:
+                changeInteractionMode(dataTouchOnly);
+                break ;
 
             case R.id.action_plane:
                 changeInteractionMode(sliceTangibleOnly);
