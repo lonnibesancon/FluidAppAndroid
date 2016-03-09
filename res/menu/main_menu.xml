@@ -1,0 +1,55 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:title="Show..."
+        android:showAsAction="always">
+    <menu>
+      <item android:title="Volume"
+            android:checkable="true"
+            android:checked="true"
+            android:id="@+id/action_showVolume" />
+      <item android:title="Surface"
+            android:checkable="true"
+            android:checked="true"
+            android:id="@+id/action_showSurface" />
+      <item android:title="Slice"
+            android:checkable="true"
+            android:checked="true"
+            android:id="@+id/action_showSlice" />
+      <item android:title="Camera"
+            android:checkable="true"
+            android:checked="true"
+            android:id="@+id/action_showCamera" />
+      <item android:title="Lines"
+            android:checkable="true"
+            android:checked="true"
+            android:id="@+id/action_showLines" />
+    </menu>
+  </item>
+
+  <!-- TODO: whether to control the clipping distance with the stylus
+       or not (fixed distance), set the fixed distance value, etc. -->
+  <!-- See also: Android preferences
+       (http://androidpartaker.wordpress.com/tag/android-preferences/) -->
+  <!-- <item android:title="Options"
+        android:showAsAction="always">
+    <menu>
+      <item ...
+    </menu>
+  </item> -->
+
+  <item android:title="Axis-aligned clipping"
+        android:checkable="true"
+        android:checked="false"
+        android:id="@+id/action_axisClipping" />
+
+  <item android:title="Stylus slicing"
+        android:checkable="true"
+        android:checked="true"
+        android:id="@+id/action_stylusClipping" />
+
+  <item android:title="Slicing distance"
+        android:id="@+id/action_clipDist" />
+
+  <!-- <item android:title="Test"
+        android:id="@+id/action_test" /> -->
+
+</menu>

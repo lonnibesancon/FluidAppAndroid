@@ -1,0 +1,16 @@
+# vtk DataFile Version 2.0
+Comment goes here
+ASCII
+
+DATASET STRUCTURED_POINTS
+DIMENSIONS    2 2 2
+
+ORIGIN    0.000   0.000   0.000
+SPACING    1.000   1.000   1.000
+
+POINT_DATA   8
+SCALARS scalars float
+LOOKUP_TABLE default
+
+0.0 1.0 2.0 3.0
+4.0 5.0 6.0 7.0

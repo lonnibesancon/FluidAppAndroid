@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:arviewer="http://example.org/arviewer"
+             android:layout_width="fill_parent"
+             android:layout_height="fill_parent"
+             >
+  <fr.limsi.ARViewer.ARSurfaceView
+      android:id="@+id/glSurfaceView"
+      android:layout_width="fill_parent"
+      android:layout_height="fill_parent"
+      android:layout_alignParentLeft="true"
+      android:layout_alignParentTop="true"
+      android:layout_weight="1"
+      />
+
+  <LinearLayout android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center_vertical|right"
+                >
+    <TextView
+        android:id="@+id/sliderTooltip"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:gravity="center"
+        android:background="#AA000000"
+        android:textSize="30dp"
+        />
+
+    <!-- Make the vertical slider fill 55% of the screen height.
+         Vertical centering is achieved by surrounding it with two
+         dummy View drawables. -->
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="50dp"
+                  android:layout_height="fill_parent"
+                  android:layout_gravity="center_vertical|right"
+                  >
+      <View
+          android:layout_width="fill_parent"
+          android:layout_height="0dp"
+          android:layout_weight="0.225"
+          />
+      <fr.limsi.ARViewer.VerticalSeekBar
+          android:id="@+id/verticalSlider"
+          android:layout_width="fill_parent"
+          android:layout_height="0dp"
+          android:layout_weight="0.55"
+          android:thumb="@drawable/slider_thumb"
+          android:max="100"
+          />
+      <View
+          android:layout_width="fill_parent"
+          android:layout_height="0dp"
+          android:layout_weight="0.225"
+          />
+    </LinearLayout>
+  </LinearLayout>
+
+  <TextView
+      android:id="@+id/textOverlay"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_centerInParent="true"
+      android:layout_gravity="bottom"
+      android:gravity="center"
+      android:background="#AA000000"
+      android:textSize="25dp"
+      android:text="test"
+      />
+</FrameLayout>
