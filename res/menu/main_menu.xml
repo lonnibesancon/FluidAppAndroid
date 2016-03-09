@@ -14,6 +14,10 @@
             android:checkable="true"
             android:checked="true"
             android:id="@+id/action_showSlice" />
+      <item android:title="Outline"
+            android:checkable="true"
+            android:checked="true"
+            android:id="@+id/action_showOutline" />
       <item android:title="Camera"
             android:checkable="true"
             android:checked="true"

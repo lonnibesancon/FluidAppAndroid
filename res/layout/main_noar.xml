@@ -56,7 +56,22 @@
     </LinearLayout>
   </LinearLayout>
 
-  <TextView
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:id= "@+id/linearlayout2" >
+        
+        <Button
+          android:id="@+id/tangibleBtn"
+          android:layout_height="wrap_content"
+          android:layout_width="wrap_content"
+          android:text="Tangible"
+            />
+
+  </LinearLayout>
+  
+  <!--<TextView
       android:id="@+id/textOverlay"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -66,5 +81,5 @@
       android:background="#AA000000"
       android:textSize="25dp"
       android:text="test"
-      />
+      />-->
 </FrameLayout>

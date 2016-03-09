@@ -58,6 +58,7 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 	   showSurface(false),
 	   showStylus(true),
 	   showSlice(false),
+	   showOutline(true),
 	   showCrossingLines(true),
 	   sliceType(SLICE_STYLUS),
 	   clipDist(defaultClipDist),
@@ -67,7 +68,7 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 
 	static constexpr float defaultClipDist = 360.0f;
 
-	bool showVolume, showSurface, showStylus, showSlice, showCrossingLines;
+	bool showVolume, showSurface, showStylus, showSlice, showCrossingLines, showOutline;
 	SliceType sliceType;
 	float clipDist; // if clipDist == 0, the clip plane is disabled
 	double surfacePercentage;
@@ -79,9 +80,11 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 		SET_JNI_FIELD(obj, showSurface, Boolean, "Z", showSurface);
 		SET_JNI_FIELD(obj, showStylus, Boolean, "Z", showStylus);
 		SET_JNI_FIELD(obj, showSlice, Boolean, "Z", showSlice);
+		SET_JNI_FIELD(obj, showOutline, Boolean, "Z", showOutline);
 		SET_JNI_FIELD(obj, showCrossingLines, Boolean, "Z", showCrossingLines);
 		SET_JNI_FIELD(obj, clipDist, Float, "F", clipDist);
 		SET_JNI_FIELD(obj, surfacePreview, Boolean, "Z", surfacePreview);
+		
 
 		SET_JNI_FIELD(obj, sliceType, Int, "I", sliceType);
 
@@ -94,6 +97,7 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 		GET_JNI_FIELD(obj, showSurface, Boolean, "Z", showSurface);
 		GET_JNI_FIELD(obj, showStylus, Boolean, "Z", showStylus);
 		GET_JNI_FIELD(obj, showSlice, Boolean, "Z", showSlice);
+		GET_JNI_FIELD(obj, showOutline, Boolean, "Z", showOutline);
 		GET_JNI_FIELD(obj, showCrossingLines, Boolean, "Z", showCrossingLines);
 		GET_JNI_FIELD(obj, clipDist, Float, "F", clipDist);
 		GET_JNI_FIELD(obj, surfacePreview, Boolean, "Z", surfacePreview);

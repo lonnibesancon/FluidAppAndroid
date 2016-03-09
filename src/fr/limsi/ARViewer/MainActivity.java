@@ -40,6 +40,8 @@ import java.io.*;
 import java.net.*;
 import java.lang.*;
 import java.util.*;
+import android.view.View.OnClickListener;
+
 
 import com.google.atap.tangoservice.*;
 
@@ -55,6 +57,8 @@ public class MainActivity extends BaseARActivity
 {
     private static final String TAG = Config.APP_TAG;
     private static final boolean DEBUG = Config.DEBUG;
+
+    private Button tangibleBtn ;
 
     // FIXME: static?
     private static FluidMechanics.Settings fluidSettings = new FluidMechanics.Settings();
@@ -184,25 +188,6 @@ public class MainActivity extends BaseARActivity
     public void onCreate(Bundle savedInstanceState) {
         boolean wasInitialized = isInitialized();
 
-        // if (!wasInitialized) {
-        //     System.loadLibrary("QCAR");
-        //     QCAR.setInitParameters(this, QCAR.GL_20);
-        //     int progress = -1;
-        //     do {
-        //         progress = QCAR.init();
-        //         // Log.d(TAG, "progress = " + progress);
-        //     } while (progress >= 0 && progress < 100);
-        //
-        //     if (progress != 100) {
-        //         if (progress == QCAR.INIT_DEVICE_NOT_SUPPORTED)
-        //             Log.e(TAG, "Unable to initialize QCAR: device not supported");
-        //         else
-        //             Log.e(TAG, "Unable to initialize QCAR (return value: " + progress + ")");
-        //     } else {
-        //         Log.i(TAG, "QCAR initialized successfully");
-        //     }
-        // }
-
         super.onCreate(savedInstanceState);
 
         if (!isInitialized()) // || !isCameraAvailable())
@@ -216,17 +201,6 @@ public class MainActivity extends BaseARActivity
 
         // setContentView(R.layout.main);
         setContentView(R.layout.main_noar);
-
-        // mCameraPreview = (CameraPreview)findViewById(R.id.cameraPreview);
-        // mCamera = mCameraPreview.getCamera();
-        // // mCameraPreview.setSizeCallback(this);
-        // mCameraPreview.setPreviewCallback(this);
-
-        // if (QCAR.isInitialized() && com.qualcomm.ar.pl.CameraPreview.instance != null) {
-        //     // CameraPreview.instance.setCamera(mCamera);
-        //     com.qualcomm.ar.pl.CameraPreview.instance.setCamera(mCamera);
-        //     FluidMechanics.initQCAR(); // must be called after setContentView()
-        // }
 
         mView = (ARSurfaceView)findViewById(R.id.glSurfaceView);
         setView(mView);
@@ -280,6 +254,15 @@ public class MainActivity extends BaseARActivity
         this.client = new Client();
         this.client.execute();
         FluidMechanics.setInteractionMode(this.interactionMode);
+
+        this.tangibleBtn = (Button) findViewById(R.id.tangibleBtn);
+        this.tangibleBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG,"Button Clicked");
+                Toast.makeText(MainActivity.this, "Button Clicked", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_AUTORECOVERY, true); // default is true
 
@@ -777,6 +760,7 @@ public class MainActivity extends BaseARActivity
             fluidSettings.showSurface = menu.findItem(R.id.action_showSurface).isChecked();
             fluidSettings.showStylus = true;
             fluidSettings.showSlice = menu.findItem(R.id.action_showSlice).isChecked();
+            fluidSettings.showOutline = menu.findItem(R.id.action_showOutline).isChecked();
             settings.showCamera = menu.findItem(R.id.action_showCamera).isChecked();
             fluidSettings.showCrossingLines = menu.findItem(R.id.action_showLines).isChecked();
 
@@ -791,6 +775,7 @@ public class MainActivity extends BaseARActivity
             menu.findItem(R.id.action_showSlice).setChecked(fluidSettings.showSlice);
             menu.findItem(R.id.action_showCamera).setChecked(settings.showCamera);
             menu.findItem(R.id.action_showLines).setChecked(fluidSettings.showCrossingLines);
+            menu.findItem(R.id.action_showOutline).setChecked(fluidSettings.showOutline);
             menu.findItem(R.id.action_axisClipping).setChecked(fluidSettings.sliceType == FluidMechanics.SLICE_AXIS);
             menu.findItem(R.id.action_stylusClipping).setChecked(fluidSettings.sliceType == FluidMechanics.SLICE_STYLUS);
         }
@@ -835,6 +820,12 @@ public class MainActivity extends BaseARActivity
                 fluidSettings.showSlice = !fluidSettings.showSlice;
                 item.setChecked(fluidSettings.showSlice);
                 handledDataSetting = true;
+                break;
+
+            case R.id.action_showOutline:
+                fluidSettings.showOutline = !fluidSettings.showOutline;
+                item.setChecked(fluidSettings.showOutline);
+                handledDataSetting = true ;
                 break;
 
             case R.id.action_showCamera:
@@ -981,7 +972,7 @@ public class MainActivity extends BaseARActivity
         //     FluidMechanics.releaseParticles();
         //     return true;
         // }
-
+        
         mGestureDetector.onTouchEvent(event);
 
         if (mDatasetLoaded) {

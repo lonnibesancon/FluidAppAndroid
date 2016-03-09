@@ -1651,11 +1651,14 @@ void FluidMechanics::Impl::renderObjects()
 			Vector3(settings->zoomFactor)
 		);
 
-		synchronized_if(outline) {
-			glDepthMask(true);
-			glLineWidth(2.0f);
-			outline->setColor(!velocityData ? Vector3(1.0f, 0, 0) : Vector3(0, 1.0f, 0));
-			outline->render(proj, mm);
+		//Render the outline
+		if(settings->showOutline){
+			synchronized_if(outline) {
+				glDepthMask(true);
+				glLineWidth(2.0f);
+				outline->setColor(!velocityData ? Vector3(1.0f, 0, 0) : Vector3(0, 1.0f, 0));
+				outline->render(proj, mm);
+			}
 		}
 
 		// Render the surface

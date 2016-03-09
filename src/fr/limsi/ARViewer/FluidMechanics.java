@@ -6,7 +6,7 @@ public class FluidMechanics {
     public static final int SLICE_STYLUS = 2;
 
     static class Settings {
-        boolean showVolume, showSurface, showStylus, showSlice, showCrossingLines;
+        boolean showVolume, showSurface, showStylus, showSlice, showCrossingLines, showOutline;
         int sliceType; // SLICE_* constant
         float clipDist; // if clipDist == 0, the clip plane is disabled
         double surfacePercentage;
