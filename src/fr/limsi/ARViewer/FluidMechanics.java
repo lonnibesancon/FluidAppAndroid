@@ -34,6 +34,6 @@ public class FluidMechanics {
     public static native void setSettings(FluidMechanics.Settings settings);
     public static native void setTangoValues(double tx, double ty, double tz, double rx, double ry, double rz, double q);
     public static native void setGyroValues(double rx, double ry, double rz, double q);
-
+    public static native String getData();
     public static native void getState(FluidMechanics.State state);
 }

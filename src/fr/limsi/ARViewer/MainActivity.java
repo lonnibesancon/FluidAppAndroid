@@ -91,6 +91,8 @@ public class MainActivity extends BaseARActivity
     private static final float NS2S = 1.0f / 1000000000.0f;
     private long mLastTimestamp = 0;
 
+    private Client client ;
+
     // private CameraPreview mCameraPreview;
     //
     // private final static int STATE_BLUETOOTH_OFF = 1;
@@ -273,6 +275,9 @@ public class MainActivity extends BaseARActivity
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
+        this.client = new Client();
+        this.client.execute();
+
         // mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_AUTORECOVERY, true); // default is true
 
         // mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_LEARNINGMODE, true);
@@ -321,8 +326,7 @@ public class MainActivity extends BaseARActivity
             //     }});
         }
 
-        if (mView != null)
-            mView.requestRender();
+        requestRender();
 
     }
 
@@ -363,8 +367,8 @@ public class MainActivity extends BaseARActivity
                event.values[3]  // w
            );*/
        }
-       if (mView != null)
-            mView.requestRender();
+
+       requestRender();
    }
 
    @Override
@@ -1076,4 +1080,13 @@ public class MainActivity extends BaseARActivity
 
         return true;
     }
+
+   public void requestRender(){
+        if (mView != null){
+            //Log.d(TAG,"RequestRender");
+            mView.requestRender();
+            client.setData(FluidMechanics.getData());
+        }
+            
+   } 
 }

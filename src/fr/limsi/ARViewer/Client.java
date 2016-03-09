@@ -13,7 +13,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 
-public class Client extends AsyncTask<String, String, String> implements VolumeRenderSCProtocol{
+public class Client extends AsyncTask<String, String, String>{
 
 
 	protected String hostName = "192.168.0.132" ;
@@ -24,15 +24,23 @@ public class Client extends AsyncTask<String, String, String> implements VolumeR
 
     protected boolean connected = false;
     protected boolean closeConnection = false ;
+    protected boolean valuesupdated = false ;
+    protected boolean firstConnection = true ;
 
     protected String dataMatrix = "1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;";
     protected String sliceMatrix = "1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;";
     protected String seedPoint = "-1;-1;-1";
+    protected String dataToSend = "1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;-1;-1;-1;" ;
     protected String msg ;
+
+    private long mLastTimestamp = 0;
+    private long currentTimestamp = 1000000 ;
+    private long refresh = 60;
+    protected int counterTries = 0 ;
 
     protected boolean initDone = false ;
 
-    private long refresh = 60;
+    
 
     public Client(){
         super();
@@ -76,7 +84,7 @@ public class Client extends AsyncTask<String, String, String> implements VolumeR
                 Log.d("Connection status", "CONNECTED");
                 String sentence = "coucou" ;
                 byte[] sendData = sentence.getBytes();       
-                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, serverAddr, VolumeRenderSCProtocol.SERVERPORT);       
+                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, serverAddr, portNumber);       
                 //clientSocket.send(sendPacket);
             } catch (Exception e) {
                 Log.e("Client Application", "Error Opening"+e.getMessage(), e);
@@ -89,15 +97,15 @@ public class Client extends AsyncTask<String, String, String> implements VolumeR
             //Log.d("Connected == ", "Connected = "+initDone);
             if (connected == true && initDone == true && valuesupdated == true && diff >= refresh || firstConnection){
             	//msg = ""+MATRIXCHANGED+";"+interactionMode+";"+mapperSelected+";"+matrix+PositionAndOrientation+this.seedPoint ;
-                msg = ""+dataMatrix+""+sliceMatrix+""+seedPoint ;
+                msg = ""+dataToSend;
                 byte[] data = msg.getBytes();
-                DatagramPacket dp = new DatagramPacket(data, data.length, this.serverAddr, VolumeRenderSCProtocol.SERVERPORT);
+                DatagramPacket dp = new DatagramPacket(data, data.length, this.serverAddr, portNumber);
                 counterTries = 0 ;
                 //Log.d("Diff", "Diff = "+diff);
                 do {
                     try {
                         clientSocket.send(dp);
-                        Log.e("MessageSent", ""+msg);
+                        Log.d("MessageSent", ""+msg);
                         break ;
                     }catch (Exception e) {
                         Log.e("ClientActivity", "SENDING ERROR "+ counterTries, e);
@@ -115,6 +123,15 @@ public class Client extends AsyncTask<String, String, String> implements VolumeR
         return "";
     }
 
+    protected void setData(String s){
+    	if(s.equals(this.dataToSend) == false){
+    		this.dataToSend = s ;
+	    	//Log.d("DataToSend", ""+dataToSend);
+	    	this.valuesupdated = true ;
+	        initDone = true ;	
+    	}
+    }
+
     protected void setDataMatrixString(String s){
         this.dataMatrix = s ;
         this.valuesupdated = true ;
@@ -129,6 +146,7 @@ public class Client extends AsyncTask<String, String, String> implements VolumeR
 
     protected void setSeedPoint(String s){
         this.seedPoint = s ;
+        this.valuesupdated = true ;
         initDone = true ;
     }
 

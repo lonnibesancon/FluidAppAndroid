@@ -67,6 +67,7 @@ extern "C" {
 	JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_getState(JNIEnv* env, jobject obj, jobject stateObj);
 	JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_setTangoValues(JNIEnv* env, jobject obj, jdouble tx, jdouble ty, jdouble tz, jdouble rx, jdouble ry, jdouble rz, jdouble q);
     JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_setGyroValues(JNIEnv* env, jobject obj, jdouble rx, jdouble ry, jdouble rz, jdouble q);
+    JNIEXPORT jstring JNICALL Java_fr_limsi_ARViewer_FluidMechanics_getData(JNIEnv* env, jobject obj);
 }
 
 // (end of JNI interface)
@@ -118,6 +119,8 @@ struct FluidMechanics::Impl
 
 	void setTangoValues(double tx, double ty, double tz, double rx, double ry, double rz, double q);
 	void setGyroValues(double rx, double ry, double rz, double q);
+
+	std::string getData();
 
 	Vector3 posToDataCoords(const Vector3& pos); // "pos" is in eye coordinates
 	Vector3 dataCoordsToPos(const Vector3& dataCoordsToPos);
@@ -930,6 +933,53 @@ void FluidMechanics::Impl::updateTangoSlice(){
 
 	updateSlicePlanes();
 }
+
+std::string FluidMechanics::Impl::getData(){
+	
+  	std::ostringstream oss;
+	oss << state->modelMatrix.data_[0] << ";" 
+		<< state->modelMatrix.data_[1] << ";" 
+		<< state->modelMatrix.data_[2] << ";" 
+		<< state->modelMatrix.data_[3] << ";" 
+		<< state->modelMatrix.data_[4] << ";" 
+		<< state->modelMatrix.data_[5] << ";" 
+		<< state->modelMatrix.data_[6] << ";" 
+		<< state->modelMatrix.data_[7] << ";" 
+		<< state->modelMatrix.data_[8] << ";" 
+		<< state->modelMatrix.data_[9] << ";" 
+		<< state->modelMatrix.data_[10] << ";" 
+		<< state->modelMatrix.data_[11] << ";" 
+		<< state->modelMatrix.data_[12] << ";" 
+		<< state->modelMatrix.data_[13] << ";" 
+		<< state->modelMatrix.data_[14] << ";" 
+		<< state->modelMatrix.data_[15] << ";" ;
+
+	oss << state->stylusModelMatrix.data_[0] << ";"  
+		<< state->stylusModelMatrix.data_[1] << ";"  
+		<< state->stylusModelMatrix.data_[2] << ";"  
+		<< state->stylusModelMatrix.data_[3] << ";"  
+		<< state->stylusModelMatrix.data_[4] << ";"  
+		<< state->stylusModelMatrix.data_[5] << ";"  
+		<< state->stylusModelMatrix.data_[6] << ";"  
+		<< state->stylusModelMatrix.data_[7] << ";"  
+		<< state->stylusModelMatrix.data_[8] << ";"  
+		<< state->stylusModelMatrix.data_[9] << ";"  
+		<< state->stylusModelMatrix.data_[10] << ";"  
+		<< state->stylusModelMatrix.data_[11] << ";"  
+		<< state->stylusModelMatrix.data_[12] << ";"  
+		<< state->stylusModelMatrix.data_[13] << ";"  
+		<< state->stylusModelMatrix.data_[14] << ";" 
+		<< state->stylusModelMatrix.data_[15] << ";" ;
+
+	oss << "-1" << ";"
+		<< "-1" << ";"  
+		<< "-1" << ";" ;
+
+	std::string s = oss.str();
+
+	return s ;
+}
+
 
 void FluidMechanics::Impl::updateSlicePlanes()
 {
@@ -2102,6 +2152,27 @@ JNIEXPORT jfloat JNICALL Java_fr_limsi_ARViewer_FluidMechanics_buttonReleased(JN
 	}
 }
 
+JNIEXPORT jstring Java_fr_limsi_ARViewer_FluidMechanics_getData(JNIEnv* env, jobject obj)
+{
+	try {
+		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
+
+		if (!App::getInstance())
+			throw std::runtime_error("init() was not called");
+
+		if (App::getType() != App::APP_TYPE_FLUID)
+			throw std::runtime_error("Wrong application type");
+
+		FluidMechanics* instance = dynamic_cast<FluidMechanics*>(App::getInstance());
+		android_assert(instance);
+		return (env->NewStringUTF(instance->getData().c_str())) ;
+
+	} catch (const std::exception& e) {
+		throwJavaException(env, e.what());
+	}
+	
+}
+
 FluidMechanics::FluidMechanics(const InitParams& params)
  : NativeApp(params, SettingsPtr(new FluidMechanics::Settings), StatePtr(new FluidMechanics::State)),
    impl(new Impl(params.baseDir))
@@ -2158,6 +2229,10 @@ void FluidMechanics::renderObjects()
 void FluidMechanics::updateSurfacePreview()
 {
 	impl->updateSurfacePreview();
+}
+
+std::string FluidMechanics::getData(){
+	return impl->getData();
 }
 
 void FluidMechanics::setTangoValues(double tx, double ty, double tz, double rx, double ry, double rz, double q){
