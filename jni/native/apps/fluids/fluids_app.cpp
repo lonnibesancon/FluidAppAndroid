@@ -909,7 +909,8 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 		trans *= 300 ;	
 
 		if(interactionMode == sliceTangibleOnly){
-			currentSlicePos += trans ;	
+			//currentSlicePos += trans ;	Version with the plane moving freely in the world
+			currentSlicePos += trans ; 	//Version with a fix plane
 		}
 		else if(interactionMode == dataTangibleOnly){
 			currentDataPos +=trans ;
@@ -933,7 +934,8 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 			rot = rot * Quaternion(rot.inverse() * (-Vector3::unitZ()), rz);
 			rot = rot * Quaternion(rot.inverse() * -Vector3::unitY(), ry);
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), rx);
-			currentSliceRot = rot;
+			//currentSliceRot = rot ; //Version with the plane moving freely in the world
+			currentSliceRot = rot ;
 		}
 		else if(interactionMode == dataTangibleOnly){
 			Quaternion rot = currentDataRot;
@@ -954,7 +956,8 @@ void FluidMechanics::Impl::updateTangoSlice(){
 		//LOGD("Tango Pos = %s", Utility::toString(currentSlicePos).c_str());
 		//LOGD("Tango Rot = %s", Utility::toString(currentSliceRot).c_str());
 		if(interactionMode == sliceTangibleOnly){
-			m = Matrix4::makeTransform(currentSlicePos, currentSliceRot);
+			//m = Matrix4::makeTransform(currentSlicePos, currentSliceRot);	//Version with the plane moving freely
+			m = Matrix4::makeTransform(currentSlicePos, currentSliceRot.inverse());	//Fixed Plane
 		}
 		else if(interactionMode == dataTangibleOnly){
 			m = Matrix4::makeTransform(currentDataPos, currentDataRot);
@@ -962,8 +965,12 @@ void FluidMechanics::Impl::updateTangoSlice(){
 
 	}
 	if(interactionMode == sliceTangibleOnly){
-		synchronized(state->stylusModelMatrix) {
+		//Plane moving freely
+		/*synchronized(state->stylusModelMatrix) {
 			state->stylusModelMatrix = m;
+		}*/
+		synchronized(state->modelMatrix) {
+			state->modelMatrix = m ;
 		}
 	}
 	else if(interactionMode == dataTangibleOnly){
