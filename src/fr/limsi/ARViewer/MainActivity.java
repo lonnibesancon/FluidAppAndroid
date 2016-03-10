@@ -1198,7 +1198,7 @@ public class MainActivity extends BaseARActivity
         //Log.d(TAG,"On click listener");
         if(v.getId() == R.id.tangibleBtn){
             //Log.d(TAG, "Tangible Button");
-            this.tangibleModeActivated != this.tangibleModeActivated ;
+            this.tangibleModeActivated = !this.tangibleModeActivated ;
             if(this.tangibleModeActivated){
                 FluidMechanics.buttonPressed();    
             }
