@@ -52,7 +52,7 @@ import com.google.atap.tangoservice.*;
 // import com.lannbox.rfduinotest.RFduinoService;
 
 public class MainActivity extends BaseARActivity
- implements View.OnTouchListener, GestureDetector.OnDoubleTapListener, Tango.OnTangoUpdateListener, SensorEventListener, InteractionMode //, BluetoothAdapter.LeScanCallback //, View.OnLongClickListener
+ implements View.OnTouchListener, GestureDetector.OnDoubleTapListener, Tango.OnTangoUpdateListener, SensorEventListener, InteractionMode, OnClickListener //, BluetoothAdapter.LeScanCallback //, View.OnLongClickListener
     // , CameraPreview.SizeCallback
 {
     private static final String TAG = Config.APP_TAG;
@@ -98,6 +98,7 @@ public class MainActivity extends BaseARActivity
     private Client client ;
 
     private int interactionMode = sliceTangibleOnly;
+    private boolean tangibleModeActivated = false ;
 
     // private CameraPreview mCameraPreview;
     //
@@ -256,13 +257,16 @@ public class MainActivity extends BaseARActivity
         FluidMechanics.setInteractionMode(this.interactionMode);
 
         this.tangibleBtn = (Button) findViewById(R.id.tangibleBtn);
-        this.tangibleBtn.setOnClickListener(new OnClickListener() {
+        this.tangibleBtn.setOnClickListener(this);
+        /*this.tangibleBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG,"Button Clicked");
                 Toast.makeText(MainActivity.this, "Button Clicked", Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
+
+        Log.d(TAG,"Listener Set");
 
         // mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_AUTORECOVERY, true); // default is true
 
@@ -1187,4 +1191,20 @@ public class MainActivity extends BaseARActivity
         this.interactionMode = mode ;
         FluidMechanics.setInteractionMode(mode);
    }
+
+
+    @Override
+    public void onClick(View v) {
+        //Log.d(TAG,"On click listener");
+        if(v.getId() == R.id.tangibleBtn){
+            //Log.d(TAG, "Tangible Button");
+            this.tangibleModeActivated != this.tangibleModeActivated ;
+            if(this.tangibleModeActivated){
+                FluidMechanics.buttonPressed();    
+            }
+            else{
+                FluidMechanics.buttonReleased();
+            }
+        }
+    }
 }

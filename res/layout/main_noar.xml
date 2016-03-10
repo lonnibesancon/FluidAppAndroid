@@ -5,7 +5,7 @@
              android:layout_height="fill_parent"
              >
 
-  
+
   <fr.limsi.ARViewer.ARSurfaceView
       android:id="@+id/glSurfaceView"
       android:layout_width="fill_parent"
@@ -62,11 +62,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:layout_gravity="bottom"
     android:id= "@+id/linearlayout2" >
         
         <Button
           android:id="@+id/tangibleBtn"
-          android:layout_height="wrap_content"
+          android:layout_height="match_parent"
           android:layout_width="wrap_content"
           android:text="Tangible"
             />
