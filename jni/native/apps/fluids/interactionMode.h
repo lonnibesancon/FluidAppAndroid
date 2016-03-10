@@ -23,4 +23,10 @@
 
 #define seedPoint  31 
 
+
+#define ftle 		1
+#define ironProt	2
+#define head		3
+#define velocity	4
+
 #endif

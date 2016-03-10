@@ -32,6 +32,7 @@ public class Client extends AsyncTask<String, String, String>{
     protected String seedPoint = "-1;-1;-1";
     protected String dataToSend = "1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;-1;-1;-1;" ;
     protected String msg ;
+    protected int dataset = 1 ;
 
     private long mLastTimestamp = 0;
     private long currentTimestamp = 1000000 ;
@@ -101,7 +102,7 @@ public class Client extends AsyncTask<String, String, String>{
             //Log.d("Connected == ", "Connected = "+initDone);
             if (connected == true && initDone == true && valuesupdated == true && diff >= refresh || firstConnection){
             	//msg = ""+MATRIXCHANGED+";"+interactionMode+";"+mapperSelected+";"+matrix+PositionAndOrientation+this.seedPoint ;
-                msg = ""+dataToSend;
+                msg = ""+dataset+";"+dataToSend;
                 byte[] data = msg.getBytes();
                 DatagramPacket dp = new DatagramPacket(data, data.length, this.serverAddr, portNumber);
                 counterTries = 0 ;

@@ -41,6 +41,8 @@ import java.net.*;
 import java.lang.*;
 import java.util.*;
 import android.view.View.OnClickListener;
+import java.lang.Object;
+
 
 
 import com.google.atap.tangoservice.*;
@@ -267,6 +269,14 @@ public class MainActivity extends BaseARActivity
         });*/
 
         Log.d(TAG,"Listener Set");
+
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+
+        Log.d(TAG,"width = "+width+" height = "+height);
 
         // mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_AUTORECOVERY, true); // default is true
 
@@ -608,20 +618,24 @@ public class MainActivity extends BaseARActivity
             case 0:
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("ftlelog.vtk", false));
                 mVelocityDatasetLoaded = false;
+                client.dataset = 1 ;
                 break;
             case 1:
                 // FluidMechanics.loadDataset(copyAssetsFileToStorage("head.vti", false));
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("ironProt.vtk", false));
                 mVelocityDatasetLoaded = false;
+                client.dataset = 2 ;
                 break;
             case 2:
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("head.vti", false));
                 mVelocityDatasetLoaded = false;
+                client.dataset = 3 ;
                 break;
             case 3:
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("FTLE7.vtk", false));
                 FluidMechanics.loadVelocityDataset(copyAssetsFileToStorage("Velocities7.vtk", false));
                 mVelocityDatasetLoaded = true;
+                client.dataset = 4 ;
                 break;
         }
 
@@ -1200,9 +1214,11 @@ public class MainActivity extends BaseARActivity
             //Log.d(TAG, "Tangible Button");
             this.tangibleModeActivated = !this.tangibleModeActivated ;
             if(this.tangibleModeActivated){
+                //this.tangibleBtn.setBackgroundColor(Color.ORANGE);
                 FluidMechanics.buttonPressed();    
             }
             else{
+                //this.tangibleBtn.setBackgroundColor(Color.DARK_GRAY);
                 FluidMechanics.buttonReleased();
             }
         }

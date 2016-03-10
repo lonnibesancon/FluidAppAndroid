@@ -142,10 +142,15 @@ struct FluidMechanics::Impl
 	Synchronized<std::vector<Vector2> > fingerPositions;
 	Synchronized<std::vector<Vector2> > prevFingerPositions ;
 	Vector2 initialVector ;
-
 	Vector3 prevVec ;
+	Synchronized<Vector3> seedingPoint ;
+	float screenW = 1920 ;
+	float screenH = 1104 ;
+
+
 	bool tangoEnabled = false ;
 	int interactionMode = sliceTangibleOnly ;
+	bool seedPointPlacement = false ;
 
 
 	FluidMechanics* app;
@@ -212,6 +217,7 @@ FluidMechanics::Impl::Impl(const std::string& baseDir)
    prevVec(Vector3::zero()),
    buttonIsPressed(false) 
 {
+	seedingPoint = Vector3(-1,-1,-1);
 	cube.reset(new Cube);
 	axisCube.reset(new Cube(true));
 	particleSphere = LoaderOBJ::load(baseDir + "/sphere.obj");
@@ -450,8 +456,54 @@ float FluidMechanics::Impl::buttonReleased()
 
 void FluidMechanics::Impl::releaseParticles()
 {
-	if (!velocityData || !state->tangibleVisible || !state->stylusVisible)
+	if (!velocityData || !state->tangibleVisible || !state->stylusVisible || interactionMode!=seedPoint){
+		LOGD("Cannot place Seed");
+		seedPointPlacement = false ;
 		return;
+	}
+		
+	LOGD("Conditions met to place particles");
+	Matrix4 smm;
+	synchronized (state->stylusModelMatrix) {
+		smm = state->stylusModelMatrix;
+	}
+	LOGD("Got stylus Model Matrix");
+	//const float size = 0.5f * (stylusEffectorDist + std::max(dataSpacing.x*dataDim[0], std::max(dataSpacing.y*dataDim[1], dataSpacing.z*dataDim[2])));
+	//Vector3 dataPos = posToDataCoords(smm * Matrix4::makeTransform(Vector3(-size, 0, 0)*settings->zoomFactor) * Vector3::zero());
+	Vector3 dataPos = seedingPoint ;
+	if (dataPos.x < 0 || dataPos.y < 0 || dataPos.z < 0
+	    || dataPos.x >= dataDim[0] || dataPos.y >= dataDim[1] || dataPos.z >= dataDim[2])
+	{
+		LOGD("outside bounds");
+		seedPointPlacement = false ;
+		return;
+	}
+	LOGD("Coords correct");
+	DataCoords coords(dataPos.x, dataPos.y, dataPos.z);
+
+	clock_gettime(CLOCK_REALTIME, &particleStartTime);
+
+	int delay = 0;
+	LOGD("Starting Particle Computation");
+	synchronized (particles) {
+		for (Particle& p : particles) {
+			p.pos = Vector3(coords.x, coords.y, coords.z) + particleJitter();
+			p.lastTime = particleStartTime;
+			p.delayMs = delay;
+			delay += particleReleaseDuration/particles.size();
+			p.stallMs = 0;
+			p.valid = true;
+		}
+	}
+}
+
+/*void FluidMechanics::Impl::releaseParticles()
+{
+	if (!velocityData || !state->tangibleVisible || !state->stylusVisible || interactionMode!=seedPoint){
+		seedPointPlacement = false ;
+		return;
+	}
+		
 
 	Matrix4 smm;
 	synchronized (state->stylusModelMatrix) {
@@ -465,6 +517,7 @@ void FluidMechanics::Impl::releaseParticles()
 	    || dataPos.x >= dataDim[0] || dataPos.y >= dataDim[1] || dataPos.z >= dataDim[2])
 	{
 		LOGD("outside bounds");
+		seedPointPlacement = false ;
 		return;
 	}
 
@@ -509,7 +562,7 @@ void FluidMechanics::Impl::releaseParticles()
 			p.valid = true;
 		}
 	}
-}
+}*/
 
 void FluidMechanics::Impl::integrateParticleMotion(Particle& p)
 {
@@ -919,7 +972,7 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 		trans *= Vector3(1,-1,-1);	//Tango... -_-"
 		trans *= 300 ;	
 
-		if(interactionMode == sliceTangibleOnly){
+		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint){
 			//currentSlicePos += trans ;	Version with the plane moving freely in the world
 			currentSlicePos += trans ; 	//Version with a fix plane
 		}
@@ -940,7 +993,7 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 
 	//LOGD("Current Rot = %s", Utility::toString(currentSliceRot).c_str());
 	if(tangoEnabled){
-		if(interactionMode == sliceTangibleOnly){
+		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint){
 			Quaternion rot = currentSliceRot;
 			rot = rot * Quaternion(rot.inverse() * (-Vector3::unitZ()), rz);
 			rot = rot * Quaternion(rot.inverse() * -Vector3::unitY(), ry);
@@ -963,6 +1016,34 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 void FluidMechanics::Impl::computeFingerInteraction(){
 	Vector2 currentPos ;
 	Vector2 prevPos ;
+
+	//Particle seeding case
+	//LOGD("ComputeFingerInteraction Function");
+	if(interactionMode == seedPoint && fingerPositions.size() == 1){
+		synchronized(fingerPositions){
+			currentPos = fingerPositions[0];
+		}
+		currentPos.x /= (screenW/2) ;
+		currentPos.x -= 1 ;
+		currentPos.y /= (screenH/2) ;
+		currentPos.y -= 1 ;
+
+		LOGD("Current Pos -1/1 = %f --  %f",currentPos.x, currentPos.y);
+
+		Vector3 ray(currentPos.x, currentPos.y,1);
+		ray = app->getProjMatrix().inverse() * ray ;
+		ray.normalize();
+		//synchronized(state->modelMatrix){	//FIXME Deadlock
+			ray = state->modelMatrix * ray ;
+		//}
+		LOGD("Ray = %f  --  %f  -- %f  ",ray.x, ray.y, ray.z);
+		releaseParticles();
+		LOGD("Release Particle Done");
+		//If seeding worked
+		if(seedPointPlacement){
+			return ;
+		}
+	}
 
 	//Rotation case
 	if(fingerPositions.size() == 1){
@@ -1045,7 +1126,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
         float angle = atan2(det,dot);
         //FIXME : to correct for the case when I remove one finger and put it back, rotate 360°
         if(angle == 3.141593){	//FIXME hardcoded
-        	angle == 0 ;	
+        	angle = 0 ;	
         }
 
         if(interactionMode == sliceTouchOnly){
@@ -1091,6 +1172,11 @@ void FluidMechanics::Impl::updateMatrices(){
 		else if(interactionMode == dataTouchOnly){
 			computeFingerInteraction();
 			m = Matrix4::makeTransform(currentDataPos, currentDataRot);
+		}
+		else if(interactionMode == seedPoint){
+			computeFingerInteraction();
+			m = Matrix4::makeTransform(currentSlicePos, currentSliceRot.inverse());	//Fixed Plane
+			//m = Matrix4::makeTransform(currentDataPos, currentDataRot);
 		}
 
 	}
