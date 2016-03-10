@@ -21,6 +21,9 @@ public:
 	void setTangoValues(double tx, double ty, double tz, double rx, double ry, double rz, double q);
     void setGyroValues(double rx, double ry, double rz, double q);
     void setInteractionMode(int mode);
+    void updateFingerPositions(float x, float y, int fingerID);
+    void addFinger(float x, float y, int fingerID);
+	void removeFinger(int fingerID);
 
     std::string getData();
 

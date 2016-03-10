@@ -36,5 +36,8 @@ public class FluidMechanics {
     public static native void setGyroValues(double rx, double ry, double rz, double q);
     public static native String getData();
     public static native void setInteractionMode(int mode);
+    public static native void updateFingerPositions(float x, float y, int fingerID);
+    public static native void addFinger(float x, float y, int fingerID);
+    public static native void removeFinger(int fingerID);
     public static native void getState(FluidMechanics.State state);
 }

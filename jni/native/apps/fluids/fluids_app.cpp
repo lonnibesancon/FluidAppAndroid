@@ -70,6 +70,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_setGyroValues(JNIEnv* env, jobject obj, jdouble rx, jdouble ry, jdouble rz, jdouble q);
     JNIEXPORT jstring JNICALL Java_fr_limsi_ARViewer_FluidMechanics_getData(JNIEnv* env, jobject obj);
     JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_setInteractionMode(JNIEnv* env, jobject obj, jint mode);
+    JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_updateFingerPositions(JNIEnv* env, jobject obj, jfloat x, jfloat y, jint fingerID);
+    JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_addFinger(JNIEnv* env, jobject obj, jfloat x, jfloat y, jint fingerID);
+    JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_removeFingerFinger(JNIEnv* env, jobject obj, jint fingerID);
 }
 
 // (end of JNI interface)
@@ -123,6 +126,9 @@ struct FluidMechanics::Impl
 	void setGyroValues(double rx, double ry, double rz, double q);
 	std::string getData();
 	void setInteractionMode(int mode);
+	void updateFingerPositions(float x, float y, int fingerID);
+	void addFinger(float x, float y, int fingerID);
+	void removeFinger(int fingerID);
 
 	Vector3 posToDataCoords(const Vector3& pos); // "pos" is in eye coordinates
 	Vector3 dataCoordsToPos(const Vector3& dataCoordsToPos);
@@ -131,6 +137,9 @@ struct FluidMechanics::Impl
 	Vector3 currentSlicePos ;
 	Quaternion currentDataRot ;
 	Vector3 currentDataPos ;
+
+	Synchronized<std::vector<Vector2> > fingerPositions;
+	Synchronized<std::vector<Vector2> > prevFingerPositions ;
 
 	Vector3 prevVec ;
 	bool tangoEnabled = false ;
@@ -1027,6 +1036,35 @@ std::string FluidMechanics::Impl::getData(){
 	std::string s = oss.str();
 
 	return s ;
+}
+
+void FluidMechanics::Impl::addFinger(float x, float y, int fingerID){
+	Vector2 pos(x,y);
+	synchronized(prevFingerPositions){
+		prevFingerPositions.push_back(pos);
+	}
+	synchronized(fingerPositions){
+		fingerPositions.push_back(pos);
+	}
+}
+void FluidMechanics::Impl::removeFinger(int fingerID){
+	synchronized(prevFingerPositions){
+		prevFingerPositions.erase(prevFingerPositions.begin()+fingerID);
+	}
+	synchronized(fingerPositions){
+		fingerPositions.erase(prevFingerPositions.begin()+fingerID);
+	}
+}
+
+
+void FluidMechanics::Impl::updateFingerPositions(float x, float y, int fingerID){
+	Vector2 pos(x,y);
+	synchronized(prevFingerPositions){
+		prevFingerPositions[fingerID] = fingerPositions[fingerID];	
+	}
+	synchronized(fingerPositions){
+		fingerPositions[fingerID] = pos ;	
+	}
 }
 
 
@@ -2245,6 +2283,63 @@ JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_setInteractionMode(JNIEnv* 
 	}
 }
 
+JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_updateFingerPositions(JNIEnv* env, jobject obj,jfloat x, jfloat y, jint fingerID){
+	try {
+		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
+
+		if (!App::getInstance())
+			throw std::runtime_error("init() was not called");
+
+		if (App::getType() != App::APP_TYPE_FLUID)
+			throw std::runtime_error("Wrong application type");
+
+		FluidMechanics* instance = dynamic_cast<FluidMechanics*>(App::getInstance());
+		android_assert(instance);
+		instance->updateFingerPositions(x,y,fingerID);
+
+	} catch (const std::exception& e) {
+		throwJavaException(env, e.what());
+	}
+}
+
+JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_addFinger(JNIEnv* env, jobject obj,jfloat x, jfloat y, jint fingerID){
+	try {
+		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
+
+		if (!App::getInstance())
+			throw std::runtime_error("init() was not called");
+
+		if (App::getType() != App::APP_TYPE_FLUID)
+			throw std::runtime_error("Wrong application type");
+
+		FluidMechanics* instance = dynamic_cast<FluidMechanics*>(App::getInstance());
+		android_assert(instance);
+		instance->addFinger(x,y,fingerID);
+
+	} catch (const std::exception& e) {
+		throwJavaException(env, e.what());
+	}
+}
+
+JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_removeFinger(JNIEnv* env, jobject obj,jint fingerID){
+	try {
+		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
+
+		if (!App::getInstance())
+			throw std::runtime_error("init() was not called");
+
+		if (App::getType() != App::APP_TYPE_FLUID)
+			throw std::runtime_error("Wrong application type");
+
+		FluidMechanics* instance = dynamic_cast<FluidMechanics*>(App::getInstance());
+		android_assert(instance);
+		instance->removeFinger(fingerID);
+
+	} catch (const std::exception& e) {
+		throwJavaException(env, e.what());
+	}
+}
+
 FluidMechanics::FluidMechanics(const InitParams& params)
  : NativeApp(params, SettingsPtr(new FluidMechanics::Settings), StatePtr(new FluidMechanics::State)),
    impl(new Impl(params.baseDir))
@@ -2310,6 +2405,18 @@ void FluidMechanics::setInteractionMode(int mode){
 
 std::string FluidMechanics::getData(){
 	return impl->getData();
+}
+
+void FluidMechanics::updateFingerPositions(float x, float y, int fingerID){
+	impl->updateFingerPositions(x,y,fingerID);
+}
+
+void FluidMechanics::addFinger(float x, float y, int fingerID){
+	impl->addFinger(x,y,fingerID);
+}
+
+void FluidMechanics::removeFinger(int fingerID){
+	impl->removeFinger(fingerID);
 }
 
 void FluidMechanics::setTangoValues(double tx, double ty, double tz, double rx, double ry, double rz, double q){

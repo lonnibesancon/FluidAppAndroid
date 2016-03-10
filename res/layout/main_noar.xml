@@ -4,6 +4,8 @@
              android:layout_width="fill_parent"
              android:layout_height="fill_parent"
              >
+
+  
   <fr.limsi.ARViewer.ARSurfaceView
       android:id="@+id/glSurfaceView"
       android:layout_width="fill_parent"

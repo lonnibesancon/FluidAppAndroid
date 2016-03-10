@@ -985,7 +985,6 @@ public class MainActivity extends BaseARActivity
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
                     {
-
                         Log.d(TAG, "pointer down");
                         if (mVelocityDatasetLoaded) {
                             FluidMechanics.releaseParticles();
