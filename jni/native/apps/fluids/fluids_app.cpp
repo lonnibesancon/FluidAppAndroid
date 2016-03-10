@@ -1011,8 +1011,10 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 
 			diff += currentPos - prevPos ;
 		}
+
+		//FIXME Hardcoded
 		diff /=2 ;
-		diff /=6 ;
+		diff /=4 ;
 
 		Vector3 trans = Vector3(diff.x, diff.y, 0);
 		LOGD("Diff = %f -- %f", diff.x, diff.y);
@@ -1041,6 +1043,11 @@ void FluidMechanics::Impl::computeFingerInteraction(){
         float det = initialVector.x * newVec.y - initialVector.y * newVec.x ;
 
         float angle = atan2(det,dot);
+        //FIXME : to correct for the case when I remove one finger and put it back, rotate 360°
+        if(angle == 3.141593){	//FIXME hardcoded
+        	angle == 0 ;	
+        }
+
         if(interactionMode == sliceTouchOnly){
 			Quaternion rot = currentSliceRot;
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), angle);
@@ -1057,11 +1064,13 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 			currentDataRot = rot;
 		}
 
+		LOGD("Angle == %f", angle);
+		LOGD("New Vector = %f -- %f", newVec.x, newVec.y);
+		LOGD("Initial Vector = %f -- %f", initialVector.x, initialVector.y);
+
 		//We set the initialVector to the new one, because relative mode
 		initialVector = newVec ;
-		//LOGD("Angle == %f", angle);
-		//LOGD("New Vector = %f -- %f", newVec.x, newVec.y);
-		//LOGD("Initial Vector = %f -- %f", initialVector.x, initialVector.y);
+		
 
 	}
 	
