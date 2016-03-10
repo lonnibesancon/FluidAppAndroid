@@ -1019,16 +1019,32 @@ public class MainActivity extends BaseARActivity
                     break ;
                 }
             }
-            /*int numPtrs = event.getPointerCount();
-            float [] xPos = new float[numPtrs];
-            float [] yPos = new float[numPtrs];
-            int [] ids = new int[numPtrs];
-            for (int i = 0; i < numPtrs; ++i)
-            {
-                ids[i]  = event.getPointerId(i);
-                xPos[i] = event.getX(i);
-                yPos[i] = event.getY(i);
-            }*/
+            if(event.getPointerCount() == 2){
+                float dx = event.getX(0) - event.getX(1);
+                float dy = event.getY(0) - event.getY(1);
+                float dist = (float)Math.sqrt(dx*dx + dy*dy);
+
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_POINTER_DOWN: {
+                        mInitialPinchDist = dist;
+                        mInitialZoomFactor = settings.zoomFactor;
+                        mZoomGesture = true;
+                        break;
+                    }
+                    case MotionEvent.ACTION_MOVE: {
+                        // settings.zoomFactor = mInitialZoomFactor * (float)Math.pow(dist/mInitialPinchDist, zoomExponent);
+                        settings.zoomFactor = mInitialZoomFactor * dist/mInitialPinchDist;
+                        if (settings.zoomFactor <= 0.25f)
+                            settings.zoomFactor = 0.25f;
+                        updateSettings();
+                        break;
+                    }
+                }
+            }
+            
+
+            // NativeApp.setZoom(mZoomFactor);
+
         }
 
         /*if (mDatasetLoaded) {

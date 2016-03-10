@@ -141,6 +141,7 @@ struct FluidMechanics::Impl
 
 	Synchronized<std::vector<Vector2> > fingerPositions;
 	Synchronized<std::vector<Vector2> > prevFingerPositions ;
+	Vector2 initialVector ;
 
 	Vector3 prevVec ;
 	bool tangoEnabled = false ;
@@ -1012,12 +1013,52 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		diff /=2 ;
 		diff /=3 ;
 		Vector3 trans = Vector3(diff.x, diff.y, 0);
-		currentDataPos +=trans ;
-	
+		
+
+		if(interactionMode == sliceTouchOnly){
+			currentSlicePos +=trans ;
+		}
+		else if(interactionMode == dataTouchOnly){
+			currentDataPos +=trans ;	
+		}
 
 
+		//Rotation on the z axis --- Spinning 
+		float x1,x2,y1,y2 ;
+		synchronized(fingerPositions){
+			x1 = fingerPositions[0].x ;
+			x2 = fingerPositions[1].x ;
+			y1 = fingerPositions[0].y ;
+			y2 = fingerPositions[1].y ;
+		}
         
+        Vector2 newVec = Vector2(x2-x1,y2-y1);
 
+        float dot = initialVector.x * newVec.x + initialVector.y * newVec.y ;
+        float det = initialVector.x * newVec.y - initialVector.y * newVec.x ;
+
+        float angle = atan2(det,dot);
+        if(interactionMode == sliceTouchOnly){
+			Quaternion rot = currentSliceRot;
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), angle);
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), 0);
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), 0);
+			//currentSliceRot = rot ; //Version with the plane moving freely in the world
+			currentSliceRot = rot ;
+		}
+		else if(interactionMode == dataTouchOnly){
+			Quaternion rot = currentDataRot;
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), angle);
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), 0);
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), 0);
+			currentDataRot = rot;
+		}
+
+		//We set the initialVector to the new one, because relative mode
+		initialVector = newVec ;
+		LOGD("Angle == %f", angle);
+		LOGD("New Vector = %f -- %f", newVec.x, newVec.y);
+		LOGD("Initial Vector = %f -- %f", initialVector.x, initialVector.y);
 
 	}
 	
@@ -1113,6 +1154,16 @@ void FluidMechanics::Impl::addFinger(float x, float y, int fingerID){
 	}
 	synchronized(fingerPositions){
 		fingerPositions.push_back(pos);
+	}
+	if(fingerPositions.size() == 2){
+		float x1,x2,y1,y2 ;
+		synchronized(fingerPositions){
+			x1 = fingerPositions[0].x ;
+			x2 = fingerPositions[1].x ;
+			y1 = fingerPositions[0].y ;
+			y2 = fingerPositions[1].y ;
+		}
+		initialVector = Vector2(x2-x1, y2-y1);
 	}
 }
 void FluidMechanics::Impl::removeFinger(int fingerID){
