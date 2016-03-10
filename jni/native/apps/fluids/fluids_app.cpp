@@ -993,7 +993,31 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		}
 	}
 
-	else{
+	else if(fingerPositions.size() == 2){
+		Vector2 diff = Vector2(0,0);
+		//Scale Factor update done Java Side
+		//Nothing to do
+
+		//Translation Computation
+		for(int i = 0 ; i < 2 ; i++){
+			synchronized(fingerPositions){
+			currentPos = fingerPositions[0];
+			}
+			synchronized(prevFingerPositions){
+				prevPos = prevFingerPositions[0];
+			}
+
+			diff += currentPos - prevPos ;
+		}
+		diff /=2 ;
+		diff /=3 ;
+		Vector3 trans = Vector3(diff.x, diff.y, 0);
+		currentDataPos +=trans ;
+	
+
+
+        
+
 
 	}
 	
@@ -1096,7 +1120,7 @@ void FluidMechanics::Impl::removeFinger(int fingerID){
 		prevFingerPositions.erase(prevFingerPositions.begin()+fingerID);
 	}
 	synchronized(fingerPositions){
-		fingerPositions.erase(prevFingerPositions.begin()+fingerID);
+		fingerPositions.erase(fingerPositions.begin()+fingerID);
 	}
 }
 
