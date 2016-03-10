@@ -72,7 +72,7 @@ extern "C" {
     JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_setInteractionMode(JNIEnv* env, jobject obj, jint mode);
     JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_updateFingerPositions(JNIEnv* env, jobject obj, jfloat x, jfloat y, jint fingerID);
     JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_addFinger(JNIEnv* env, jobject obj, jfloat x, jfloat y, jint fingerID);
-    JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_removeFingerFinger(JNIEnv* env, jobject obj, jint fingerID);
+    JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_removeFinger(JNIEnv* env, jobject obj, jint fingerID);
 }
 
 // (end of JNI interface)
@@ -104,7 +104,7 @@ struct FluidMechanics::Impl
 	// void detectObjects(ARMarkerInfo* markerInfo, int markerNum);
 	void setMatrices(const Matrix4& volumeMatrix, const Matrix4& stylusMatrix);
 	void updateSlicePlanes();
-	void updateTangoSlice();
+	void updateMatrices();
 
 	// (GL context)
 	void renderObjects();
@@ -129,6 +129,7 @@ struct FluidMechanics::Impl
 	void updateFingerPositions(float x, float y, int fingerID);
 	void addFinger(float x, float y, int fingerID);
 	void removeFinger(int fingerID);
+	void computeFingerInteraction();
 
 	Vector3 posToDataCoords(const Vector3& pos); // "pos" is in eye coordinates
 	Vector3 dataCoordsToPos(const Vector3& dataCoordsToPos);
@@ -925,7 +926,7 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 			currentDataPos +=trans ;
 		}
 		
-		//updateTangoSlice();
+		//updateMatrices();
 	}
 	prevVec = vec ;
 
@@ -953,13 +954,52 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), rx);
 			currentDataRot = rot;
 		}
-		//updateTangoSlice();
+		//updateMatrices();
 	}
-	
 	
 }
 
-void FluidMechanics::Impl::updateTangoSlice(){
+void FluidMechanics::Impl::computeFingerInteraction(){
+	Vector2 currentPos ;
+	Vector2 prevPos ;
+
+	//Rotation case
+	if(fingerPositions.size() == 1){
+		synchronized(fingerPositions){
+			currentPos = fingerPositions[0];
+		}
+		synchronized(prevFingerPositions){
+			prevPos = prevFingerPositions[0];
+		}
+
+		Vector2 diff = currentPos - prevPos ;
+		diff /=1000 ;
+		
+		LOGD("Diff = %f -- %f", diff.x, diff.y);
+		if(interactionMode == sliceTouchOnly){
+			Quaternion rot = currentSliceRot;
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), 0);
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), -diff.x);
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), diff.y);
+			//currentSliceRot = rot ; //Version with the plane moving freely in the world
+			currentSliceRot = rot ;
+		}
+		else if(interactionMode == dataTouchOnly){
+			Quaternion rot = currentDataRot;
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), 0);
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), -diff.x);
+			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), diff.y);
+			currentDataRot = rot;
+		}
+	}
+
+	else{
+
+	}
+	
+}
+
+void FluidMechanics::Impl::updateMatrices(){
 	Matrix4 m ;
 	synchronized(state->modelMatrix) {
 		//LOGD("Tango Pos = %s", Utility::toString(currentSlicePos).c_str());
@@ -971,6 +1011,10 @@ void FluidMechanics::Impl::updateTangoSlice(){
 		else if(interactionMode == dataTangibleOnly){
 			m = Matrix4::makeTransform(currentDataPos, currentDataRot);
 		}	
+		else if(interactionMode == dataTouchOnly){
+			computeFingerInteraction();
+			m = Matrix4::makeTransform(currentDataPos, currentDataRot);
+		}
 
 	}
 	if(interactionMode == sliceTangibleOnly){
@@ -982,7 +1026,7 @@ void FluidMechanics::Impl::updateTangoSlice(){
 			state->modelMatrix = m ;
 		}
 	}
-	else if(interactionMode == dataTangibleOnly){
+	else if(interactionMode == dataTangibleOnly || interactionMode == dataTouchOnly){
 		synchronized(state->modelMatrix) {
 			state->modelMatrix = m ;
 		}
@@ -1059,6 +1103,7 @@ void FluidMechanics::Impl::removeFinger(int fingerID){
 
 void FluidMechanics::Impl::updateFingerPositions(float x, float y, int fingerID){
 	Vector2 pos(x,y);
+	//LOGD("Finger %d has moved to %f -- %f",fingerID, x, y);
 	synchronized(prevFingerPositions){
 		prevFingerPositions[fingerID] = fingerPositions[fingerID];	
 	}
@@ -1346,7 +1391,7 @@ void FluidMechanics::Impl::updateSlicePlanes()
 // (GL context)
 void FluidMechanics::Impl::renderObjects()
 {
-	updateTangoSlice();
+	updateMatrices();
 	const Matrix4 proj = app->getProjMatrix();
 
 	glEnable(GL_DEPTH_TEST);
@@ -2321,7 +2366,7 @@ JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_addFinger(JNIEnv* env, jobj
 	}
 }
 
-JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_removeFinger(JNIEnv* env, jobject obj,jint fingerID){
+JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_removeFinger(JNIEnv* env, jobject obj, jint fingerID){
 	try {
 		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
 

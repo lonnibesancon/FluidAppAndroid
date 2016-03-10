@@ -109,7 +109,7 @@ public class Client extends AsyncTask<String, String, String>{
                 do {
                     try {
                         clientSocket.send(dp);
-                        Log.d("MessageSent", ""+msg);
+                        //Log.d("MessageSent", ""+msg);
                         break ;
                     }catch (Exception e) {
                         Log.e("ClientActivity", "SENDING ERROR "+ counterTries, e);

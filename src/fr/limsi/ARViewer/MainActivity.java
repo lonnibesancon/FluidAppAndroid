@@ -979,7 +979,59 @@ public class MainActivity extends BaseARActivity
         
         mGestureDetector.onTouchEvent(event);
 
-        if (mDatasetLoaded) {
+        if(mDatasetLoaded){
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_POINTER_DOWN:
+                {   
+                    int index = event.getActionIndex();
+                    int id = event.getPointerId(index);
+                    Log.d("Finger ID", "Finger ID = "+id);
+                    Log.d("Finger Index", "Finger Index = "+index);
+                    FluidMechanics.addFinger(event.getX(id), event.getY(id), id);
+                    break ;
+                }
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_POINTER_UP:
+                {
+                    int index = event.getActionIndex();
+                    int id = event.getPointerId(index);
+                    Log.d("Finger ID", "Finger ID = "+id);
+                    Log.d("Finger Index", "Finger Index = "+index);
+                    FluidMechanics.removeFinger(id);
+                    break ;
+                }
+
+                case MotionEvent.ACTION_MOVE:
+                {
+                    int numPtrs = event.getPointerCount();
+                    float [] xPos = new float[numPtrs];
+                    float [] yPos = new float[numPtrs];
+                    int [] ids = new int[numPtrs];
+                    for (int i = 0; i < numPtrs; ++i)
+                    {
+                        ids[i]  = event.getPointerId(i);
+                        xPos[i] = event.getX(i);
+                        yPos[i] = event.getY(i);
+                        FluidMechanics.updateFingerPositions(xPos[i],yPos[i],ids[i]);
+                    }
+                    break ;
+                }
+            }
+            /*int numPtrs = event.getPointerCount();
+            float [] xPos = new float[numPtrs];
+            float [] yPos = new float[numPtrs];
+            int [] ids = new int[numPtrs];
+            for (int i = 0; i < numPtrs; ++i)
+            {
+                ids[i]  = event.getPointerId(i);
+                xPos[i] = event.getX(i);
+                yPos[i] = event.getY(i);
+            }*/
+        }
+
+        /*if (mDatasetLoaded) {
             if (event.getPointerCount() == 1) {
                 // Log.d(TAG, "action = " + event.getActionMasked());
                 switch (event.getActionMasked()) {
@@ -1039,7 +1091,7 @@ public class MainActivity extends BaseARActivity
             }
 
             // NativeApp.setZoom(mZoomFactor);
-        }
+        }*/
 
         return true;
     }
