@@ -975,8 +975,9 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 
 		Vector2 diff = currentPos - prevPos ;
 		diff /=1000 ;
-		
-		LOGD("Diff = %f -- %f", diff.x, diff.y);
+
+		//LOGD("Diff = %f -- %f", diff.x, diff.y);
+
 		if(interactionMode == sliceTouchOnly){
 			Quaternion rot = currentSliceRot;
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), 0);
@@ -1002,17 +1003,19 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		//Translation Computation
 		for(int i = 0 ; i < 2 ; i++){
 			synchronized(fingerPositions){
-			currentPos = fingerPositions[0];
+			currentPos = fingerPositions[i];
 			}
 			synchronized(prevFingerPositions){
-				prevPos = prevFingerPositions[0];
+				prevPos = prevFingerPositions[i];
 			}
 
 			diff += currentPos - prevPos ;
 		}
 		diff /=2 ;
-		diff /=3 ;
+		diff /=6 ;
+
 		Vector3 trans = Vector3(diff.x, diff.y, 0);
+		LOGD("Diff = %f -- %f", diff.x, diff.y);
 		
 
 		if(interactionMode == sliceTouchOnly){
@@ -1056,9 +1059,9 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 
 		//We set the initialVector to the new one, because relative mode
 		initialVector = newVec ;
-		LOGD("Angle == %f", angle);
-		LOGD("New Vector = %f -- %f", newVec.x, newVec.y);
-		LOGD("Initial Vector = %f -- %f", initialVector.x, initialVector.y);
+		//LOGD("Angle == %f", angle);
+		//LOGD("New Vector = %f -- %f", newVec.x, newVec.y);
+		//LOGD("Initial Vector = %f -- %f", initialVector.x, initialVector.y);
 
 	}
 	
