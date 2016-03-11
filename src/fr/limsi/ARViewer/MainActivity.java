@@ -199,6 +199,8 @@ public class MainActivity extends BaseARActivity
         FluidMechanics.getSettings(fluidSettings);
         FluidMechanics.getState(fluidState);
 
+        this.client = new Client();
+        this.client.execute();
         // Request an overlaid action bar (title bar)
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
@@ -254,8 +256,7 @@ public class MainActivity extends BaseARActivity
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
-        this.client = new Client();
-        this.client.execute();
+        
         FluidMechanics.setInteractionMode(this.interactionMode);
 
         this.tangibleBtn = (Button) findViewById(R.id.tangibleBtn);

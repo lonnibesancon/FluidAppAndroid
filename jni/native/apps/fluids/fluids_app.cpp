@@ -1202,39 +1202,51 @@ void FluidMechanics::Impl::updateMatrices(){
 std::string FluidMechanics::Impl::getData(){
 	
   	std::ostringstream oss;
-	oss << state->modelMatrix.data_[0] << ";" 
-		<< state->modelMatrix.data_[1] << ";" 
-		<< state->modelMatrix.data_[2] << ";" 
-		<< state->modelMatrix.data_[3] << ";" 
-		<< state->modelMatrix.data_[4] << ";" 
-		<< state->modelMatrix.data_[5] << ";" 
-		<< state->modelMatrix.data_[6] << ";" 
-		<< state->modelMatrix.data_[7] << ";" 
-		<< state->modelMatrix.data_[8] << ";" 
-		<< state->modelMatrix.data_[9] << ";" 
-		<< state->modelMatrix.data_[10] << ";" 
-		<< state->modelMatrix.data_[11] << ";" 
-		<< state->modelMatrix.data_[12] << ";" 
-		<< state->modelMatrix.data_[13] << ";" 
-		<< state->modelMatrix.data_[14] << ";" 
-		<< state->modelMatrix.data_[15] << ";" ;
+  	Matrix4 m ;
 
-	oss << state->stylusModelMatrix.data_[0] << ";"  
-		<< state->stylusModelMatrix.data_[1] << ";"  
-		<< state->stylusModelMatrix.data_[2] << ";"  
-		<< state->stylusModelMatrix.data_[3] << ";"  
-		<< state->stylusModelMatrix.data_[4] << ";"  
-		<< state->stylusModelMatrix.data_[5] << ";"  
-		<< state->stylusModelMatrix.data_[6] << ";"  
-		<< state->stylusModelMatrix.data_[7] << ";"  
-		<< state->stylusModelMatrix.data_[8] << ";"  
-		<< state->stylusModelMatrix.data_[9] << ";"  
-		<< state->stylusModelMatrix.data_[10] << ";"  
-		<< state->stylusModelMatrix.data_[11] << ";"  
-		<< state->stylusModelMatrix.data_[12] << ";"  
-		<< state->stylusModelMatrix.data_[13] << ";"  
-		<< state->stylusModelMatrix.data_[14] << ";" 
-		<< state->stylusModelMatrix.data_[15] << ";" ;
+  	//First we set the zoomFactor
+  	oss << settings->zoomFactor << ";" ;
+
+  	synchronized(state->modelMatrix){
+  		m = state->modelMatrix ;	
+  	}  	
+	oss << m.data_[0] << ";" 
+		<< m.data_[1] << ";" 
+		<< m.data_[2] << ";" 
+		<< m.data_[3] << ";" 
+		<< m.data_[4] << ";" 
+		<< m.data_[5] << ";" 
+		<< m.data_[6] << ";" 
+		<< m.data_[7] << ";" 
+		<< m.data_[8] << ";" 
+		<< m.data_[9] << ";" 
+		<< m.data_[10] << ";" 
+		<< m.data_[11] << ";" 
+		<< m.data_[12] << ";" 
+		<< m.data_[13] << ";" 
+		<< m.data_[14] << ";" 
+		<< m.data_[15] << ";" ;
+
+	synchronized(state->stylusModelMatrix){
+  		m = state->stylusModelMatrix ;	
+  	}
+
+	oss << m.data_[0] << ";" 
+		<< m.data_[1] << ";" 
+		<< m.data_[2] << ";" 
+		<< m.data_[3] << ";" 
+		<< m.data_[4] << ";" 
+		<< m.data_[5] << ";" 
+		<< m.data_[6] << ";" 
+		<< m.data_[7] << ";" 
+		<< m.data_[8] << ";" 
+		<< m.data_[9] << ";" 
+		<< m.data_[10] << ";" 
+		<< m.data_[11] << ";" 
+		<< m.data_[12] << ";" 
+		<< m.data_[13] << ";" 
+		<< m.data_[14] << ";" 
+		<< m.data_[15] << ";" ;
 
 	oss << "-1" << ";"
 		<< "-1" << ";"  

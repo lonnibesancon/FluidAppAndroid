@@ -16,7 +16,8 @@ import java.net.Socket;
 public class Client extends AsyncTask<String, String, String>{
 
 
-	protected String hostName = "192.168.1.41" ;
+	//protected String hostName = "192.168.1.41" ;       //Aviz computer
+    protected String hostName = "192.168.0.132" ;        //Home computer
     protected int portNumber = 8500;
     //protected Socket clientSocket ;
     protected DatagramSocket clientSocket ;
@@ -110,7 +111,7 @@ public class Client extends AsyncTask<String, String, String>{
                 do {
                     try {
                         clientSocket.send(dp);
-                        //Log.d("MessageSent", ""+msg);
+                        Log.d("MessageSent", ""+msg);
                         break ;
                     }catch (Exception e) {
                         Log.e("ClientActivity", "SENDING ERROR "+ counterTries, e);
