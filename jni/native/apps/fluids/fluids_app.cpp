@@ -1104,7 +1104,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		diff *= settings->precision ;
 
 		Vector3 trans = Vector3(diff.x, diff.y, 0);
-		LOGD("Diff = %f -- %f", diff.x, diff.y);
+		//LOGD("Diff = %f -- %f", diff.x, diff.y);
 		
 
 		if(interactionMode == sliceTouchOnly){
@@ -1153,9 +1153,9 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 			currentDataRot = rot;
 		}
 
-		LOGD("Angle == %f", angle);
-		LOGD("New Vector = %f -- %f", newVec.x, newVec.y);
-		LOGD("Initial Vector = %f -- %f", initialVector.x, initialVector.y);
+		//LOGD("Angle == %f", angle);
+		//LOGD("New Vector = %f -- %f", newVec.x, newVec.y);
+		//LOGD("Initial Vector = %f -- %f", initialVector.x, initialVector.y);
 
 		//We set the initialVector to the new one, because relative mode
 		initialVector = newVec ;
@@ -1170,7 +1170,7 @@ void FluidMechanics::Impl::updateMatrices(){
 	synchronized(state->modelMatrix) {
 		//LOGD("Tango Pos = %s", Utility::toString(currentSlicePos).c_str());
 		//LOGD("Tango Rot = %s", Utility::toString(currentSliceRot).c_str());
-		LOGD("Precision = %f",settings->precision);
+		//LOGD("Precision = %f",settings->precision);
 		if(interactionMode == sliceTangibleOnly){
 			m = Matrix4::makeTransform(currentSlicePos, currentSliceRot);	//Version with the plane moving freely
 			//m = Matrix4::makeTransform(currentSlicePos, currentSliceRot.inverse());	//Fixed Plane on tablet
