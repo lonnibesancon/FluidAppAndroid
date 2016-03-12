@@ -970,7 +970,8 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 		Quaternion quat(rx,ry,rz,q);
 		Vector3 trans = quat.inverse() * (vec-prevVec);
 		trans *= Vector3(1,-1,-1);	//Tango... -_-"
-		trans *= 300 ;	
+		trans *= 300 ;
+		trans *= settings->precision ;	
 
 		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint){
 			//currentSlicePos += trans ;	Version with the plane moving freely in the world
@@ -991,6 +992,9 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 		return ;
 	}
 
+	rz *=settings->precision ;
+	ry *=settings->precision ;
+	rx *=settings->precision ;
 	//LOGD("Current Rot = %s", Utility::toString(currentSliceRot).c_str());
 	if(tangoEnabled){
 		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint){
@@ -1056,6 +1060,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 
 		Vector2 diff = currentPos - prevPos ;
 		diff /=1000 ;
+		diff *= settings->precision ;
 
 		//LOGD("Diff = %f -- %f", diff.x, diff.y);
 
