@@ -788,6 +788,8 @@ public class MainActivity extends BaseARActivity
         final int step = 1;
         final int max = 150;
         final int min = 10;
+        int initialValue = 100 ;
+        double initialPosition = 1.0 * initialValue/max * 100 ;
 
         GradientDrawable colormap = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, colors);
         colormap.setGradientType(GradientDrawable.LINEAR_GRADIENT);
@@ -796,7 +798,7 @@ public class MainActivity extends BaseARActivity
         //sliderPrecision.setProgressDrawable(new ColorDrawable(0x00000000)); // transparent
 
         sliderPrecision.setMax( (max - min) / step );
-        sliderPrecision.setProgress((int)(fluidSettings.surfacePercentage * 100));
+        sliderPrecision.setProgress((int)(initialPosition));
 
         final TextView sliderTooltipPrecision = (TextView)findViewById(R.id.sliderTooltipPrecision);
         sliderTooltipPrecision.setVisibility(View.INVISIBLE);

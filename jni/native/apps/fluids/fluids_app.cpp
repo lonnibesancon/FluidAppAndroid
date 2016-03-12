@@ -1101,6 +1101,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		//FIXME Hardcoded
 		diff /=2 ;
 		diff /=4 ;
+		diff *= settings->precision ;
 
 		Vector3 trans = Vector3(diff.x, diff.y, 0);
 		LOGD("Diff = %f -- %f", diff.x, diff.y);
@@ -1133,6 +1134,8 @@ void FluidMechanics::Impl::computeFingerInteraction(){
         if(angle == 3.141593){	//FIXME hardcoded
         	angle = 0 ;	
         }
+
+        angle *=settings->precision ;
 
         if(interactionMode == sliceTouchOnly){
 			Quaternion rot = currentSliceRot;
