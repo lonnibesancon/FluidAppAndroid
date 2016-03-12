@@ -102,6 +102,14 @@ public class MainActivity extends BaseARActivity
     private int interactionMode = sliceTangibleOnly;
     private boolean tangibleModeActivated = false ;
 
+
+    //Constrain interaction part 
+    private boolean considerX ;
+    private boolean considerY ;
+    private boolean considerZ ;
+    private boolean considerRotation ;
+    private boolean considerTranslation ;
+
     // private CameraPreview mCameraPreview;
     //
     // private final static int STATE_BLUETOOTH_OFF = 1;
@@ -878,7 +886,11 @@ public class MainActivity extends BaseARActivity
             fluidSettings.showOutline = menu.findItem(R.id.action_showOutline).isChecked();
             settings.showCamera = menu.findItem(R.id.action_showCamera).isChecked();
             fluidSettings.showCrossingLines = menu.findItem(R.id.action_showLines).isChecked();
-
+            considerX = menu.findItem(R.id.action_constrainX).isChecked();
+            considerY = menu.findItem(R.id.action_constrainY).isChecked();
+            considerZ = menu.findItem(R.id.action_constrainZ).isChecked();
+            considerTranslation = menu.findItem(R.id.action_constrainTranslation).isChecked();
+            considerRotation = menu.findItem(R.id.action_constrainRotation).isChecked();
             updateSettings();
             updateDataSettings();
 
@@ -893,6 +905,12 @@ public class MainActivity extends BaseARActivity
             menu.findItem(R.id.action_showOutline).setChecked(fluidSettings.showOutline);
             menu.findItem(R.id.action_axisClipping).setChecked(fluidSettings.sliceType == FluidMechanics.SLICE_AXIS);
             menu.findItem(R.id.action_stylusClipping).setChecked(fluidSettings.sliceType == FluidMechanics.SLICE_STYLUS);
+
+            menu.findItem(R.id.action_constrainX).setChecked(considerX);
+            menu.findItem(R.id.action_constrainY).setChecked(considerY);
+            menu.findItem(R.id.action_constrainZ).setChecked(considerZ);
+            menu.findItem(R.id.action_constrainTranslation).setChecked(considerTranslation);
+            menu.findItem(R.id.action_constrainRotation).setChecked(considerRotation);
         }
 
         return true;
@@ -917,6 +935,7 @@ public class MainActivity extends BaseARActivity
 	public boolean onOptionsItemSelected(MenuItem item) {
         boolean handledSetting = false;
         boolean handledDataSetting = false;
+        int tmp ;
 
 		switch (item.getItemId()) {
             case R.id.action_showVolume:
@@ -996,6 +1015,52 @@ public class MainActivity extends BaseARActivity
             case R.id.change_IP:
                 changeIP();
                 break ;
+
+            //Constraining interaction part
+            case R.id.action_constrainX:
+                considerX = !considerX ;
+                //If constrainX, we want to set value in JNI to 0
+                tmp = (considerX) ? 0 : 1;  
+                fluidSettings.considerX = tmp; 
+                item.setChecked(considerX);
+                Log.d(TAG,"tmp = "+tmp);
+                break;
+
+            case R.id.action_constrainY:
+                considerY = !considerY ;
+                //If considerX, we want to set value in JNI to 0
+                tmp = (considerY) ? 0 : 1;  
+                fluidSettings.considerY = tmp; 
+                item.setChecked(considerY);
+                Log.d(TAG,"tmp = "+tmp);
+                break;
+
+            case R.id.action_constrainZ:
+                considerZ = !considerZ ;
+                //If considerX, we want to set value in JNI to 0
+                tmp = (considerZ) ? 0 : 1;  
+                fluidSettings.considerZ = tmp; 
+                item.setChecked(considerZ);
+                Log.d(TAG,"tmp = "+tmp);
+                break;
+
+            case R.id.action_constrainTranslation:
+                considerTranslation = !considerTranslation ;
+                //If considerX, we want to set value in JNI to 0
+                tmp = (considerTranslation) ? 0 : 1;  
+                fluidSettings.considerTranslation = tmp; 
+                item.setChecked(considerTranslation);
+                Log.d(TAG,"tmp = "+tmp);
+                break;
+
+            case R.id.action_constrainRotation:
+                considerRotation = !considerRotation ;
+                //If considerX, we want to set value in JNI to 0
+                tmp = (considerRotation) ? 0 : 1;  
+                fluidSettings.considerRotation = tmp;
+                item.setChecked(considerRotation);
+                Log.d(TAG,"tmp = "+tmp);
+                break;
 
         }
 

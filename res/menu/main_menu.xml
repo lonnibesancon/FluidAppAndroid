@@ -29,6 +29,33 @@
     </menu>
   </item>
 
+  <!--Menu for constrained interaction-->
+  <item android:title="Constrain"
+        android:showAsAction="always">
+    <menu>
+      <item android:title="Constrain X"
+            android:checkable="true"
+            android:checked="false"
+            android:id="@+id/action_constrainX" />
+      <item android:title="Constrain Y"
+            android:checkable="true"
+            android:checked="false"
+            android:id="@+id/action_constrainY" />
+      <item android:title="Constrain Z"
+            android:checkable="true"
+            android:checked="false"
+            android:id="@+id/action_constrainZ" />
+      <item android:title="Constrain Translation"
+            android:checkable="true"
+            android:checked="false"
+            android:id="@+id/action_constrainTranslation" />
+      <item android:title="Constrain Rotation"
+            android:checkable="true"
+            android:checked="false"
+            android:id="@+id/action_constrainRotation" />
+    </menu>
+  </item>
+
   <!-- TODO: whether to control the clipping distance with the stylus
        or not (fixed distance), set the fixed distance value, etc. -->
   <!-- See also: Android preferences

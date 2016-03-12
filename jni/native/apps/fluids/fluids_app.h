@@ -67,7 +67,12 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 	   clipDist(defaultClipDist),
 	   surfacePercentage(0.13), // XXX: hardcoded testing value
 	   surfacePreview(false),
-	   precision(1.0)
+	   precision(1.0),
+	   considerX(1),
+	   considerY(1),
+	   considerZ(1),
+	   considerRotation(1),
+	   considerTranslation(1)
 	{}
 
 	static constexpr float defaultClipDist = 360.0f;
@@ -78,6 +83,11 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 	double surfacePercentage;
 	bool surfacePreview;
 	float precision = 1.0 ;
+	int considerX = 1 ;
+	int considerY = 1 ;
+	int considerZ = 1 ;
+	int considerRotation = 1 ;
+	int considerTranslation = 1 ;
 
 	void read(JNIEnv* env, jobject obj, jclass cls) const
 	{
@@ -89,7 +99,13 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 		SET_JNI_FIELD(obj, showCrossingLines, Boolean, "Z", showCrossingLines);
 		SET_JNI_FIELD(obj, clipDist, Float, "F", clipDist);
 		SET_JNI_FIELD(obj, surfacePreview, Boolean, "Z", surfacePreview);
-		
+
+		//For constraining interaction
+		SET_JNI_FIELD(obj, considerX, Int, "I", considerX);
+		SET_JNI_FIELD(obj, considerY, Int, "I", considerY);
+		SET_JNI_FIELD(obj, considerZ, Int, "I", considerZ);
+		SET_JNI_FIELD(obj, considerRotation, Int, "I", considerRotation);
+		SET_JNI_FIELD(obj, considerTranslation, Int, "I", considerTranslation);		
 
 		SET_JNI_FIELD(obj, sliceType, Int, "I", sliceType);
 
@@ -110,6 +126,13 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 		GET_JNI_FIELD(obj, surfacePreview, Boolean, "Z", surfacePreview);
 
 		GET_JNI_FIELD(obj, precision, Float, "F", precision);
+
+		//For constraining interaction
+		GET_JNI_FIELD(obj, considerX, Int, "I", considerX);
+		GET_JNI_FIELD(obj, considerY, Int, "I", considerY);
+		GET_JNI_FIELD(obj, considerZ, Int, "I", considerZ);
+		GET_JNI_FIELD(obj, considerRotation, Int, "I", considerRotation);
+		GET_JNI_FIELD(obj, considerTranslation, Int, "I", considerTranslation);	
 
 		int st;
 		GET_JNI_FIELD(obj, sliceType, Int, "I", st);

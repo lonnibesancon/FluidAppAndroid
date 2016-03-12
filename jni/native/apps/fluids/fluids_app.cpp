@@ -971,7 +971,11 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 		Vector3 trans = quat.inverse() * (vec-prevVec);
 		trans *= Vector3(1,-1,-1);	//Tango... -_-"
 		trans *= 300 ;
-		trans *= settings->precision ;	
+		trans *= settings->precision ;
+
+		trans.x *= settings->considerX * settings->considerTranslation ;
+		trans.y *= settings->considerY * settings->considerTranslation ;
+		trans.z *= settings->considerZ * settings->considerTranslation ;
 
 		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint){
 			//currentSlicePos += trans ;	Version with the plane moving freely in the world
@@ -992,9 +996,9 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 		return ;
 	}
 
-	rz *=settings->precision ;
-	ry *=settings->precision ;
-	rx *=settings->precision ;
+	rz *=settings->precision * settings->considerZ * settings->considerRotation;
+	ry *=settings->precision * settings->considerY * settings->considerRotation;
+	rx *=settings->precision * settings->considerX * settings->considerRotation;
 	//LOGD("Current Rot = %s", Utility::toString(currentSliceRot).c_str());
 	if(tangoEnabled){
 		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint){
@@ -1062,6 +1066,9 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		diff /=1000 ;
 		diff *= settings->precision ;
 
+		diff.x *= settings->considerY * settings->considerRotation ;
+		diff.y *= settings->considerX * settings->considerRotation ;
+
 		//LOGD("Diff = %f -- %f", diff.x, diff.y);
 
 		if(interactionMode == sliceTouchOnly){
@@ -1102,6 +1109,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		diff /=2 ;
 		diff /=4 ;
 		diff *= settings->precision ;
+		diff *= settings->considerTranslation * settings->considerX * settings->considerY;
 
 		Vector3 trans = Vector3(diff.x, diff.y, 0);
 		//LOGD("Diff = %f -- %f", diff.x, diff.y);
@@ -1136,6 +1144,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
         }
 
         angle *=settings->precision ;
+        angle *= settings->considerZ * settings->considerRotation ;
 
         if(interactionMode == sliceTouchOnly){
 			Quaternion rot = currentSliceRot;
@@ -1171,6 +1180,7 @@ void FluidMechanics::Impl::updateMatrices(){
 		//LOGD("Tango Pos = %s", Utility::toString(currentSlicePos).c_str());
 		//LOGD("Tango Rot = %s", Utility::toString(currentSliceRot).c_str());
 		//LOGD("Precision = %f",settings->precision);
+		LOGD("ConstrainX = %d ; ConstrainY = %d ; ConstrainZ = %d", settings->considerX, settings->considerY, settings->considerZ );
 		if(interactionMode == sliceTangibleOnly){
 			m = Matrix4::makeTransform(currentSlicePos, currentSliceRot);	//Version with the plane moving freely
 			//m = Matrix4::makeTransform(currentSlicePos, currentSliceRot.inverse());	//Fixed Plane on tablet

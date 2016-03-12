@@ -13,6 +13,11 @@ public class FluidMechanics {
         boolean surfacePreview;
         boolean surfacePreviewAtPoint;
         float precision ;
+        int considerX ;
+        int considerY ;
+        int considerZ ;
+        int considerRotation ;
+        int considerTranslation ;
     }
 
     static class State {
