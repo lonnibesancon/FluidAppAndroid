@@ -198,6 +198,7 @@ public class MainActivity extends BaseARActivity
 
         FluidMechanics.getSettings(fluidSettings);
         FluidMechanics.getState(fluidState);
+        fluidSettings.precision = 1 ;
 
         this.client = new Client();
         this.client.execute();
@@ -222,6 +223,7 @@ public class MainActivity extends BaseARActivity
 
         setupActionBar();
         setupSlider();
+        setupSliderPrecision();
 
         // bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         // if (bluetoothAdapter.isEnabled()) {
@@ -759,11 +761,92 @@ public class MainActivity extends BaseARActivity
                 lp.rightMargin = (int)dpToPixels(25);
                 sliderTooltip.setLayoutParams(lp);
 
+                
                 fluidSettings.surfacePreview = true;
                 fluidSettings.surfacePercentage = mProgress;
                 updateDataSettings();
+                
 			}
 		});
+    }
+
+
+    private void setupSliderPrecision() {
+        // "Jet" color map
+        int[] colors = new int[] {
+            0xFF00007F, // dark blue
+            0xFF0000FF, // blue
+            0xFF007FFF, // azure
+            0xFF00FFFF, // cyan
+            0xFF7FFF7F, // light green
+            0xFFFFFF00, // yellow
+            0xFFFF7F00, // orange
+            0xFFFF0000, // red
+            0xFF7F0000  // dark red
+        };
+        GradientDrawable colormap = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, colors);
+        colormap.setGradientType(GradientDrawable.LINEAR_GRADIENT);
+        final VerticalSeekBar sliderPrecision = (VerticalSeekBar)findViewById(R.id.verticalSliderPrecision);
+        //sliderPrecision.setBackgroundDrawable(colormap);
+        sliderPrecision.setProgressDrawable(new ColorDrawable(0x00000000)); // transparent
+
+        sliderPrecision.setProgress((int)(fluidSettings.surfacePercentage * 100));
+
+        final TextView sliderTooltipPrecision = (TextView)findViewById(R.id.sliderTooltipPrecision);
+        sliderTooltipPrecision.setVisibility(View.INVISIBLE);
+
+        sliderPrecision.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+            double mProgress = -1;
+            boolean mPressed = false;
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                sliderTooltipPrecision.setVisibility(View.VISIBLE);
+                mPressed = true;
+                Log.d(TAG, "Precision Java = " + mProgress);
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                sliderTooltipPrecision.setVisibility(View.INVISIBLE);
+                if (mProgress != -1) {
+                    // Log.d(TAG, "setSurfaceValue " + mProgress);
+                    fluidSettings.precision = (float)mProgress;
+                    updateDataSettings();
+                    mProgress = -1;
+                }
+                mPressed = false;
+                Log.d(TAG, "Precision Java = " + mProgress);
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // Only handle events called from VerticalSeekBar. Other events, generated
+                // from the base class SeekBar, contain bogus values because the Android
+                // SeekBar was not meant to be vertical.
+                if (fromUser)
+                    return;
+
+                if (!mPressed)
+                    return;
+
+                sliderTooltipPrecision.setText(progress + "%");
+                mProgress = (double)progress/seekBar.getMax();
+                // Log.d(TAG, "mProgress = " + mProgress);
+                int pos = seekBar.getTop() + (int)(seekBar.getHeight() * (1.0 - mProgress));
+                sliderTooltipPrecision.setPadding((int)dpToPixels(5), 0, (int)dpToPixels(5), 0);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(sliderTooltipPrecision.getLayoutParams());
+                lp.topMargin = pos - sliderTooltipPrecision.getHeight()/2;
+                lp.rightMargin = (int)dpToPixels(25);
+                sliderTooltipPrecision.setLayoutParams(lp);
+
+                //fluidSettings.surfacePreview = true;
+                fluidSettings.precision = (float)mProgress ;
+                updateDataSettings();
+                Log.d(TAG, "Precision Java = " + mProgress);
+
+            }
+        });
     }
 
     @Override

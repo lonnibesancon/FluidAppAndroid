@@ -12,6 +12,7 @@ public class FluidMechanics {
         double surfacePercentage;
         boolean surfacePreview;
         boolean surfacePreviewAtPoint;
+        float precision ;
     }
 
     static class State {

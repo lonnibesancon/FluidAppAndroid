@@ -15,16 +15,18 @@
       android:layout_weight="1"
       />
 
+
+  <!-- That's the slider view for the isosurface -->   
   <LinearLayout android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_gravity="center_vertical|right"
                 >
     <TextView
-        android:id="@+id/sliderTooltip"
-    	android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
-    	android:gravity="center"
+        android:id="@+id/sliderTooltipPrecision"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:gravity="center"
         android:background="#AA000000"
         android:textSize="30dp"
         />
@@ -43,7 +45,7 @@
           android:layout_weight="0.225"
           />
       <fr.limsi.ARViewer.VerticalSeekBar
-          android:id="@+id/verticalSlider"
+          android:id="@+id/verticalSliderPrecision"
           android:layout_width="fill_parent"
           android:layout_height="0dp"
           android:layout_weight="0.55"
@@ -54,6 +56,55 @@
           android:layout_width="fill_parent"
           android:layout_height="0dp"
           android:layout_weight="0.225"
+          />
+    </LinearLayout>
+  </LinearLayout>
+
+  <!-- That's the slider view for the isosurface -->   
+  <LinearLayout android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center_vertical|left"
+                android:visibility="gone"
+                >
+    <TextView
+        android:id="@+id/sliderTooltip"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:gravity="center"
+        android:background="#AA000000"
+        android:textSize="30dp"
+        android:visibility="gone"
+        />
+
+    <!-- Make the vertical slider fill 55% of the screen height.
+         Vertical centering is achieved by surrounding it with two
+         dummy View drawables. -->
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="50dp"
+                  android:layout_height="fill_parent"
+                  android:layout_gravity="center_vertical|left"
+                  android:visibility="gone"
+                  >
+      <View
+          android:layout_width="fill_parent"
+          android:layout_height="0dp"
+          android:layout_weight="0.225"
+          />
+      <fr.limsi.ARViewer.VerticalSeekBar
+          android:id="@+id/verticalSlider"
+          android:layout_width="fill_parent"
+          android:layout_height="0dp"
+          android:layout_weight="0.55"
+          android:thumb="@drawable/slider_thumb"
+          android:max="100"
+          android:visibility="gone"
+          />
+      <View
+          android:layout_width="fill_parent"
+          android:layout_height="0dp"
+          android:layout_weight="0.225"
+          android:visibility="gone"
           />
     </LinearLayout>
   </LinearLayout>

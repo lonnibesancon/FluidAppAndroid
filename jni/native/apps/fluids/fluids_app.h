@@ -66,7 +66,8 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 	   sliceType(SLICE_STYLUS),
 	   clipDist(defaultClipDist),
 	   surfacePercentage(0.13), // XXX: hardcoded testing value
-	   surfacePreview(false)
+	   surfacePreview(false),
+	   precision(1.0)
 	{}
 
 	static constexpr float defaultClipDist = 360.0f;
@@ -76,6 +77,7 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 	float clipDist; // if clipDist == 0, the clip plane is disabled
 	double surfacePercentage;
 	bool surfacePreview;
+	float precision = 1.0 ;
 
 	void read(JNIEnv* env, jobject obj, jclass cls) const
 	{
@@ -92,6 +94,8 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 		SET_JNI_FIELD(obj, sliceType, Int, "I", sliceType);
 
 		SET_JNI_FIELD(obj, surfacePercentage, Double, "D", surfacePercentage);
+
+		SET_JNI_FIELD(obj, precision, Float, "F", precision);		
 	}
 
 	void write(JNIEnv* env, jobject obj, jclass cls)
@@ -104,6 +108,8 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 		GET_JNI_FIELD(obj, showCrossingLines, Boolean, "Z", showCrossingLines);
 		GET_JNI_FIELD(obj, clipDist, Float, "F", clipDist);
 		GET_JNI_FIELD(obj, surfacePreview, Boolean, "Z", surfacePreview);
+
+		GET_JNI_FIELD(obj, precision, Float, "F", precision);
 
 		int st;
 		GET_JNI_FIELD(obj, sliceType, Int, "I", st);

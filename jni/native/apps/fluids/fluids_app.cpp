@@ -1162,9 +1162,10 @@ void FluidMechanics::Impl::updateMatrices(){
 	synchronized(state->modelMatrix) {
 		//LOGD("Tango Pos = %s", Utility::toString(currentSlicePos).c_str());
 		//LOGD("Tango Rot = %s", Utility::toString(currentSliceRot).c_str());
+		LOGD("Precision = %f",settings->precision);
 		if(interactionMode == sliceTangibleOnly){
-			//m = Matrix4::makeTransform(currentSlicePos, currentSliceRot);	//Version with the plane moving freely
-			m = Matrix4::makeTransform(currentSlicePos, currentSliceRot.inverse());	//Fixed Plane
+			m = Matrix4::makeTransform(currentSlicePos, currentSliceRot);	//Version with the plane moving freely
+			//m = Matrix4::makeTransform(currentSlicePos, currentSliceRot.inverse());	//Fixed Plane on tablet
 		}
 		else if(interactionMode == dataTangibleOnly){
 			m = Matrix4::makeTransform(currentDataPos, currentDataRot);
@@ -1182,12 +1183,14 @@ void FluidMechanics::Impl::updateMatrices(){
 	}
 	if(interactionMode == sliceTangibleOnly){
 		//Plane moving freely
-		/*synchronized(state->stylusModelMatrix) {
+		synchronized(state->stylusModelMatrix) {
 			state->stylusModelMatrix = m;
-		}*/
-		synchronized(state->modelMatrix) {
-			state->modelMatrix = m ;
 		}
+
+		//Plane not moving on the tablet
+		/*synchronized(state->modelMatrix) {
+			state->modelMatrix = m ;
+		}*/
 	}
 	else if(interactionMode == dataTangibleOnly || interactionMode == dataTouchOnly){
 		synchronized(state->modelMatrix) {
