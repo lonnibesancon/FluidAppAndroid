@@ -43,7 +43,7 @@ import java.util.*;
 import android.view.View.OnClickListener;
 import java.lang.Object;
 
-
+import java.text.DecimalFormat ;
 
 import com.google.atap.tangoservice.*;
 
@@ -784,12 +784,18 @@ public class MainActivity extends BaseARActivity
             0xFFFF0000, // red
             0xFF7F0000  // dark red
         };
+        //Have to use int
+        final int step = 1;
+        final int max = 150;
+        final int min = 10;
+
         GradientDrawable colormap = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, colors);
         colormap.setGradientType(GradientDrawable.LINEAR_GRADIENT);
         final VerticalSeekBar sliderPrecision = (VerticalSeekBar)findViewById(R.id.verticalSliderPrecision);
         //sliderPrecision.setBackgroundDrawable(colormap);
-        sliderPrecision.setProgressDrawable(new ColorDrawable(0x00000000)); // transparent
+        //sliderPrecision.setProgressDrawable(new ColorDrawable(0x00000000)); // transparent
 
+        sliderPrecision.setMax( (max - min) / step );
         sliderPrecision.setProgress((int)(fluidSettings.surfacePercentage * 100));
 
         final TextView sliderTooltipPrecision = (TextView)findViewById(R.id.sliderTooltipPrecision);
@@ -803,7 +809,7 @@ public class MainActivity extends BaseARActivity
             public void onStartTrackingTouch(SeekBar seekBar) {
                 sliderTooltipPrecision.setVisibility(View.VISIBLE);
                 mPressed = true;
-                Log.d(TAG, "Precision Java = " + mProgress);
+                //Log.d(TAG, "Precision Java = " + mProgress);
             }
 
             @Override
@@ -811,12 +817,12 @@ public class MainActivity extends BaseARActivity
                 sliderTooltipPrecision.setVisibility(View.INVISIBLE);
                 if (mProgress != -1) {
                     // Log.d(TAG, "setSurfaceValue " + mProgress);
-                    fluidSettings.precision = (float)mProgress;
-                    updateDataSettings();
+                    //fluidSettings.precision = (float)mProgress;
+                    //updateDataSettings();
                     mProgress = -1;
                 }
                 mPressed = false;
-                Log.d(TAG, "Precision Java = " + mProgress);
+                //Log.d(TAG, "Precision Java = " + mProgress);
             }
 
             @Override
@@ -830,7 +836,7 @@ public class MainActivity extends BaseARActivity
                 if (!mPressed)
                     return;
 
-                sliderTooltipPrecision.setText(progress + "%");
+                
                 mProgress = (double)progress/seekBar.getMax();
                 // Log.d(TAG, "mProgress = " + mProgress);
                 int pos = seekBar.getTop() + (int)(seekBar.getHeight() * (1.0 - mProgress));
@@ -841,9 +847,14 @@ public class MainActivity extends BaseARActivity
                 sliderTooltipPrecision.setLayoutParams(lp);
 
                 //fluidSettings.surfacePreview = true;
-                fluidSettings.precision = (float)mProgress ;
+                double value = min/(100.0) + (progress * (step/100.0));
+                fluidSettings.precision = (float)value ;
+
+                DecimalFormat df = new DecimalFormat("0.00##");
+                String tooltipvalue = df.format(value);
+                sliderTooltipPrecision.setText(tooltipvalue + "");
                 updateDataSettings();
-                Log.d(TAG, "Precision Java = " + mProgress);
+                //Log.d(TAG, "Precision Java = " + mProgress);
 
             }
         });
