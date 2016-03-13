@@ -1024,6 +1024,7 @@ public class MainActivity extends BaseARActivity
                 fluidSettings.considerX = tmp; 
                 item.setChecked(considerX);
                 Log.d(TAG,"tmp = "+tmp);
+                handledDataSetting = true ;
                 break;
 
             case R.id.action_constrainY:
@@ -1033,6 +1034,7 @@ public class MainActivity extends BaseARActivity
                 fluidSettings.considerY = tmp; 
                 item.setChecked(considerY);
                 Log.d(TAG,"tmp = "+tmp);
+                handledDataSetting = true;
                 break;
 
             case R.id.action_constrainZ:
@@ -1042,6 +1044,7 @@ public class MainActivity extends BaseARActivity
                 fluidSettings.considerZ = tmp; 
                 item.setChecked(considerZ);
                 Log.d(TAG,"tmp = "+tmp);
+                handledDataSetting = true;
                 break;
 
             case R.id.action_constrainTranslation:
@@ -1051,6 +1054,7 @@ public class MainActivity extends BaseARActivity
                 fluidSettings.considerTranslation = tmp; 
                 item.setChecked(considerTranslation);
                 Log.d(TAG,"tmp = "+tmp);
+                handledDataSetting = true;
                 break;
 
             case R.id.action_constrainRotation:
@@ -1060,6 +1064,7 @@ public class MainActivity extends BaseARActivity
                 fluidSettings.considerRotation = tmp;
                 item.setChecked(considerRotation);
                 Log.d(TAG,"tmp = "+tmp);
+                handledDataSetting = true;
                 break;
 
         }
