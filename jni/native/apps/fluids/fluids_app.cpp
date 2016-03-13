@@ -138,6 +138,8 @@ struct FluidMechanics::Impl
 	Vector3 currentSlicePos ;
 	Quaternion currentDataRot ;
 	Vector3 currentDataPos ;
+	//Quaternion representing the orientation of the tablet no matter the interaction mode or constrains
+	Quaternion currentTabRot ;
 
 	Synchronized<std::vector<Vector2> > fingerPositions;
 	Synchronized<std::vector<Vector2> > prevFingerPositions ;
@@ -215,6 +217,7 @@ FluidMechanics::Impl::Impl(const std::string& baseDir)
    currentDataPos(Vector3::zero()),
    currentDataRot(Quaternion(Vector3::unitX(), M_PI)),
    prevVec(Vector3::zero()),
+   currentTabRot(Quaternion(Vector3::unitX(), M_PI)),
    buttonIsPressed(false) 
 {
 	seedingPoint = Vector3(-1,-1,-1);
@@ -996,6 +999,15 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 		return ;
 	}
 
+	//First we want to update the tablet's orientation
+	Quaternion tmp = currentTabRot;
+	tmp = tmp * Quaternion(tmp.inverse() * (-Vector3::unitZ()), rz);
+	tmp = tmp * Quaternion(tmp.inverse() * -Vector3::unitY(), ry);
+	tmp = tmp * Quaternion(tmp.inverse() * Vector3::unitX(), rx);
+	currentTabRot = tmp ;
+
+	//Now we update the rendering according to constraints and interaction mode
+
 	rz *=settings->precision * settings->considerZ * settings->considerRotation;
 	ry *=settings->precision * settings->considerY * settings->considerRotation;
 	rx *=settings->precision * settings->considerX * settings->considerRotation;
@@ -1015,6 +1027,29 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 			rot = rot * Quaternion(rot.inverse() * -Vector3::unitY(), ry);
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), rx);
 			currentDataRot = rot;
+		}
+
+		//Now for the automatic constraining of interaction
+		
+		if(settings->autoConstraint){
+			//LOGD("Auto constrain");
+			LOGD("X = %f  --  Y = %f  --  Z = %f",currentTabRot.x,currentTabRot.y,currentTabRot.z);
+			//First get the closest orthogonal orientation
+			if(abs(currentTabRot.x) >= abs(currentTabRot.y) && abs(currentTabRot.x) >= abs(currentTabRot.z)){
+				settings->considerY = 0 ;
+				settings->considerZ = 0 ;
+				//LOGD("Case 1");
+			}
+			else if(abs(currentTabRot.y) >= abs(currentTabRot.x) && abs(currentTabRot.y) >= abs(currentTabRot.z)){
+				settings->considerX = 0 ;
+				settings->considerZ = 0 ;
+				LOGD("Case 2");
+			}
+			else{
+				settings->considerX = 0 ;
+				settings->considerY = 0 ;
+				LOGD("Case 3");
+			}
 		}
 		//updateMatrices();
 	}
@@ -2240,6 +2275,7 @@ void FluidMechanics::Impl::renderObjects()
 	// }
 }
 
+
 void FluidMechanics::Impl::updateSurfacePreview()
 {
 	if (!settings->surfacePreview) {
@@ -2649,6 +2685,7 @@ void FluidMechanics::updateSurfacePreview()
 {
 	impl->updateSurfacePreview();
 }
+
 
 void FluidMechanics::setInteractionMode(int mode){
 	impl->setInteractionMode(mode);

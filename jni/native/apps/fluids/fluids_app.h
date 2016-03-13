@@ -27,6 +27,7 @@ public:
 
     std::string getData();
 
+    //Called after SetSettings (JNI)
 	void updateSurfacePreview();
 
 	void releaseParticles();
@@ -72,7 +73,8 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 	   considerY(1),
 	   considerZ(1),
 	   considerRotation(1),
-	   considerTranslation(1)
+	   considerTranslation(1),
+	   autoConstraint(false)
 	{}
 
 	static constexpr float defaultClipDist = 360.0f;
@@ -88,6 +90,7 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 	int considerZ = 1 ;
 	int considerRotation = 1 ;
 	int considerTranslation = 1 ;
+	bool autoConstraint = false ;
 
 	void read(JNIEnv* env, jobject obj, jclass cls) const
 	{
@@ -101,6 +104,7 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 		SET_JNI_FIELD(obj, surfacePreview, Boolean, "Z", surfacePreview);
 
 		//For constraining interaction
+		SET_JNI_FIELD(obj, autoConstraint, Boolean, "Z", autoConstraint);
 		SET_JNI_FIELD(obj, considerX, Int, "I", considerX);
 		SET_JNI_FIELD(obj, considerY, Int, "I", considerY);
 		SET_JNI_FIELD(obj, considerZ, Int, "I", considerZ);
@@ -128,6 +132,7 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 		GET_JNI_FIELD(obj, precision, Float, "F", precision);
 
 		//For constraining interaction
+		GET_JNI_FIELD(obj, autoConstraint, Boolean, "Z", autoConstraint);
 		GET_JNI_FIELD(obj, considerX, Int, "I", considerX);
 		GET_JNI_FIELD(obj, considerY, Int, "I", considerY);
 		GET_JNI_FIELD(obj, considerZ, Int, "I", considerZ);

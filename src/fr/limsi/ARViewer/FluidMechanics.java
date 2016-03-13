@@ -18,6 +18,7 @@ public class FluidMechanics {
         int considerZ ;
         int considerRotation ;
         int considerTranslation ;
+        boolean autoConstraint ;
     }
 
     static class State {

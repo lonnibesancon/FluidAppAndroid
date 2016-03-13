@@ -109,6 +109,7 @@ public class MainActivity extends BaseARActivity
     private boolean considerZ ;
     private boolean considerRotation ;
     private boolean considerTranslation ;
+    private boolean autoConstraint ;
 
     // private CameraPreview mCameraPreview;
     //
@@ -891,6 +892,7 @@ public class MainActivity extends BaseARActivity
             considerZ = menu.findItem(R.id.action_constrainZ).isChecked();
             considerTranslation = menu.findItem(R.id.action_constrainTranslation).isChecked();
             considerRotation = menu.findItem(R.id.action_constrainRotation).isChecked();
+            this.autoConstraint = menu.findItem(R.id.action_autoConstraint).isChecked();
             updateSettings();
             updateDataSettings();
 
@@ -911,6 +913,7 @@ public class MainActivity extends BaseARActivity
             menu.findItem(R.id.action_constrainZ).setChecked(considerZ);
             menu.findItem(R.id.action_constrainTranslation).setChecked(considerTranslation);
             menu.findItem(R.id.action_constrainRotation).setChecked(considerRotation);
+            menu.findItem(R.id.action_autoConstraint).setChecked(autoConstraint);
         }
 
         return true;
@@ -1066,6 +1069,17 @@ public class MainActivity extends BaseARActivity
                 Log.d(TAG,"tmp = "+tmp);
                 handledDataSetting = true;
                 break;
+
+            case R.id.action_autoConstraint:
+                this.autoConstraint = !this.autoConstraint;
+                fluidSettings.autoConstraint = this.autoConstraint ;
+                item.setChecked(this.autoConstraint);
+                fluidSettings.considerX = 1 ;
+                fluidSettings.considerY = 1 ;
+                fluidSettings.considerZ = 1 ;
+                fluidSettings.considerRotation = 0 ;
+                fluidSettings.considerTranslation = 1 ;
+                handledDataSetting = true;
 
         }
 

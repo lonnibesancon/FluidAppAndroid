@@ -53,6 +53,10 @@
             android:checkable="true"
             android:checked="false"
             android:id="@+id/action_constrainRotation" />
+      <item android:title="Auto"
+            android:checkable="true"
+            android:checked="false"
+            android:id="@+id/action_autoConstraint" />
     </menu>
   </item>
 
