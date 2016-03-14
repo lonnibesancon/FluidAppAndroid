@@ -33,6 +33,10 @@
   <item android:title="Constrain"
         android:showAsAction="always">
     <menu>
+      <item android:title="Reset"
+            android:checkable="true"
+            android:checked="false"
+            android:id="@+id/action_reset" />
       <item android:title="Constrain X"
             android:checkable="true"
             android:checked="false"

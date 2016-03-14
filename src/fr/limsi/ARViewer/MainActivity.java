@@ -1226,6 +1226,11 @@ public class MainActivity extends BaseARActivity
                 fluidSettings.considerRotation = 0 ;
                 fluidSettings.considerTranslation = 1 ;
                 handledDataSetting = true;
+                break ;
+
+            case R.id.action_reset:
+                Log.d(TAG,"Reset");
+                break;
 
         }
 

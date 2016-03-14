@@ -1333,6 +1333,16 @@ std::string FluidMechanics::Impl::getData(){
 
   	//First we set the zoomFactor
   	oss << settings->zoomFactor << ";" ;
+  	int tmp = (settings->showVolume) ? 1 : 0 ;
+  	oss << tmp << ";" ;
+  	tmp = (settings->showSurface) ? 1 : 0 ;
+  	oss << tmp << ";" ;
+  	tmp = (settings->showStylus) ? 1 : 0 ;
+  	oss << tmp << ";" ;
+  	tmp = (settings->showSlice) ? 1 : 0 ;
+  	oss << tmp << ";" ;
+  	tmp = (settings->showOutline) ? 1 : 0 ;
+  	oss << tmp << ";" ;
 
   	synchronized(state->modelMatrix){
   		m = state->modelMatrix ;	
