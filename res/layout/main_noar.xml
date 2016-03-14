@@ -145,48 +145,119 @@
       <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_alignParentRight="true"
         android:layout_gravity="bottom|right"
         android:id= "@+id/linearlayout4"
         
          >
 
-        <Button
-          android:id="@+id/constrainX"
-          android:layout_height="match_parent"
-          android:layout_width="wrap_content"
-          android:layout_gravity="right"
-          android:text="Constrain X"
-            />
+         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="bottom|right"
+            android:id= "@+id/linearlayout5"
+            android:background="@drawable/custom_border"
+             >
 
 
-        <Button
-          android:id="@+id/constrainY"
-          android:layout_height="match_parent"
-          android:layout_width="wrap_content"
-          android:layout_gravity="right"
-          android:text="Constrain Y"
-            />
+                   <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      xmlns:tools="http://schemas.android.com/tools"
+                      android:id="@+id/GridLayout1"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:columnCount="2"
+                      android:rowCount="2"
+                      android:orientation="horizontal"
+                      android:layout_alignParentRight="true"
+                      android:layout_gravity="bottom|right"
+                      android:background="@drawable/custom_border"
+                      tools:context=".GridXMLActivity" >
+                      <Button
+                          android:id="@+id/constrainX"
+                          android:layout_gravity="right|bottom"
+                          android:text="Button" />
+
+                      <Button
+                          android:id="@+id/constrainY"
+                          android:layout_gravity="right|bottom"
+                          android:text="Button" />
+                      
+                      <Button
+                          android:id="@+id/constrainZ"
+                          android:layout_gravity="right|bottom"
+                          android:text="Button" />
+                      
+                      <Button
+                          android:id="@+id/autoConstrain"
+                          android:layout_gravity="right|bottom"
+                          android:text="Button" />   
+                  </GridLayout>
+
+          </LinearLayout>
+         <!--
+         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="bottom|right"
+            android:id= "@+id/linearlayout5"
+            android:background="@drawable/custom_border"
+             >
+
+            <Button
+              android:id="@+id/constrainX"
+              android:layout_height="match_parent"
+              android:layout_width="wrap_content"
+            
+              android:text="X"
+                />
+
+            <Button
+              android:id="@+id/constrainY"
+              android:layout_height="match_parent"
+              android:layout_width="wrap_content"
+              android:text="Y"
+                />
+
+          </LinearLayout>
 
 
-        <Button
-          android:id="@+id/constrainZ"
-          android:layout_height="match_parent"
-          android:layout_width="wrap_content"
-          android:layout_gravity="right"
-          android:text="Constrain Z"
-            />
+            
 
-        <Button
-          android:id="@+id/autoConstrain"
-          android:layout_height="match_parent"
-          android:layout_width="wrap_content"
-          android:layout_gravity="right"
-          android:text="Auto Constrain"
-            />
+          <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="bottom|right"
+            android:id= "@+id/linearlayout6"
+            android:background="@drawable/custom_border"
+             >
 
+              <Button
+                android:id="@+id/constrainZ"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_gravity="right"
+                android:text="Z"
+                  />
+
+              <Button
+                android:id="@+id/autoConstrain"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_gravity="right"
+                android:text="Auto"
+                  />
+
+          </LinearLayout>
+        -->
       </LinearLayout>
+    
 
   </LinearLayout>
   
