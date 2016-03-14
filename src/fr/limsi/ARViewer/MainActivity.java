@@ -104,11 +104,11 @@ public class MainActivity extends BaseARActivity
 
 
     //Constrain interaction part 
-    private boolean considerX ;
-    private boolean considerY ;
-    private boolean considerZ ;
-    private boolean considerRotation ;
-    private boolean considerTranslation ;
+    private boolean constrainX ;
+    private boolean constrainY ;
+    private boolean constrainZ ;
+    private boolean constrainRotation ;
+    private boolean constrainTranslation ;
     private boolean autoConstraint ;
 
     // private CameraPreview mCameraPreview;
@@ -893,11 +893,11 @@ public class MainActivity extends BaseARActivity
             fluidSettings.showOutline = menu.findItem(R.id.action_showOutline).isChecked();
             settings.showCamera = menu.findItem(R.id.action_showCamera).isChecked();
             fluidSettings.showCrossingLines = menu.findItem(R.id.action_showLines).isChecked();
-            considerX = menu.findItem(R.id.action_constrainX).isChecked();
-            considerY = menu.findItem(R.id.action_constrainY).isChecked();
-            considerZ = menu.findItem(R.id.action_constrainZ).isChecked();
-            considerTranslation = menu.findItem(R.id.action_constrainTranslation).isChecked();
-            considerRotation = menu.findItem(R.id.action_constrainRotation).isChecked();
+            constrainX = menu.findItem(R.id.action_constrainX).isChecked();
+            constrainY = menu.findItem(R.id.action_constrainY).isChecked();
+            constrainZ = menu.findItem(R.id.action_constrainZ).isChecked();
+            constrainTranslation = menu.findItem(R.id.action_constrainTranslation).isChecked();
+            constrainRotation = menu.findItem(R.id.action_constrainRotation).isChecked();
             this.autoConstraint = menu.findItem(R.id.action_autoConstraint).isChecked();
             updateSettings();
             updateDataSettings();
@@ -914,11 +914,11 @@ public class MainActivity extends BaseARActivity
             menu.findItem(R.id.action_axisClipping).setChecked(fluidSettings.sliceType == FluidMechanics.SLICE_AXIS);
             menu.findItem(R.id.action_stylusClipping).setChecked(fluidSettings.sliceType == FluidMechanics.SLICE_STYLUS);
 
-            menu.findItem(R.id.action_constrainX).setChecked(considerX);
-            menu.findItem(R.id.action_constrainY).setChecked(considerY);
-            menu.findItem(R.id.action_constrainZ).setChecked(considerZ);
-            menu.findItem(R.id.action_constrainTranslation).setChecked(considerTranslation);
-            menu.findItem(R.id.action_constrainRotation).setChecked(considerRotation);
+            menu.findItem(R.id.action_constrainX).setChecked(constrainX);
+            menu.findItem(R.id.action_constrainY).setChecked(constrainY);
+            menu.findItem(R.id.action_constrainZ).setChecked(constrainZ);
+            menu.findItem(R.id.action_constrainTranslation).setChecked(constrainTranslation);
+            menu.findItem(R.id.action_constrainRotation).setChecked(constrainRotation);
             menu.findItem(R.id.action_autoConstraint).setChecked(autoConstraint);
         }
 
@@ -1027,51 +1027,85 @@ public class MainActivity extends BaseARActivity
 
             //Constraining interaction part
             case R.id.action_constrainX:
-                considerX = !considerX ;
+                constrainX = !constrainX ;
                 //If constrainX, we want to set value in JNI to 0
-                tmp = (considerX) ? 0 : 1;  
-                fluidSettings.considerX = tmp; 
-                item.setChecked(considerX);
+                tmp = (constrainX) ? 0 : 1;  
+                //fluidSettings.constrainX = tmp; 
+                updateConstraintX();
+                item.setChecked(constrainX);
                 Log.d(TAG,"tmp = "+tmp);
                 handledDataSetting = true ;
                 break;
 
             case R.id.action_constrainY:
-                considerY = !considerY ;
-                //If considerX, we want to set value in JNI to 0
-                tmp = (considerY) ? 0 : 1;  
-                fluidSettings.considerY = tmp; 
-                item.setChecked(considerY);
+                constrainY = !constrainY ;
+                //If constrainX, we want to set value in JNI to 0
+                tmp = (constrainY) ? 0 : 1;  
+                //fluidSettings.constrainY = tmp; 
+                updateConstraintY();
+                item.setChecked(constrainY);
                 Log.d(TAG,"tmp = "+tmp);
                 handledDataSetting = true;
                 break;
 
             case R.id.action_constrainZ:
-                considerZ = !considerZ ;
-                //If considerX, we want to set value in JNI to 0
-                tmp = (considerZ) ? 0 : 1;  
-                fluidSettings.considerZ = tmp; 
-                item.setChecked(considerZ);
+                constrainZ = !constrainZ ;
+                //If constrainX, we want to set value in JNI to 0
+                tmp = (constrainZ) ? 0 : 1;  
+                //fluidSettings.constrainZ = tmp; 
+                updateConstraintZ();
+                item.setChecked(constrainZ);
                 Log.d(TAG,"tmp = "+tmp);
                 handledDataSetting = true;
                 break;
 
             case R.id.action_constrainTranslation:
-                considerTranslation = !considerTranslation ;
+                constrainTranslation = !constrainTranslation ;
                 //If considerX, we want to set value in JNI to 0
-                tmp = (considerTranslation) ? 0 : 1;  
+                //tmp = (constrainTranslation) ? 0 : 1;  
+                tmp = (constrainTranslation) ? 1 : 0;  
                 fluidSettings.considerTranslation = tmp; 
-                item.setChecked(considerTranslation);
+
+                //Now for rotation
+                tmp = (constrainTranslation) ? 0 : 1;
+                fluidSettings.considerRotation = tmp ;
+
+
+                //And then we enable all the axis
+                constrainX = false ;
+                constrainY = false ;
+                constrainZ = false ;
+                constrainTranslation = false ;
+                fluidSettings.considerX = 1 ;
+                fluidSettings.considerY = 1 ;
+                fluidSettings.considerZ = 1 ;
+
+                item.setChecked(constrainTranslation);
                 Log.d(TAG,"tmp = "+tmp);
                 handledDataSetting = true;
                 break;
 
             case R.id.action_constrainRotation:
-                considerRotation = !considerRotation ;
+                constrainRotation = !constrainRotation ;
                 //If considerX, we want to set value in JNI to 0
-                tmp = (considerRotation) ? 0 : 1;  
-                fluidSettings.considerRotation = tmp;
-                item.setChecked(considerRotation);
+                //tmp = (constrainRotation) ? 0 : 1;  
+                tmp = (constrainRotation) ? 1 : 0;  
+                fluidSettings.considerRotation = tmp; 
+
+                //Now for rotation
+                tmp = (constrainRotation) ? 0 : 1;
+                fluidSettings.considerTranslation = tmp ;
+
+                //And then we enable all the axis
+                constrainX = false ;
+                constrainY = false ;
+                constrainZ = false ;
+                constrainRotation = false ;
+                fluidSettings.considerX = 1 ;
+                fluidSettings.considerY = 1 ;
+                fluidSettings.considerZ = 1 ;
+
+                item.setChecked(constrainRotation);
                 Log.d(TAG,"tmp = "+tmp);
                 handledDataSetting = true;
                 break;
@@ -1097,6 +1131,52 @@ public class MainActivity extends BaseARActivity
             return true;
         } else {
             return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void updateConstraintX(){
+        if(constrainX){
+            constrainY = false ;
+            constrainZ = false ;
+            fluidSettings.considerX = 1 ;
+            fluidSettings.considerY = 0 ;
+            fluidSettings.considerZ = 0 ;
+        }
+        else if(!constrainX){
+
+            fluidSettings.considerX = 1 ;
+            fluidSettings.considerY = 1 ;
+            fluidSettings.considerZ = 1 ;
+        }
+    }
+
+    private void updateConstraintY(){
+        if(constrainY){
+            constrainX = false ;
+            constrainZ = false ;
+            fluidSettings.considerX = 0 ;
+            fluidSettings.considerY = 1 ;
+            fluidSettings.considerZ = 0 ;
+        }
+        else if(!constrainY){
+            fluidSettings.considerX = 1 ;
+            fluidSettings.considerY = 1 ;
+            fluidSettings.considerZ = 1 ;
+        }
+    }
+
+    private void updateConstraintZ(){
+        if(constrainZ){
+            constrainX = false ;
+            constrainY = false ;
+            fluidSettings.considerX = 0 ;
+            fluidSettings.considerY = 0 ;
+            fluidSettings.considerZ = 1 ;
+        }
+        else if(!constrainZ){
+            fluidSettings.considerX = 1 ;
+            fluidSettings.considerY = 1 ;
+            fluidSettings.considerZ = 1 ;
         }
     }
 
