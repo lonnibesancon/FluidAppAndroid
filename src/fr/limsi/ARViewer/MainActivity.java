@@ -290,7 +290,16 @@ public class MainActivity extends BaseARActivity
         FluidMechanics.setInteractionMode(this.interactionMode);
 
         this.tangibleBtn = (Button) findViewById(R.id.tangibleBtn);
-        this.tangibleBtn.setOnClickListener(this);
+        //this.tangibleBtn.setOnClickListener(this);
+        this.tangibleBtn.setOnTouchListener(this);
+        /*this.tangibleBtn.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+             Log.d(TAG,"TOUCHED");
+             return false;
+            }
+        });*/
 
         this.sliceBtn = (Button) findViewById(R.id.sliceBtn);
         this.sliceBtn.setOnClickListener(this);
@@ -1233,6 +1242,7 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 1 ;
         }
+        updateDataSettings();
     }
 
     private void updateConstraintY(){
@@ -1248,6 +1258,7 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 1 ;
         }
+        updateDataSettings();
     }
 
     private void updateConstraintZ(){
@@ -1263,6 +1274,18 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 1 ;
         }
+        updateDataSettings();
+    }
+
+    private void updateConstraintAuto(){
+        int tmp = (this.autoConstraint) ? 1 : 0; 
+        int rotationValue = (this.autoConstraint) ? 0 : 1; 
+        fluidSettings.considerX = tmp ;
+        fluidSettings.considerY = tmp ;
+        fluidSettings.considerZ = tmp ;
+        fluidSettings.considerRotation = rotationValue ;
+        fluidSettings.considerTranslation = tmp ;
+        updateDataSettings();
     }
 
     private void showDistanceDialog() {
@@ -1346,6 +1369,70 @@ public class MainActivity extends BaseARActivity
         //     FluidMechanics.releaseParticles();
         //     return true;
         // }
+
+        //Buttons first
+        if(v.getId() == R.id.tangibleBtn){
+            if (event.getAction() == MotionEvent.ACTION_DOWN ){
+                FluidMechanics.buttonPressed();
+            }
+            else if(event.getAction() == MotionEvent.ACTION_UP ){
+                FluidMechanics.buttonReleased();
+            }
+                
+
+            return true ;
+        }
+
+        else if(v.getId() == R.id.sliceBtn){
+            //TODO
+            return true ;
+        }
+
+        else if(v.getId() == R.id.constrainX){
+            if (event.getAction() == MotionEvent.ACTION_DOWN ){
+                constrainX = true ;
+            }
+            else if(event.getAction() == MotionEvent.ACTION_UP ){
+                constrainX = false ;
+            }
+            updateConstraintX();
+            return true ;
+        }
+
+        else if(v.getId() == R.id.constrainY){
+            if (event.getAction() == MotionEvent.ACTION_DOWN ){
+                constrainY = true ;
+            }
+            else if(event.getAction() == MotionEvent.ACTION_UP ){
+                constrainY = false ;
+            }
+            updateConstraintY();
+            return true ;
+        }
+
+        else if(v.getId() == R.id.constrainZ){
+            if (event.getAction() == MotionEvent.ACTION_DOWN ){
+                constrainZ = true ;
+            }
+            else if(event.getAction() == MotionEvent.ACTION_UP ){
+                constrainZ = false ;
+            }
+            updateConstraintZ();
+            return true ;
+        }
+
+        else if(v.getId() == R.id.autoConstrain ){
+             if (event.getAction() == MotionEvent.ACTION_DOWN ){
+                this.autoConstraint = true ;
+            }
+            else if(event.getAction() == MotionEvent.ACTION_UP ){
+                this.autoConstraint = false ;
+            }
+            updateConstraintAuto();
+            return true ;
+        }
+
+
         
         mGestureDetector.onTouchEvent(event);
 
@@ -1621,4 +1708,5 @@ public class MainActivity extends BaseARActivity
             updateDataSettings();
         }
     }
+
 }
