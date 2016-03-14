@@ -980,7 +980,7 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 		trans.y *= settings->considerY * settings->considerTranslation ;
 		trans.z *= settings->considerZ * settings->considerTranslation ;
 
-		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint || interactionMode == dataSliceTangibleTouch){
+		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint || interactionMode == dataSliceTouchTangible){
 			//currentSlicePos += trans ;	Version with the plane moving freely in the world
 			currentSlicePos += trans ; 	//Version with a fix plane
 		}
@@ -1013,7 +1013,7 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 	rx *=settings->precision * settings->considerX * settings->considerRotation;
 	//LOGD("Current Rot = %s", Utility::toString(currentSliceRot).c_str());
 	if(tangoEnabled){
-		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint || interactionMode == dataSliceTangibleTouch){
+		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint || interactionMode == dataSliceTouchTangible){
 			Quaternion rot = currentSliceRot;
 			rot = rot * Quaternion(rot.inverse() * (-Vector3::unitZ()), rz);
 			rot = rot * Quaternion(rot.inverse() * -Vector3::unitY(), ry);
@@ -1061,7 +1061,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 	Vector2 prevPos ;
 
 	//Particle seeding case
-	LOGD("ComputeFingerInteraction Function");
+	//LOGD("ComputeFingerInteraction Function");
 	if(interactionMode == seedPoint && fingerPositions.size() == 1){
 		synchronized(fingerPositions){
 			currentPos = fingerPositions[0];
@@ -1114,7 +1114,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 			//currentSliceRot = rot ; //Version with the plane moving freely in the world
 			currentSliceRot = rot ;
 		}
-		else if(interactionMode == dataTouchOnly){
+		else if(interactionMode == dataTouchOnly || interactionMode == dataSliceTouchTangible){
 			Quaternion rot = currentDataRot;
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), 0);
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), -diff.x);
@@ -1153,7 +1153,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		if(interactionMode == sliceTouchOnly){
 			currentSlicePos +=trans ;
 		}
-		else if(interactionMode == dataTouchOnly){
+		else if(interactionMode == dataTouchOnly || interactionMode == dataSliceTouchTangible){
 			currentDataPos +=trans ;	
 		}
 
@@ -1189,7 +1189,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 			//currentSliceRot = rot ; //Version with the plane moving freely in the world
 			currentSliceRot = rot ;
 		}
-		else if(interactionMode == dataTouchOnly){
+		else if(interactionMode == dataTouchOnly || interactionMode == dataSliceTouchTangible){
 			Quaternion rot = currentDataRot;
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), angle);
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), 0);
