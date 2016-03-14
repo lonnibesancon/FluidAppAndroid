@@ -980,7 +980,7 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 		trans.y *= settings->considerY * settings->considerTranslation ;
 		trans.z *= settings->considerZ * settings->considerTranslation ;
 
-		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint){
+		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint || interactionMode == dataSliceTangibleTouch){
 			//currentSlicePos += trans ;	Version with the plane moving freely in the world
 			currentSlicePos += trans ; 	//Version with a fix plane
 		}
@@ -1013,7 +1013,7 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 	rx *=settings->precision * settings->considerX * settings->considerRotation;
 	//LOGD("Current Rot = %s", Utility::toString(currentSliceRot).c_str());
 	if(tangoEnabled){
-		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint){
+		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint || interactionMode == dataSliceTangibleTouch){
 			Quaternion rot = currentSliceRot;
 			rot = rot * Quaternion(rot.inverse() * (-Vector3::unitZ()), rz);
 			rot = rot * Quaternion(rot.inverse() * -Vector3::unitY(), ry);
@@ -1061,7 +1061,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 	Vector2 prevPos ;
 
 	//Particle seeding case
-	//LOGD("ComputeFingerInteraction Function");
+	LOGD("ComputeFingerInteraction Function");
 	if(interactionMode == seedPoint && fingerPositions.size() == 1){
 		synchronized(fingerPositions){
 			currentPos = fingerPositions[0];
@@ -1210,8 +1210,53 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 }
 
 void FluidMechanics::Impl::updateMatrices(){
-	Matrix4 m ;
+	Matrix4 statem ;
+	Matrix4 slicem ;
+	
+	//LOGD("Tango Pos = %s", Utility::toString(currentSlicePos).c_str());
+	//LOGD("Tango Rot = %s", Utility::toString(currentSliceRot).c_str());
+	//LOGD("Precision = %f",settings->precision);
+	//LOGD("ConstrainX = %d ; ConstrainY = %d ; ConstrainZ = %d", settings->considerX, settings->considerY, settings->considerZ );
+
+
+	//We need to call computeFingerInteraction() if the interaction mode uses tactile
+	if(interactionMode == dataSliceTouchTangible || 
+	   interactionMode == sliceTouchOnly || 
+	   interactionMode == dataTouchTangible ||
+	   interactionMode == dataTouchOnly){
+
+			computeFingerInteraction();
+	}
+	slicem = Matrix4::makeTransform(currentSlicePos, currentSliceRot);	//Version with the plane moving freely
+	statem = Matrix4::makeTransform(currentDataPos, currentDataRot);
+
+
+	//First we update the slice
+	//Plane moving freely
+	synchronized(state->stylusModelMatrix) {
+		state->stylusModelMatrix = slicem;
+	}
+
+	//Plane not moving on the tablet
+	/*synchronized(state->modelMatrix) {
+		state->modelMatrix = m ;
+	}*/
+	
+
+
+	//Then the data
 	synchronized(state->modelMatrix) {
+		state->modelMatrix = statem ;
+	}
+	
+	
+
+	updateSlicePlanes();
+
+#if 0
+	Matrix4 statem ;
+	Matrix4 slicem ;
+	//synchronized(state->modelMatrix) {
 		//LOGD("Tango Pos = %s", Utility::toString(currentSlicePos).c_str());
 		//LOGD("Tango Rot = %s", Utility::toString(currentSliceRot).c_str());
 		//LOGD("Precision = %f",settings->precision);
@@ -1233,7 +1278,7 @@ void FluidMechanics::Impl::updateMatrices(){
 			//m = Matrix4::makeTransform(currentDataPos, currentDataRot);
 		}
 
-	}
+	//}
 	if(interactionMode == sliceTangibleOnly){
 		//Plane moving freely
 		synchronized(state->stylusModelMatrix) {
@@ -1253,6 +1298,8 @@ void FluidMechanics::Impl::updateMatrices(){
 	
 
 	updateSlicePlanes();
+
+#endif
 }
 
 std::string FluidMechanics::Impl::getData(){

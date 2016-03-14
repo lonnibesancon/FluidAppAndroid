@@ -797,8 +797,8 @@ public class MainActivity extends BaseARActivity
         final int step = 1;
         final int max = 150;
         final int min = 10;
-        int initialValue = 100 ;
-        double initialPosition = 100 ;
+        final int initialValue = 100 ;
+        final double initialPosition = 100 ;
 
         GradientDrawable colormap = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, colors);
         colormap.setGradientType(GradientDrawable.LINEAR_GRADIENT);
@@ -832,6 +832,12 @@ public class MainActivity extends BaseARActivity
                     //updateDataSettings();
                     mProgress = -1;
                 }
+                sliderPrecision.setMax(0);
+                sliderPrecision.setMax( (max - min) / step ); //Have to call because setProgress does not update the view
+                sliderPrecision.setProgress((int)(initialPosition));
+                //sliderPrecision.setMax( (max - min) / step ); //Have to call because setProgress does not update the view
+                sliderPrecision.onSizeChanged(sliderPrecision.getWidth(), sliderPrecision.getHeight(), 0,0);
+                fluidSettings.precision = 1 ;
                 mPressed = false;
                 //Log.d(TAG, "Precision Java = " + mProgress);
             }
