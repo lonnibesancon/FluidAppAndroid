@@ -249,7 +249,7 @@ public class MainActivity extends BaseARActivity
         // view.setOnLongClickListener(this);
 
         setupActionBar();
-        setupSlider();
+        //setupSlider();
         setupSliderPrecision();
 
         // bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -290,8 +290,8 @@ public class MainActivity extends BaseARActivity
         FluidMechanics.setInteractionMode(this.interactionMode);
 
         this.tangibleBtn = (Button) findViewById(R.id.tangibleBtn);
-        this.tangibleBtn.setOnClickListener(this);
-        //this.tangibleBtn.setOnTouchListener(this);
+        //this.tangibleBtn.setOnClickListener(this);
+        this.tangibleBtn.setOnTouchListener(this);
         /*this.tangibleBtn.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
@@ -309,19 +309,24 @@ public class MainActivity extends BaseARActivity
         });*/
 
         this.sliceBtn = (Button) findViewById(R.id.sliceBtn);
-        this.sliceBtn.setOnClickListener(this);
+        //this.sliceBtn.setOnClickListener(this);
+        this.tangibleBtn.setOnTouchListener(this);
 
         this.constrainXBtn = (Button) findViewById(R.id.constrainX);
-        this.constrainXBtn.setOnClickListener(this);
+        //this.constrainXBtn.setOnClickListener(this);
+        this.tangibleBtn.setOnTouchListener(this);
 
         this.constrainYBtn = (Button) findViewById(R.id.constrainY);
-        this.constrainYBtn.setOnClickListener(this);
+        //this.constrainYBtn.setOnClickListener(this);
+        this.tangibleBtn.setOnTouchListener(this);
 
         this.constrainZBtn = (Button) findViewById(R.id.constrainZ);
-        this.constrainZBtn.setOnClickListener(this);
+        //this.constrainZBtn.setOnClickListener(this);
+        this.tangibleBtn.setOnTouchListener(this);
 
         this.autoConstrainBtn = (Button) findViewById(R.id.autoConstrain);
-        this.autoConstrainBtn.setOnClickListener(this);
+        //this.autoConstrainBtn.setOnClickListener(this);
+        this.tangibleBtn.setOnTouchListener(this);
 
         /*this.tangibleBtn.setOnClickListener(new OnClickListener() {
             @Override
@@ -1380,17 +1385,20 @@ public class MainActivity extends BaseARActivity
         //Buttons first
         int fingerOnButtonIndex = -1 ;
         if(v.getId() == R.id.tangibleBtn){
+            int index = event.getActionIndex();
+            fingerOnButtonIndex = event.getPointerId(index);
+            Log.d(TAG,"INDEX = "+fingerOnButtonIndex);
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
+
                 FluidMechanics.buttonPressed();
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 FluidMechanics.buttonReleased();
             }
-            int index = event.getActionIndex();
-            fingerOnButtonIndex = event.getPointerId(index);
-            //return true ;
+            
+            return false ;
         }
-/*
+  
         else if(v.getId() == R.id.sliceBtn){
             //TODO
             //return true ;
@@ -1449,7 +1457,7 @@ public class MainActivity extends BaseARActivity
             fingerOnButtonIndex = event.getPointerId(index);
             //return true ;
         }
-*/
+
 
         Log.d(TAG,"Index = "+fingerOnButtonIndex);
         mGestureDetector.onTouchEvent(event);
@@ -1463,7 +1471,9 @@ public class MainActivity extends BaseARActivity
                     int id = event.getPointerId(index);
                     Log.d("Finger ID", "Finger ID = "+id);
                     Log.d("Finger Index", "Finger Index = "+index);
-                    FluidMechanics.addFinger(event.getX(id), event.getY(id), id);
+                    if(id != fingerOnButtonIndex){
+                        FluidMechanics.addFinger(event.getX(id), event.getY(id), id);    
+                    }
                     break ;
                 }
 
@@ -1474,7 +1484,9 @@ public class MainActivity extends BaseARActivity
                     int id = event.getPointerId(index);
                     Log.d("Finger ID", "Finger ID = "+id);
                     Log.d("Finger Index", "Finger Index = "+index);
-                    FluidMechanics.removeFinger(id);
+                    if(id != fingerOnButtonIndex){
+                        FluidMechanics.removeFinger(id);
+                    }
                     break ;
                 }
 
@@ -1489,7 +1501,9 @@ public class MainActivity extends BaseARActivity
                         ids[i]  = event.getPointerId(i);
                         xPos[i] = event.getX(i);
                         yPos[i] = event.getY(i);
-                        FluidMechanics.updateFingerPositions(xPos[i],yPos[i],ids[i]);
+                        if(ids[i] != fingerOnButtonIndex){
+                            FluidMechanics.updateFingerPositions(xPos[i],yPos[i],ids[i]);
+                        }
                     }
                     break ;
                 }

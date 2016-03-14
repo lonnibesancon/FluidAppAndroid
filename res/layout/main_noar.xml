@@ -16,7 +16,7 @@
       />
 
 
-  <!-- That's the slider view for the isosurface -->   
+  <!-- That's the slider view for the precision -->  
   <LinearLayout android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
@@ -24,16 +24,14 @@
                 >
     <TextView
         android:id="@+id/sliderTooltipPrecision"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
         android:background="#AA000000"
         android:textSize="30dp"
         />
 
-    <!-- Make the vertical slider fill 55% of the screen height.
-         Vertical centering is achieved by surrounding it with two
-         dummy View drawables. -->
+    
     <LinearLayout android:orientation="vertical"
                   android:layout_width="50dp"
                   android:layout_height="fill_parent"
@@ -51,6 +49,7 @@
           android:layout_weight="0.55"
           android:thumb="@drawable/slider_thumb"
           android:max="100"
+
           />
       <View
           android:layout_width="fill_parent"
@@ -114,7 +113,17 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:layout_gravity="bottom"
-    android:id= "@+id/linearlayout2" >
+    android:id= "@+id/linearlayout2"
+    
+     >
+
+      <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="bottom|left"
+        android:id= "@+id/linearlayout3"
+         >
         
         <Button
           android:id="@+id/tangibleBtn"
@@ -130,10 +139,24 @@
           android:text="Cutting Plane"
             />
 
+      </LinearLayout>
+
+
+      <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="bottom|right"
+        android:id= "@+id/linearlayout4"
+        
+         >
+
         <Button
           android:id="@+id/constrainX"
           android:layout_height="match_parent"
           android:layout_width="wrap_content"
+          android:layout_gravity="right"
           android:text="Constrain X"
             />
 
@@ -142,6 +165,7 @@
           android:id="@+id/constrainY"
           android:layout_height="match_parent"
           android:layout_width="wrap_content"
+          android:layout_gravity="right"
           android:text="Constrain Y"
             />
 
@@ -150,6 +174,7 @@
           android:id="@+id/constrainZ"
           android:layout_height="match_parent"
           android:layout_width="wrap_content"
+          android:layout_gravity="right"
           android:text="Constrain Z"
             />
 
@@ -157,8 +182,11 @@
           android:id="@+id/autoConstrain"
           android:layout_height="match_parent"
           android:layout_width="wrap_content"
+          android:layout_gravity="right"
           android:text="Auto Constrain"
             />
+
+      </LinearLayout>
 
   </LinearLayout>
   
