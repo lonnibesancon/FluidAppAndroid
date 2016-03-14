@@ -314,19 +314,19 @@ public class MainActivity extends BaseARActivity
 
         this.constrainXBtn = (Button) findViewById(R.id.constrainX);
         //this.constrainXBtn.setOnClickListener(this);
-        this.tangibleBtn.setOnTouchListener(this);
+        this.constrainXBtn.setOnTouchListener(this);
 
         this.constrainYBtn = (Button) findViewById(R.id.constrainY);
         //this.constrainYBtn.setOnClickListener(this);
-        this.tangibleBtn.setOnTouchListener(this);
+        this.constrainYBtn.setOnTouchListener(this);
 
         this.constrainZBtn = (Button) findViewById(R.id.constrainZ);
         //this.constrainZBtn.setOnClickListener(this);
-        this.tangibleBtn.setOnTouchListener(this);
+        this.constrainZBtn.setOnTouchListener(this);
 
         this.autoConstrainBtn = (Button) findViewById(R.id.autoConstrain);
         //this.autoConstrainBtn.setOnClickListener(this);
-        this.tangibleBtn.setOnTouchListener(this);
+        this.autoConstrainBtn.setOnTouchListener(this);
 
         /*this.tangibleBtn.setOnClickListener(new OnClickListener() {
             @Override
@@ -1254,6 +1254,7 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 1 ;
         }
+        Log.d(TAG,"X Constraint updated");
         updateDataSettings();
     }
 
@@ -1270,6 +1271,7 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 1 ;
         }
+        Log.d(TAG,"Y Constraint updated");
         updateDataSettings();
     }
 
@@ -1286,6 +1288,7 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 1 ;
         }
+        Log.d(TAG,"Z Constraint updated");
         updateDataSettings();
     }
 
@@ -1297,6 +1300,7 @@ public class MainActivity extends BaseARActivity
         fluidSettings.considerZ = tmp ;
         fluidSettings.considerRotation = rotationValue ;
         fluidSettings.considerTranslation = tmp ;
+        Log.d(TAG,"Auto Constraint updated");
         updateDataSettings();
     }
 
@@ -1383,7 +1387,10 @@ public class MainActivity extends BaseARActivity
         // }
 
         //Buttons first
+        Log.d(TAG,"Touch event");
         int fingerOnButtonIndex = -1 ;
+
+
         if(v.getId() == R.id.tangibleBtn){
             int index = event.getActionIndex();
             fingerOnButtonIndex = event.getPointerId(index);
@@ -1403,6 +1410,7 @@ public class MainActivity extends BaseARActivity
             //TODO
             //return true ;
             int index = event.getActionIndex();
+            Log.d(TAG,"Slice Button");
             fingerOnButtonIndex = event.getPointerId(index);
         }
 
@@ -1413,6 +1421,7 @@ public class MainActivity extends BaseARActivity
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 constrainX = false ;
             }
+            Log.d(TAG,"Touched constrainX");
             updateConstraintX();
             int index = event.getActionIndex();
             fingerOnButtonIndex = event.getPointerId(index);
@@ -1426,6 +1435,7 @@ public class MainActivity extends BaseARActivity
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 constrainY = false ;
             }
+            Log.d(TAG,"Touched constrainY");
             updateConstraintY();
             int index = event.getActionIndex();
             fingerOnButtonIndex = event.getPointerId(index);
@@ -1439,6 +1449,7 @@ public class MainActivity extends BaseARActivity
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 constrainZ = false ;
             }
+            Log.d(TAG,"Touched constrainZ");
             updateConstraintZ();
             int index = event.getActionIndex();
             fingerOnButtonIndex = event.getPointerId(index);
@@ -1452,6 +1463,7 @@ public class MainActivity extends BaseARActivity
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 this.autoConstraint = false ;
             }
+            Log.d(TAG,"Touched constrain Auto");
             updateConstraintAuto();
             int index = event.getActionIndex();
             fingerOnButtonIndex = event.getPointerId(index);
