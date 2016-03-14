@@ -290,13 +290,20 @@ public class MainActivity extends BaseARActivity
         FluidMechanics.setInteractionMode(this.interactionMode);
 
         this.tangibleBtn = (Button) findViewById(R.id.tangibleBtn);
-        //this.tangibleBtn.setOnClickListener(this);
-        this.tangibleBtn.setOnTouchListener(this);
+        this.tangibleBtn.setOnClickListener(this);
+        //this.tangibleBtn.setOnTouchListener(this);
         /*this.tangibleBtn.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-             Log.d(TAG,"TOUCHED");
+                 if (event.getAction() == MotionEvent.ACTION_DOWN ){
+                    FluidMechanics.buttonPressed();
+                }
+                else if(event.getAction() == MotionEvent.ACTION_UP ){
+                    FluidMechanics.buttonReleased();
+                }
+                //int index = event.getActionIndex();
+                //fingerOnButtonIndex = event.getPointerId(index);
              return false;
             }
         });*/
@@ -1371,6 +1378,7 @@ public class MainActivity extends BaseARActivity
         // }
 
         //Buttons first
+        int fingerOnButtonIndex = -1 ;
         if(v.getId() == R.id.tangibleBtn){
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 FluidMechanics.buttonPressed();
@@ -1378,14 +1386,16 @@ public class MainActivity extends BaseARActivity
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 FluidMechanics.buttonReleased();
             }
-                
-
-            return true ;
+            int index = event.getActionIndex();
+            fingerOnButtonIndex = event.getPointerId(index);
+            //return true ;
         }
-
+/*
         else if(v.getId() == R.id.sliceBtn){
             //TODO
-            return true ;
+            //return true ;
+            int index = event.getActionIndex();
+            fingerOnButtonIndex = event.getPointerId(index);
         }
 
         else if(v.getId() == R.id.constrainX){
@@ -1396,7 +1406,9 @@ public class MainActivity extends BaseARActivity
                 constrainX = false ;
             }
             updateConstraintX();
-            return true ;
+            int index = event.getActionIndex();
+            fingerOnButtonIndex = event.getPointerId(index);
+            //return true ;
         }
 
         else if(v.getId() == R.id.constrainY){
@@ -1407,7 +1419,9 @@ public class MainActivity extends BaseARActivity
                 constrainY = false ;
             }
             updateConstraintY();
-            return true ;
+            int index = event.getActionIndex();
+            fingerOnButtonIndex = event.getPointerId(index);
+            //return true ;
         }
 
         else if(v.getId() == R.id.constrainZ){
@@ -1418,22 +1432,26 @@ public class MainActivity extends BaseARActivity
                 constrainZ = false ;
             }
             updateConstraintZ();
-            return true ;
+            int index = event.getActionIndex();
+            fingerOnButtonIndex = event.getPointerId(index);
+            //return true ;
         }
 
         else if(v.getId() == R.id.autoConstrain ){
-             if (event.getAction() == MotionEvent.ACTION_DOWN ){
+            if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 this.autoConstraint = true ;
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 this.autoConstraint = false ;
             }
             updateConstraintAuto();
-            return true ;
+            int index = event.getActionIndex();
+            fingerOnButtonIndex = event.getPointerId(index);
+            //return true ;
         }
+*/
 
-
-        
+        Log.d(TAG,"Index = "+fingerOnButtonIndex);
         mGestureDetector.onTouchEvent(event);
 
         if(mDatasetLoaded){
@@ -1648,9 +1666,9 @@ public class MainActivity extends BaseARActivity
 
     @Override
     public void onClick(View v) {
-        int tmp ;
+        //int tmp ;
         //Log.d(TAG,"On click listener");
-        if(v.getId() == R.id.tangibleBtn){
+        /*if(v.getId() == R.id.tangibleBtn){
             //Log.d(TAG, "Tangible Button");
             this.tangibleModeActivated = !this.tangibleModeActivated ;
             if(this.tangibleModeActivated){
@@ -1706,7 +1724,7 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerRotation = 0 ;
             fluidSettings.considerTranslation = 1 ;
             updateDataSettings();
-        }
+        }*/
     }
 
 }

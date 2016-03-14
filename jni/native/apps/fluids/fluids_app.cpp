@@ -1240,7 +1240,7 @@ void FluidMechanics::Impl::updateMatrices(){
 	//LOGD("Tango Pos = %s", Utility::toString(currentSlicePos).c_str());
 	//LOGD("Tango Rot = %s", Utility::toString(currentSliceRot).c_str());
 	//LOGD("Precision = %f",settings->precision);
-	LOGD("ConstrainX = %d ; ConstrainY = %d ; ConstrainZ = %d", settings->considerX, settings->considerY, settings->considerZ );
+	//LOGD("ConstrainX = %d ; ConstrainY = %d ; ConstrainZ = %d", settings->considerX, settings->considerY, settings->considerZ );
 
 
 	//We need to call computeFingerInteraction() if the interaction mode uses tactile
