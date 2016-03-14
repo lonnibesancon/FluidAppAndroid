@@ -40,7 +40,7 @@
       <View
           android:layout_width="fill_parent"
           android:layout_height="0dp"
-          android:layout_weight="0.225"
+          android:layout_weight="0.125"
           />
       <fr.limsi.ARViewer.VerticalSeekBar
           android:id="@+id/verticalSliderPrecision"
@@ -108,7 +108,7 @@
     </LinearLayout>
   </LinearLayout>
 
-  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -122,6 +122,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_gravity="bottom|left"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
         android:id= "@+id/linearlayout3"
          >
         
@@ -143,10 +145,11 @@
 
 
       <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
         android:layout_gravity="bottom|right"
         android:id= "@+id/linearlayout4"
         
@@ -157,9 +160,9 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
             android:layout_gravity="bottom|right"
             android:id= "@+id/linearlayout5"
-            android:background="@drawable/custom_border"
              >
 
 
@@ -178,22 +181,26 @@
                       <Button
                           android:id="@+id/constrainX"
                           android:layout_gravity="right|bottom"
-                          android:text="Button" />
+                          android:layout_alignParentRight="true"
+                          android:text="-X-" />
 
                       <Button
                           android:id="@+id/constrainY"
                           android:layout_gravity="right|bottom"
-                          android:text="Button" />
+                          android:layout_alignParentRight="true"
+                          android:text="-Y-" />
                       
                       <Button
                           android:id="@+id/constrainZ"
                           android:layout_gravity="right|bottom"
-                          android:text="Button" />
+                          android:layout_alignParentRight="true"
+                          android:text="-Z-" />
                       
                       <Button
                           android:id="@+id/autoConstrain"
                           android:layout_gravity="right|bottom"
-                          android:text="Button" />   
+                          android:layout_alignParentRight="true"
+                          android:text="Auto" />   
                   </GridLayout>
 
           </LinearLayout>
@@ -259,7 +266,7 @@
       </LinearLayout>
     
 
-  </LinearLayout>
+  </RelativeLayout>
   
   <!--<TextView
       android:id="@+id/textOverlay"
