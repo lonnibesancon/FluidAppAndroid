@@ -123,6 +123,43 @@
           android:text="Tangible"
             />
 
+        <Button
+          android:id="@+id/sliceBtn"
+          android:layout_height="match_parent"
+          android:layout_width="wrap_content"
+          android:text="Cutting Plane"
+            />
+
+        <Button
+          android:id="@+id/constrainX"
+          android:layout_height="match_parent"
+          android:layout_width="wrap_content"
+          android:text="Constrain X"
+            />
+
+
+        <Button
+          android:id="@+id/constrainY"
+          android:layout_height="match_parent"
+          android:layout_width="wrap_content"
+          android:text="Constrain Y"
+            />
+
+
+        <Button
+          android:id="@+id/constrainZ"
+          android:layout_height="match_parent"
+          android:layout_width="wrap_content"
+          android:text="Constrain Z"
+            />
+
+        <Button
+          android:id="@+id/autoConstrain"
+          android:layout_height="match_parent"
+          android:layout_width="wrap_content"
+          android:text="Auto Constrain"
+            />
+
   </LinearLayout>
   
   <!--<TextView

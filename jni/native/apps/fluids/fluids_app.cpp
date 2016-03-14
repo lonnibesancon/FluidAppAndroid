@@ -1006,6 +1006,51 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 	tmp = tmp * Quaternion(tmp.inverse() * Vector3::unitX(), rx);
 	currentTabRot = tmp ;
 
+	Vector3 axis = currentTabRot * Vector3(1,1,1);
+	//LOGD("X =  %f  --  Y =  %f  --  Z = %f", axis.x, axis.y, axis.z);
+
+
+	if(settings->autoConstraint){
+			//LOGD("Auto constrain");
+			//LOGD("X = %f  --  Y = %f  --  Z = %f",currentTabRot.x,currentTabRot.y,currentTabRot.z);
+			//First get the closest orthogonal orientation
+			LOGD("X =  %f  --  Y =  %f  --  Z = %f", abs(axis.x), abs(axis.y), abs(axis.z));
+			if(abs(axis.x) >= abs(axis.y) && abs(axis.x) >= abs(axis.z)){
+				settings->considerY = 0 ;
+				settings->considerZ = 0 ;
+				//LOGD("Case 1");
+			}
+			else if(abs(axis.y) >= abs(axis.x) && abs(axis.y) >= abs(axis.z)){
+				settings->considerX = 0 ;
+				settings->considerZ = 0 ;
+				LOGD("Case 2");
+			}
+			else{
+				settings->considerX = 0 ;
+				settings->considerY = 0 ;
+				LOGD("Case 3");
+			}
+#if 0
+			if(abs(currentTabRot.x) >= abs(currentTabRot.y) && abs(currentTabRot.x) >= abs(currentTabRot.z)){
+				settings->considerY = 0 ;
+				settings->considerZ = 0 ;
+				//LOGD("Case 1");
+			}
+			else if(abs(currentTabRot.y) >= abs(currentTabRot.x) && abs(currentTabRot.y) >= abs(currentTabRot.z)){
+				settings->considerX = 0 ;
+				settings->considerZ = 0 ;
+				LOGD("Case 2");
+			}
+			else{
+				settings->considerX = 0 ;
+				settings->considerY = 0 ;
+				LOGD("Case 3");
+			}
+
+#endif
+		}
+		//updateMatrices();
+
 	//Now we update the rendering according to constraints and interaction mode
 
 	rz *=settings->precision * settings->considerZ * settings->considerRotation;
@@ -1030,28 +1075,7 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 		}
 
 		//Now for the automatic constraining of interaction
-		
-		if(settings->autoConstraint){
-			//LOGD("Auto constrain");
-			LOGD("X = %f  --  Y = %f  --  Z = %f",currentTabRot.x,currentTabRot.y,currentTabRot.z);
-			//First get the closest orthogonal orientation
-			if(abs(currentTabRot.x) >= abs(currentTabRot.y) && abs(currentTabRot.x) >= abs(currentTabRot.z)){
-				settings->considerY = 0 ;
-				settings->considerZ = 0 ;
-				//LOGD("Case 1");
-			}
-			else if(abs(currentTabRot.y) >= abs(currentTabRot.x) && abs(currentTabRot.y) >= abs(currentTabRot.z)){
-				settings->considerX = 0 ;
-				settings->considerZ = 0 ;
-				LOGD("Case 2");
-			}
-			else{
-				settings->considerX = 0 ;
-				settings->considerY = 0 ;
-				LOGD("Case 3");
-			}
-		}
-		//updateMatrices();
+
 	}
 	
 }
@@ -1216,7 +1240,7 @@ void FluidMechanics::Impl::updateMatrices(){
 	//LOGD("Tango Pos = %s", Utility::toString(currentSlicePos).c_str());
 	//LOGD("Tango Rot = %s", Utility::toString(currentSliceRot).c_str());
 	//LOGD("Precision = %f",settings->precision);
-	//LOGD("ConstrainX = %d ; ConstrainY = %d ; ConstrainZ = %d", settings->considerX, settings->considerY, settings->considerZ );
+	LOGD("ConstrainX = %d ; ConstrainY = %d ; ConstrainZ = %d", settings->considerX, settings->considerY, settings->considerZ );
 
 
 	//We need to call computeFingerInteraction() if the interaction mode uses tactile

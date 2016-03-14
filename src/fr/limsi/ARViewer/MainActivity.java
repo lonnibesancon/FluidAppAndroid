@@ -43,6 +43,14 @@ import java.util.*;
 import android.view.View.OnClickListener;
 import java.lang.Object;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+
+
 import java.text.DecimalFormat ;
 
 import com.google.atap.tangoservice.*;
@@ -61,6 +69,11 @@ public class MainActivity extends BaseARActivity
     private static final boolean DEBUG = Config.DEBUG;
 
     private Button tangibleBtn ;
+    private Button sliceBtn ;
+    private Button constrainXBtn ;
+    private Button constrainYBtn ;
+    private Button constrainZBtn ;
+    private Button autoConstrainBtn ;
 
     // FIXME: static?
     private static FluidMechanics.Settings fluidSettings = new FluidMechanics.Settings();
@@ -94,6 +107,7 @@ public class MainActivity extends BaseARActivity
     // Gyro part
     private SensorManager mSensorManager;
     private Sensor mGyro ;
+    private Sensor mRotation ;
     private static final float NS2S = 1.0f / 1000000000.0f;
     private long mLastTimestamp = 0;
 
@@ -101,6 +115,10 @@ public class MainActivity extends BaseARActivity
 
     private int interactionMode = sliceTangibleOnly;
     private boolean tangibleModeActivated = false ;
+
+
+    //LOGGING
+    private static final String FILENAME = "myFile.txt";
 
 
     //Constrain interaction part 
@@ -266,12 +284,29 @@ public class MainActivity extends BaseARActivity
 
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        mRotation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
         
         FluidMechanics.setInteractionMode(this.interactionMode);
 
         this.tangibleBtn = (Button) findViewById(R.id.tangibleBtn);
         this.tangibleBtn.setOnClickListener(this);
+
+        this.sliceBtn = (Button) findViewById(R.id.sliceBtn);
+        this.sliceBtn.setOnClickListener(this);
+
+        this.constrainXBtn = (Button) findViewById(R.id.constrainX);
+        this.constrainXBtn.setOnClickListener(this);
+
+        this.constrainYBtn = (Button) findViewById(R.id.constrainY);
+        this.constrainYBtn.setOnClickListener(this);
+
+        this.constrainZBtn = (Button) findViewById(R.id.constrainZ);
+        this.constrainZBtn.setOnClickListener(this);
+
+        this.autoConstrainBtn = (Button) findViewById(R.id.autoConstrain);
+        this.autoConstrainBtn.setOnClickListener(this);
+
         /*this.tangibleBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -378,7 +413,26 @@ public class MainActivity extends BaseARActivity
                event.values[2], // z
                event.values[3]  // w
            );*/
-       }
+
+            double x = Math.asin(event.values[0]);
+            float y = event.values[1];
+            float z = event.values[2];
+
+            if(x <= (Math.PI/4 + Math.PI/8) && x >= (Math.PI/4 - Math.PI/8) ){
+                //Log.d(TAG,"ZZZZZZZZZZZZZZZZZZZZZZ");
+            }
+            if(x >= (0 + Math.PI/8) && x <= (Math.PI/2 - Math.PI/8) ){
+                //Log.d(TAG,"YYYYYYYYYYYYYYYYYYYYYY");
+            }
+
+            //Log.d(TAG,"Rotation X = "+event.values[0] );
+            //Log.d(TAG,"Rotation Y = "+event.values[1] );
+            //Log.d(TAG,"Rotation Z = "+event.values[2] );
+            //Log.d(TAG,"Rotation X = "+x+" -- Rotation Y = "+y+" -- Rotation Z = "+z);
+       } /*else if(event.sensor.getType() == Sensor.TYPE_ORIENTATION){
+            Log.d(TAG,"Rotation X = "+event.values[0]+" -- Rotation Y = "+event.values[1]+" -- Rotation Z = "+event.values[2]);
+       }*/
+
 
        requestRender();
    }
@@ -594,6 +648,31 @@ public class MainActivity extends BaseARActivity
             }
         }
         mSensorManager.registerListener(this, mGyro, SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(this, mRotation, SensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override
+    public void onStop () {
+        Log.d(TAG,"Finish Activity");
+        writeInfo();
+        super.onStop() ;
+    }
+
+    private void writeInfo(){
+        Log.d(TAG,"Writing Info to SD CARD to "+"/sdcard/test"+"/"+FILENAME);
+        try {
+            //OutputStreamWriter outputStreamWriter = new OutputStreamWriter(openFileOutput("/sdcard/test"+"/"+FILENAME, Context.MODE_PRIVATE));
+            FileOutputStream fOut = new FileOutputStream("/sdcard/test"+"/"+FILENAME);
+            OutputStreamWriter outputStreamWriter =new OutputStreamWriter(fOut);
+            String data = "coucou";
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
+            fOut.close();
+        }
+        catch (IOException e) {
+            Log.e(TAG, "File write failed: " + e.toString());
+        } 
+
     }
 
     // @Override
@@ -649,6 +728,11 @@ public class MainActivity extends BaseARActivity
                 mVelocityDatasetLoaded = true;
                 client.dataset = 4 ;
                 break;
+
+            case 4:
+                this.finishAffinity();
+                break ;
+
         }
 
         // Apply the computed zoom factor
@@ -833,6 +917,7 @@ public class MainActivity extends BaseARActivity
                     mProgress = -1;
                 }
                 sliderPrecision.setMax(0);
+                sliderPrecision.setProgress(0);
                 sliderPrecision.setMax( (max - min) / step ); //Have to call because setProgress does not update the view
                 sliderPrecision.setProgress((int)(initialPosition));
                 //sliderPrecision.setMax( (max - min) / step ); //Have to call because setProgress does not update the view
@@ -1476,6 +1561,7 @@ public class MainActivity extends BaseARActivity
 
     @Override
     public void onClick(View v) {
+        int tmp ;
         //Log.d(TAG,"On click listener");
         if(v.getId() == R.id.tangibleBtn){
             //Log.d(TAG, "Tangible Button");
@@ -1488,6 +1574,51 @@ public class MainActivity extends BaseARActivity
                 //this.tangibleBtn.setBackgroundColor(Color.DARK_GRAY);
                 FluidMechanics.buttonReleased();
             }
+        }
+
+        else if(v.getId() == R.id.sliceBtn){
+            //TODO
+        }
+
+        else if(v.getId() == R.id.constrainX){
+            constrainX = !constrainX ;
+            //If constrainX, we want to set value in JNI to 0
+            tmp = (constrainX) ? 0 : 1;  
+            //fluidSettings.constrainX = tmp; 
+            updateConstraintX();
+            Log.d(TAG,"tmp = "+tmp);
+            updateDataSettings();
+        }
+
+        else if(v.getId() == R.id.constrainY){
+            constrainY = !constrainY ;
+            //If constrainX, we want to set value in JNI to 0
+            tmp = (constrainY) ? 0 : 1;  
+            //fluidSettings.constrainY = tmp; 
+            updateConstraintY();
+            Log.d(TAG,"tmp = "+tmp);
+            updateDataSettings();
+        }
+
+        else if(v.getId() == R.id.constrainZ){
+            constrainZ = !constrainZ ;
+            //If constrainX, we want to set value in JNI to 0
+            tmp = (constrainZ) ? 0 : 1;  
+            //fluidSettings.constrainZ = tmp; 
+            updateConstraintZ();
+            Log.d(TAG,"tmp = "+tmp);
+            updateDataSettings();
+        }
+
+        else if(v.getId() == R.id.autoConstrain ){
+            this.autoConstraint = !this.autoConstraint;
+            fluidSettings.autoConstraint = this.autoConstraint ;
+            fluidSettings.considerX = 1 ;
+            fluidSettings.considerY = 1 ;
+            fluidSettings.considerZ = 1 ;
+            fluidSettings.considerRotation = 0 ;
+            fluidSettings.considerTranslation = 1 ;
+            updateDataSettings();
         }
     }
 }
