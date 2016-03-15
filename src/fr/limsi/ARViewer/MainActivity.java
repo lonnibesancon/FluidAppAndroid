@@ -813,7 +813,9 @@ public class MainActivity extends BaseARActivity
                 break;
 
             case 4:
-                this.finishAffinity();
+                //this.finishAffinity();
+                //android.os.Process.killProcess(android.os.Process.myPid());
+                //System.exit(0);
                 break ;
 
         }
@@ -1296,7 +1298,9 @@ public class MainActivity extends BaseARActivity
             case R.id.action_quit:
                 Log.d(TAG,"Quit");
                 writeLogging();
-                this.finish();
+                //this.finish();
+                //android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(0);
                 break ;
 
         }
