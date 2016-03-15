@@ -75,6 +75,8 @@ public class MainActivity extends BaseARActivity
     private Button constrainZBtn ;
     private Button autoConstrainBtn ;
 
+    public Object lock = new Object() ;
+
     // FIXME: static?
     private static FluidMechanics.Settings fluidSettings = new FluidMechanics.Settings();
     private static FluidMechanics.State fluidState = new FluidMechanics.State();
@@ -116,9 +118,16 @@ public class MainActivity extends BaseARActivity
     private int interactionMode = sliceTangibleOnly;
     private boolean tangibleModeActivated = false ;
 
+    private long initialTime ;
+
 
     //LOGGING
     private static final String FILENAME = "myFile.txt";
+    private Logging logging ;
+    private short phase = -1 ;
+    private short interactionType ;
+    private boolean isTangibleOn = false ;
+
 
 
     //Constrain interaction part 
@@ -128,6 +137,7 @@ public class MainActivity extends BaseARActivity
     private boolean constrainRotation ;
     private boolean constrainTranslation ;
     private boolean autoConstraint ;
+    private boolean isConstrained = false ;
 
     // private CameraPreview mCameraPreview;
     //
@@ -297,14 +307,16 @@ public class MainActivity extends BaseARActivity
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                  if (event.getAction() == MotionEvent.ACTION_DOWN ){
+                    isTangibleOn = true ;
                     FluidMechanics.buttonPressed();
                 }
                 else if(event.getAction() == MotionEvent.ACTION_UP ){
+                    isTangibleOn = false ;
                     FluidMechanics.buttonReleased();
                 }
                 //int index = event.getActionIndex();
                 //fingerOnButtonIndex = event.getPointerId(index);
-             return false;
+             return true;
             }
         });*/
 
@@ -346,9 +358,63 @@ public class MainActivity extends BaseARActivity
 
         Log.d(TAG,"width = "+width+" height = "+height);
 
+        Date date = new Date();
+        initialTime = date.getTime();
+        logging = new Logging();
+
         // mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_AUTORECOVERY, true); // default is true
 
         // mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_LEARNINGMODE, true);
+    }
+
+
+    private void loggingFunction(){
+        Date date = new Date();
+        long current = date.getTime();
+
+        long timestamp = current - initialTime ;
+        Log.d(TAG,"Timestamp = "+timestamp);
+        logging.addLog(timestamp,fluidSettings.precision,(short)interactionMode,interactionType,phase,
+                       isConstrained, constrainX, constrainY, constrainZ, autoConstraint);
+
+    }
+
+    /*private void writeInfo(){
+        Log.d(TAG,"Writing Info to SD CARD to "+"/sdcard/test"+"/"+FILENAME);
+        try {
+            //OutputStreamWriter outputStreamWriter = new OutputStreamWriter(openFileOutput("/sdcard/test"+"/"+FILENAME, Context.MODE_PRIVATE));
+            FileOutputStream fOut = new FileOutputStream("/sdcard/test"+"/"+FILENAME);
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fOut);
+            
+            for(int i = 0 ; i < logging.size ; i++){
+                outputStreamWriter.write(logging.getString(i));    
+            }
+            outputStreamWriter.close();
+            fOut.close();
+        }
+        catch (IOException e) {
+            Log.e(TAG, "File write failed: " + e.toString());
+        } 
+
+    }*/
+
+
+    private void writeLogging(){
+        Log.d(TAG,"Writing Info to SD CARD to "+"/sdcard/test"+"/"+FILENAME);
+        try {
+             //OutputStreamWriter outputStreamWriter = new OutputStreamWriter(openFileOutput("/sdcard/test"+"/"+FILENAME, Context.MODE_PRIVATE));
+            FileOutputStream fOut = new FileOutputStream("/sdcard/test"+"/"+FILENAME);
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fOut);
+            
+            for(int i = 0 ; i < logging.size ; i++){
+                outputStreamWriter.write(logging.getString(i));    
+            }
+            outputStreamWriter.close();
+            fOut.close();
+        }
+        catch (IOException e) {
+            Log.e(TAG, "File write failed: " + e.toString());
+        } 
     }
 
     private void setTangoListeners() {
@@ -384,9 +450,16 @@ public class MainActivity extends BaseARActivity
             //         }});
             // }
         } else {
-            FluidMechanics.setTangoValues(pose.translation[0],pose.translation[1],pose.translation[2],
+            if(isTangibleOn){
+                this.interactionType = tangibleInteraction ;
+                FluidMechanics.setTangoValues(pose.translation[0],pose.translation[1],pose.translation[2],
                                           pose.rotation[0],pose.rotation[1],pose.rotation[2],pose.rotation[3] ) ;
-
+                
+                synchronized(lock){
+                    loggingFunction(); 
+                }
+            }
+            
             // runOnUiThread(new Runnable() {
             //     @Override
             //     public void run() {
@@ -419,10 +492,15 @@ public class MainActivity extends BaseARActivity
        if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE && mDatasetLoaded == true ) {
            if (mLastTimestamp != 0) {
                float dt = (event.timestamp - mLastTimestamp) * NS2S;
-               if (dt != 0) {
+               if (dt != 0 && isTangibleOn) {
                    FluidMechanics.setGyroValues(dt * event.values[0],   // rx
                                                 dt * event.values[1],   // ry
                                                 dt * event.values[2],0);  // rz
+                   this.interactionType = tangibleInteraction ;
+                   synchronized(lock){
+                        loggingFunction(); 
+                   }
+                   
                }
            }
            mLastTimestamp = event.timestamp;
@@ -675,27 +753,11 @@ public class MainActivity extends BaseARActivity
     @Override
     public void onStop () {
         Log.d(TAG,"Finish Activity");
-        writeInfo();
+        //writeLogging();
         super.onStop() ;
     }
 
-    private void writeInfo(){
-        Log.d(TAG,"Writing Info to SD CARD to "+"/sdcard/test"+"/"+FILENAME);
-        try {
-            //OutputStreamWriter outputStreamWriter = new OutputStreamWriter(openFileOutput("/sdcard/test"+"/"+FILENAME, Context.MODE_PRIVATE));
-            FileOutputStream fOut = new FileOutputStream("/sdcard/test"+"/"+FILENAME);
-            OutputStreamWriter outputStreamWriter =new OutputStreamWriter(fOut);
-            String data = "coucou";
-            outputStreamWriter.write(data);
-            outputStreamWriter.close();
-            fOut.close();
-        }
-        catch (IOException e) {
-            Log.e(TAG, "File write failed: " + e.toString());
-        } 
-
-    }
-
+   
     // @Override
     // protected void processVideoFrame(final byte[] data, Camera camera) {
     //     // Log.d(TAG, "processVideoFrame");
@@ -978,7 +1040,6 @@ public class MainActivity extends BaseARActivity
                 sliderTooltipPrecision.setText(tooltipvalue + "");
                 updateDataSettings();
                 //Log.d(TAG, "Precision Java = " + mProgress);
-
             }
         });
     }
@@ -1232,6 +1293,12 @@ public class MainActivity extends BaseARActivity
                 Log.d(TAG,"Reset");
                 break;
 
+            case R.id.action_quit:
+                Log.d(TAG,"Quit");
+                writeLogging();
+                this.finish();
+                break ;
+
         }
 
         if (handledSetting) {
@@ -1252,12 +1319,14 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerX = 1 ;
             fluidSettings.considerY = 0 ;
             fluidSettings.considerZ = 0 ;
+            isConstrained = true ;
         }
         else if(!constrainX){
 
             fluidSettings.considerX = 1 ;
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 1 ;
+            isConstrained = false ;
         }
         Log.d(TAG,"X Constraint updated");
         updateDataSettings();
@@ -1270,11 +1339,13 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerX = 0 ;
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 0 ;
+            isConstrained = true ;
         }
         else if(!constrainY){
             fluidSettings.considerX = 1 ;
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 1 ;
+            isConstrained = false ;
         }
         Log.d(TAG,"Y Constraint updated");
         updateDataSettings();
@@ -1287,11 +1358,13 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerX = 0 ;
             fluidSettings.considerY = 0 ;
             fluidSettings.considerZ = 1 ;
+            isConstrained = true ;
         }
         else if(!constrainZ){
             fluidSettings.considerX = 1 ;
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 1 ;
+            isConstrained = false ;
         }
         Log.d(TAG,"Z Constraint updated");
         updateDataSettings();
@@ -1306,6 +1379,7 @@ public class MainActivity extends BaseARActivity
         fluidSettings.considerRotation = rotationValue ;
         fluidSettings.considerTranslation = tmp ;
         Log.d(TAG,"Auto Constraint updated");
+        isConstrained = autoConstraint ;
         updateDataSettings();
     }
 
@@ -1381,6 +1455,16 @@ public class MainActivity extends BaseARActivity
         // (ignore the back button)
     }
 
+    private boolean isButton(View v){
+        int id = v.getId();
+        if(id == R.id.tangibleBtn || id == R.id.sliceBtn || id == R.id.constrainX ||
+           id == R.id.constrainY || id == R.id.constrainZ || id == R.id.autoConstrain){
+
+                return true ;
+        }
+        return false ;
+    }
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         // Log.d(TAG, "onTouch");
@@ -1392,7 +1476,7 @@ public class MainActivity extends BaseARActivity
         // }
 
         //Buttons first
-        Log.d(TAG,"Touch event");
+        //Log.d(TAG,"Touch event");
         int fingerOnButtonIndex = -1 ;
 
 
@@ -1401,22 +1485,24 @@ public class MainActivity extends BaseARActivity
             fingerOnButtonIndex = event.getPointerId(index);
             Log.d(TAG,"INDEX = "+fingerOnButtonIndex);
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
-
+                isTangibleOn = true ;
                 FluidMechanics.buttonPressed();
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 FluidMechanics.buttonReleased();
+                isTangibleOn = false ;
             }
             
-            return false ;
+            return true ;
         }
   
         else if(v.getId() == R.id.sliceBtn){
             //TODO
             //return true ;
             int index = event.getActionIndex();
-            Log.d(TAG,"Slice Button");
+            //Log.d(TAG,"Slice Button");
             fingerOnButtonIndex = event.getPointerId(index);
+
         }
 
         else if(v.getId() == R.id.constrainX){
@@ -1426,11 +1512,11 @@ public class MainActivity extends BaseARActivity
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 constrainX = false ;
             }
-            Log.d(TAG,"Touched constrainX");
+            //Log.d(TAG,"Touched constrainX");
             updateConstraintX();
             int index = event.getActionIndex();
             fingerOnButtonIndex = event.getPointerId(index);
-            //return true ;
+            return true ;
         }
 
         else if(v.getId() == R.id.constrainY){
@@ -1440,11 +1526,11 @@ public class MainActivity extends BaseARActivity
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 constrainY = false ;
             }
-            Log.d(TAG,"Touched constrainY");
+            //Log.d(TAG,"Touched constrainY");
             updateConstraintY();
             int index = event.getActionIndex();
             fingerOnButtonIndex = event.getPointerId(index);
-            //return true ;
+            return true ;
         }
 
         else if(v.getId() == R.id.constrainZ){
@@ -1454,11 +1540,11 @@ public class MainActivity extends BaseARActivity
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 constrainZ = false ;
             }
-            Log.d(TAG,"Touched constrainZ");
+            //Log.d(TAG,"Touched constrainZ");
             updateConstraintZ();
             int index = event.getActionIndex();
             fingerOnButtonIndex = event.getPointerId(index);
-            //return true ;
+            return true ;
         }
 
         else if(v.getId() == R.id.autoConstrain ){
@@ -1468,11 +1554,11 @@ public class MainActivity extends BaseARActivity
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 this.autoConstraint = false ;
             }
-            Log.d(TAG,"Touched constrain Auto");
+            //Log.d(TAG,"Touched constrain Auto");
             updateConstraintAuto();
             int index = event.getActionIndex();
             fingerOnButtonIndex = event.getPointerId(index);
-            //return true ;
+            return true ;
         }
 
 
@@ -1480,6 +1566,7 @@ public class MainActivity extends BaseARActivity
         mGestureDetector.onTouchEvent(event);
 
         if(mDatasetLoaded){
+            this.interactionType = touchInteraction ;
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                 case MotionEvent.ACTION_POINTER_DOWN:
@@ -1529,7 +1616,7 @@ public class MainActivity extends BaseARActivity
                 float dx = event.getX(0) - event.getX(1);
                 float dy = event.getY(0) - event.getY(1);
                 float dist = (float)Math.sqrt(dx*dx + dy*dy);
-
+                this.interactionType = touchInteraction ;
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_POINTER_DOWN: {
                         mInitialPinchDist = dist;
@@ -1546,9 +1633,9 @@ public class MainActivity extends BaseARActivity
                         break;
                     }
                 }
+                
             }
             
-
             // NativeApp.setZoom(mZoomFactor);
 
         }
@@ -1614,7 +1701,9 @@ public class MainActivity extends BaseARActivity
 
             // NativeApp.setZoom(mZoomFactor);
         }*/
-
+        synchronized(lock){
+            loggingFunction(); 
+        }    
         return true;
     }
 
