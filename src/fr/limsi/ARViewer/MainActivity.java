@@ -373,7 +373,7 @@ public class MainActivity extends BaseARActivity
         long current = date.getTime();
 
         long timestamp = current - initialTime ;
-        Log.d(TAG,"Timestamp = "+timestamp);
+        //Log.d(TAG,"Timestamp = "+timestamp);
         synchronized(lock){
             logging.addLog(timestamp,fluidSettings.precision,(short)interactionMode,interactionType,phase,
                            isConstrained, constrainX, constrainY, constrainZ, autoConstraint);    
@@ -1486,7 +1486,7 @@ public class MainActivity extends BaseARActivity
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-         Log.d(TAG, "onTouch");
+        //Log.d(TAG, "onTouch");
 
         // // Log.d(TAG, "button state = " + event.getButtonState());
         // if (event.getButtonState() == 1) {
@@ -1502,7 +1502,7 @@ public class MainActivity extends BaseARActivity
         if(v.getId() == R.id.tangibleBtn){
             int index = event.getActionIndex();
             fingerOnButtonIndex = event.getPointerId(index);
-            Log.d(TAG,"INDEX = "+fingerOnButtonIndex);
+            //Log.d(TAG,"INDEX = "+fingerOnButtonIndex);
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 isTangibleOn = true ;
                 FluidMechanics.buttonPressed();
@@ -1581,8 +1581,10 @@ public class MainActivity extends BaseARActivity
         }
 
 
-        Log.d(TAG,"Index = "+fingerOnButtonIndex);
+        Log.d(TAG,"X = "+fluidSettings.considerX+"  -- Y = "+fluidSettings.considerY
+                        +"  -- Z = "+ fluidSettings.considerZ+"  - Rotation  = "+fluidSettings.considerRotation);
         mGestureDetector.onTouchEvent(event);
+
 
         if(mDatasetLoaded){
             this.interactionType = touchInteraction ;
@@ -1592,8 +1594,8 @@ public class MainActivity extends BaseARActivity
                 {   
                     int index = event.getActionIndex();
                     int id = event.getPointerId(index);
-                    Log.d("Finger ID", "Finger ID = "+id);
-                    Log.d("Finger Index", "Finger Index = "+index);
+                    //Log.d("Finger ID", "Finger ID = "+id);
+                    //Log.d("Finger Index", "Finger Index = "+index);
                     //if(id != -1){
                         FluidMechanics.addFinger(event.getX(index), event.getY(index), id);    
                     //}
@@ -1605,8 +1607,8 @@ public class MainActivity extends BaseARActivity
                 {
                     int index = event.getActionIndex();
                     int id = event.getPointerId(index);
-                    Log.d("Finger ID", "Finger ID = "+id);
-                    Log.d("Finger Index", "Finger Index = "+index);
+                    //Log.d("Finger ID", "Finger ID = "+id);
+                    //Log.d("Finger Index", "Finger Index = "+index);
                     //if(id != -1){
                         FluidMechanics.removeFinger(id);
                     //}
@@ -1744,7 +1746,7 @@ public class MainActivity extends BaseARActivity
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {
-        Log.d(TAG, "onDoubleTap");
+        //Log.d(TAG, "onDoubleTap");
         // loadNewData();
         openContextMenu(findViewById(R.id.glSurfaceView));
         return true;

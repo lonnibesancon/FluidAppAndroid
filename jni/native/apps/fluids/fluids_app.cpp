@@ -130,6 +130,7 @@ struct FluidMechanics::Impl
 	void addFinger(float x, float y, int fingerID);
 	void removeFinger(int fingerID);
 	void computeFingerInteraction();
+	bool computeSeedingPlacement();
 
 	Vector3 posToDataCoords(const Vector3& pos); // "pos" is in eye coordinates
 	Vector3 dataCoordsToPos(const Vector3& dataCoordsToPos);
@@ -1120,19 +1121,62 @@ bool intersectPlane(const Vector3& n, const Vector3& p0, const Vector3& l0, cons
 { 
     // assuming vectors are all normalized
     float denom = n.dot(l);//dotProduct(n, l); 
-    LOGD("DENOM = %f", denom);
+    //LOGD("DENOM = %f", denom);
     if (denom < 1e-6) { 
         Vector3 p0l0 = p0 - l0; 
         t = p0l0.dot(n)/denom ;
-        printAny(p0l0, "POLO = ");
-        printAny(p0l0.dot(n), "p0l0.dot(n) = ");
-        LOGD("t == %f", t);
-        //t = dotProduct(p0l0, n) / denom; 
+        //printAny(p0l0, "POLO = ");
+        //printAny(p0l0.dot(n), "p0l0.dot(n) = ");
+        //LOGD("t == %f", t);
+        t = dotProduct(p0l0, n) / denom; 
         return (t >= 0); 
     } 
  
     return false; 
 } 
+
+//Returns true if the seeding is successful
+bool FluidMechanics::Impl::computeSeedingPlacement(){
+	Vector2 currentPos ;
+	synchronized(fingerPositions){
+		currentPos = fingerPositions[0];
+	}
+
+	//LOGD("Current Pos = %f --  %f",currentPos.x, currentPos.y);
+
+	//Put screen coordinate between -1 and 1, and inverse Y to correspond to OpenGL conventions
+	currentPos.x = (currentPos.x * 2 /screenW)-1 ;
+	currentPos.y = (currentPos.y * 2 /screenH)-1 ;
+	currentPos.y *= -1 ;
+
+	//LOGD("Current Pos -1/1 = %f --  %f",currentPos.x, currentPos.y);
+
+	//Get the world cornidates of the finger postion accoriding to the depth of the plane
+	Vector3 ray(currentPos.x, currentPos.y, 1);
+	ray = app->getProjMatrix().inverse() * ray ;
+	ray.normalize();
+	//printAny(ray, "RAY == ");
+	
+	float t ;
+	//printAny(sliceNormal, "SLice NOrmal =");
+	//printAny(slicePoint, "Slice Point = ");
+
+	bool success = intersectPlane(sliceNormal, slicePoint, Vector3::zero(),ray, t) ;
+
+	if(success){
+		//LOGD("SUCCESS");
+		//printAny(ray*t, "RAY * T = ");
+		seedingPoint = ray*t ;
+		releaseParticles();
+		return true ;
+	}
+	else{
+		//LOGD("FAIL");
+		return false ;
+		
+	}
+
+}
 
 void FluidMechanics::Impl::computeFingerInteraction(){
 	Vector2 currentPos ;
@@ -1140,55 +1184,10 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 
 	//Particle seeding case
 	//LOGD("ComputeFingerInteraction Function");
-	LOGD("%d == %d   ---  %d", interactionMode, seedPoint, fingerPositions.size());
+	//LOGD("%d == %d   ---  %d", interactionMode, seedPoint, fingerPositions.size());
 	if(interactionMode == seedPoint && fingerPositions.size() == 1){
-		synchronized(fingerPositions){
-			currentPos = fingerPositions[0];
-		}
-
-		//LOGD("Current Pos = %f --  %f",currentPos.x, currentPos.y);
-
-		currentPos.x = (currentPos.x * 2 /screenW)-1 ;
-		currentPos.y = (currentPos.y * 2 /screenH)-1 ;
-		currentPos.y *= -1 ;
-
-		//LOGD("Current Pos -1/1 = %f --  %f",currentPos.x, currentPos.y);
-		Vector3 ray(currentPos.x, currentPos.y, 1);
-		ray = app->getProjMatrix().inverse() * ray ;
-		ray.normalize();
-		printAny(ray, "RAY == ");
 		
-		float t ;
-		printAny(sliceNormal, "SLice NOrmal =");
-		printAny(slicePoint, "Slice Point = ");
-
-		bool success = intersectPlane(sliceNormal, slicePoint, Vector3::zero(),ray, t) ;
-	
-		if(success){
-			LOGD("SUCCESS");
-			printAny(ray*t, "RAY * T");
-			seedingPoint = ray*t ;
-			releaseParticles();
-		}
-		else{
-			LOGD("FAIL");
-		}
-
-		
-
-
-
-		/*Vector3 ray(currentPos.x, currentPos.y,1);
-		ray = app->getProjMatrix().inverse() * ray ;
-		ray.normalize();
-		//synchronized(state->modelMatrix){	//FIXME Deadlock
-			ray = state->modelMatrix * ray ;
-		//}
-		LOGD("Ray = %f  --  %f  -- %f  ",ray.x, ray.y, ray.z);
-		releaseParticles();
-		LOGD("Release Particle Done");
-		//If seeding worked*/
-		if(seedPointPlacement){
+		if(computeSeedingPlacement()){
 			return ;
 		}
 	}
@@ -1467,9 +1466,9 @@ std::string FluidMechanics::Impl::getData(){
 		<< m.data_[14] << ";" 
 		<< m.data_[15] << ";" ;
 
-	oss << "-1" << ";"
-		<< "-1" << ";"  
-		<< "-1" << ";" ;
+	oss << seedingPoint.x << ";"
+		<< seedingPoint.y << ";"  
+		<< seedingPoint.z << ";" ;
 
 	std::string s = oss.str();
 
