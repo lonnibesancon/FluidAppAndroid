@@ -1508,10 +1508,12 @@ public class MainActivity extends BaseARActivity
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 isTangibleOn = true ;
                 FluidMechanics.buttonPressed();
+                this.tangibleBtn.setPressed(true);
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 FluidMechanics.buttonReleased();
                 isTangibleOn = false ;
+                this.tangibleBtn.setPressed(false);
             }
             
             return true ;
