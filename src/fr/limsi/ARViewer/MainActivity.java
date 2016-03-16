@@ -115,7 +115,7 @@ public class MainActivity extends BaseARActivity
 
     private Client client ;
 
-    private int interactionMode = sliceTangibleOnly;
+    private int interactionMode = dataTangible;
     private boolean tangibleModeActivated = false ;
 
     private long initialTime ;
@@ -1077,6 +1077,7 @@ public class MainActivity extends BaseARActivity
             fluidSettings.showOutline = menu.findItem(R.id.action_showOutline).isChecked();
             settings.showCamera = menu.findItem(R.id.action_showCamera).isChecked();
             fluidSettings.showCrossingLines = menu.findItem(R.id.action_showLines).isChecked();
+
             constrainX = menu.findItem(R.id.action_constrainX).isChecked();
             constrainY = menu.findItem(R.id.action_constrainY).isChecked();
             constrainZ = menu.findItem(R.id.action_constrainZ).isChecked();
@@ -1131,6 +1132,8 @@ public class MainActivity extends BaseARActivity
         int tmp ;
 
 		switch (item.getItemId()) {
+
+// Menu show
             case R.id.action_showVolume:
                 fluidSettings.showVolume = !fluidSettings.showVolume;
                 item.setChecked(fluidSettings.showVolume);
@@ -1167,6 +1170,8 @@ public class MainActivity extends BaseARActivity
                 handledDataSetting = true;
                 break;
 
+//End Menu Show
+//Start Menu Action
             case R.id.action_axisClipping:
                 item.setChecked(!item.isChecked());
                 if (item.isChecked() && mStylusClippingMenuItem.isChecked())
@@ -1185,29 +1190,60 @@ public class MainActivity extends BaseARActivity
                 showDistanceDialog();
                 break;
 
+    // Interaction Mode 
+        /* We manipulate DATA */
             case R.id.action_dataTangible:
-                changeInteractionMode(dataTangibleOnly);
+                changeInteractionMode(dataTangible);
                 break;
 
             case R.id.action_dataTouch:
-                changeInteractionMode(dataTouchOnly);
+                changeInteractionMode(dataTouch);
                 break ;
 
-            case R.id.action_plane:
-                changeInteractionMode(sliceTangibleOnly);
+            case R.id.action_dataHybrid:
+                //changeInteractionMode(dataTouchTangible);
+                changeInteractionMode(dataHybrid);
                 break ;
 
-            case R.id.action_data_plane:
-                changeInteractionMode(dataSliceTouchTangible);
+        /* We manipulate the plane */
+            case R.id.action_planeTouch:
+                changeInteractionMode(planeTouch);
                 break ;
 
+            case R.id.action_planeTangible:
+                changeInteractionMode(planeTangible);
+                break ;
+
+            case R.id.action_planeHybrid:
+                changeInteractionMode(planeHybrid);
+                break ;
+
+        /* We manipulate data + Plane */
+            case R.id.action_dataPlaneTouch:
+                changeInteractionMode(dataPlaneTouch);
+                break ;
+
+            case R.id.action_dataPlaneTangible:
+                changeInteractionMode(dataPlaneTangible);
+                break ;
+
+            case R.id.action_dataPlaneHybrid:
+                changeInteractionMode(dataPlaneHybrid);
+                break ;
+
+        /* Seeding mode */
             case R.id.action_seeding:
                 changeInteractionMode(seedPoint);
                 break ;
 
+
+
             case R.id.change_IP:
                 changeIP();
                 break ;
+
+// End Menu Action                
+// Constraining interaction
 
             //Constraining interaction part
             case R.id.action_constrainX:

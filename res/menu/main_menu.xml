@@ -76,13 +76,13 @@
         android:checked="false"
         android:id="@+id/action_axisClipping" />
 
-  <!--<item android:title="Stylus slicing"
+  <item android:title="Stylus slicing"
         android:checkable="true"
         android:checked="true"
-        android:id="@+id/action_stylusClipping" />-->
+        android:id="@+id/action_stylusClipping" />
 
-  <!--<item android:title="Slicing distance"
-        android:id="@+id/action_clipDist" />-->
+  <item android:title="Slicing distance"
+        android:id="@+id/action_clipDist" />
 
   <item android:title="Data Tangible"
         android:id="@+id/action_dataTangible"/>
@@ -91,25 +91,25 @@
         android:id="@+id/action_dataTouch"/>
 
   <item android:title="Data Hybrid"
-        android:id="@+id/action_datahybrid"/>
+        android:id="@+id/action_dataHybrid"/>
 
   <item android:title="Plane Touch"
-        android:id="@+id/action_planetouch"/>
+        android:id="@+id/action_planeTouch"/>
 
   <item android:title="Plane Tangible"
-        android:id="@+id/action_planetouch"/>
+        android:id="@+id/action_planeTangible"/>
 
   <item android:title="Plane Hybrid"
-        android:id="@+id/action_planehybrid"/>
+        android:id="@+id/action_planeHybrid"/>
 
   <item android:title="Data+Plane Touch"
-        android:id="@+id/action_data_plane_touch"/>
+        android:id="@+id/action_dataPlaneTouch"/>
 
   <item android:title="Data+Plane Tangible"
-        android:id="@+id/action_data_plane_tangible"/>
+        android:id="@+id/action_dataPlaneTangible"/>
 
   <item android:title="Data+Plane Hybrid"
-        android:id="@+id/action_data_plane_hybrid"/>
+        android:id="@+id/action_dataPlaneHybrid"/>
 
   <item android:title="Seeding"
         android:id="@+id/action_seeding"/>

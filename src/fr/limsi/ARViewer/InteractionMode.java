@@ -1,26 +1,24 @@
 package fr.limsi.ARViewer;
 
 public interface InteractionMode{
-	public static final int dataTangibleOnly = 1 ;
-	public static final int dataTouchOnly = 2 ;
-	//Touch for rotation, Tangible for translation
-	public static final int dataTouchTangible = 3 ;
-	public static final int dataTangibleTouch = 4 ;
+
+	// Interaction mode for data
+	public static final int dataTangible 		= 1 ;
+	public static final int dataTouch 			= 2 ;
+	public static final int dataHybrid 			= 3 ;
 
 
+	//Interaction mode for plane
+	public static final int planeTouch 			= 11 ;
+	public static final int planeTangible 		= 12 ;
+	public static final int planeHybrid 		= 13 ;
 
-	public static final int sliceTangibleOnly = 11 ;
-	public static final int sliceTouchOnly = 12 ;
-	public static final int sliceTouchTangible = 13 ;
-	public static final int sliceTangibleTouch = 14 ;
+	// Interaction mode for plane + data
+	public static final int dataPlaneTouch 		= 21 ;
+	public static final int dataPlaneTangible 	= 22 ;
+	public static final int dataPlaneHybrid 	= 23 ;
 
-
-
-	public static final int dataSliceTouchTangible = 21 ;
-	public static final int dataSliceTangibleTouch = 22 ;
-
-
-
+	//Seeding point interaction
 	public static final int seedPoint = 31 ;
 
 
