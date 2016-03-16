@@ -35,7 +35,7 @@ public class Logging {
 				   								isZConstrained,isAutoConstrained);
 
 		logging.add(tmp);
-		Log.d("COUCOU",""+size);
+		//Log.d("COUCOU",""+size);
 		size ++ ;
 	}
 

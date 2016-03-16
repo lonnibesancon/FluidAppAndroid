@@ -6,8 +6,16 @@
 #include <ostream>
 #include <iomanip>
 
+template<typename T>
+ void printAny(const T& v, const std::string& tag){
+    std::ostringstream oss ;
+    oss << tag << ": " << v ;
+    LOGW("%s", oss.str().c_str());
+ }
+
 namespace LinearMath
 {
+
 
 template <typename T>
 struct Quaternion;

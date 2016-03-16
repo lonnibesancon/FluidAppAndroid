@@ -374,8 +374,11 @@ public class MainActivity extends BaseARActivity
 
         long timestamp = current - initialTime ;
         Log.d(TAG,"Timestamp = "+timestamp);
-        logging.addLog(timestamp,fluidSettings.precision,(short)interactionMode,interactionType,phase,
-                       isConstrained, constrainX, constrainY, constrainZ, autoConstraint);
+        synchronized(lock){
+            logging.addLog(timestamp,fluidSettings.precision,(short)interactionMode,interactionType,phase,
+                           isConstrained, constrainX, constrainY, constrainZ, autoConstraint);    
+        }
+        
 
     }
 
@@ -455,9 +458,9 @@ public class MainActivity extends BaseARActivity
                 FluidMechanics.setTangoValues(pose.translation[0],pose.translation[1],pose.translation[2],
                                           pose.rotation[0],pose.rotation[1],pose.rotation[2],pose.rotation[3] ) ;
                 
-                synchronized(lock){
+                //synchronized(lock){
                     loggingFunction(); 
-                }
+                //}
             }
             
             // runOnUiThread(new Runnable() {
@@ -497,9 +500,9 @@ public class MainActivity extends BaseARActivity
                                                 dt * event.values[1],   // ry
                                                 dt * event.values[2],0);  // rz
                    this.interactionType = tangibleInteraction ;
-                   synchronized(lock){
+                   //synchronized(lock){
                         loggingFunction(); 
-                   }
+                   //}
                    
                }
            }
@@ -1001,15 +1004,27 @@ public class MainActivity extends BaseARActivity
                     //updateDataSettings();
                     mProgress = -1;
                 }
-                sliderPrecision.setMax(0);
-                sliderPrecision.setProgress(0);
-                sliderPrecision.setMax( (max - min) / step ); //Have to call because setProgress does not update the view
-                sliderPrecision.setProgress((int)(initialPosition));
+                //sliderPrecision.setMax(0);
+                //sliderPrecision.setProgress(0);
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable(){
+                    @Override
+                    public void run(){
+                        sliderPrecision.setMax( (max - min) / step ); //Have to call because setProgress does not update the view
+                        sliderPrecision.customSetProgress((int)(initialPosition));
+                        //sliderPrecision.setMax( (max - min) / step ); //Have to call because setProgress does not update the view
+                        //sliderPrecision.onSizeChanged(sliderPrecision.getWidth(), sliderPrecision.getHeight(), 0,0);
+                        fluidSettings.precision = 1 ;
+                        mPressed = false;
+                    }
+                },100);
+                /*sliderPrecision.setMax( (max - min) / step ); //Have to call because setProgress does not update the view
+                sliderPrecision.customSetProgress((int)(initialPosition));
                 //sliderPrecision.setMax( (max - min) / step ); //Have to call because setProgress does not update the view
-                sliderPrecision.onSizeChanged(sliderPrecision.getWidth(), sliderPrecision.getHeight(), 0,0);
+                //sliderPrecision.onSizeChanged(sliderPrecision.getWidth(), sliderPrecision.getHeight(), 0,0);
                 fluidSettings.precision = 1 ;
                 mPressed = false;
-                //Log.d(TAG, "Precision Java = " + mProgress);
+                //Log.d(TAG, "Precision Java = " + mProgress);*/
             }
 
             @Override
@@ -1017,11 +1032,11 @@ public class MainActivity extends BaseARActivity
                 // Only handle events called from VerticalSeekBar. Other events, generated
                 // from the base class SeekBar, contain bogus values because the Android
                 // SeekBar was not meant to be vertical.
-                if (fromUser)
+                /*if (fromUser)
                     return;
 
                 if (!mPressed)
-                    return;
+                    return;*/
 
                 
                 mProgress = (double)progress/seekBar.getMax();
@@ -1471,7 +1486,7 @@ public class MainActivity extends BaseARActivity
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        // Log.d(TAG, "onTouch");
+         Log.d(TAG, "onTouch");
 
         // // Log.d(TAG, "button state = " + event.getButtonState());
         // if (event.getButtonState() == 1) {
@@ -1579,9 +1594,9 @@ public class MainActivity extends BaseARActivity
                     int id = event.getPointerId(index);
                     Log.d("Finger ID", "Finger ID = "+id);
                     Log.d("Finger Index", "Finger Index = "+index);
-                    if(id != fingerOnButtonIndex){
-                        FluidMechanics.addFinger(event.getX(id), event.getY(id), id);    
-                    }
+                    //if(id != -1){
+                        FluidMechanics.addFinger(event.getX(index), event.getY(index), id);    
+                    //}
                     break ;
                 }
 
@@ -1592,9 +1607,9 @@ public class MainActivity extends BaseARActivity
                     int id = event.getPointerId(index);
                     Log.d("Finger ID", "Finger ID = "+id);
                     Log.d("Finger Index", "Finger Index = "+index);
-                    if(id != fingerOnButtonIndex){
+                    //if(id != -1){
                         FluidMechanics.removeFinger(id);
-                    }
+                    //}
                     break ;
                 }
 
@@ -1609,7 +1624,7 @@ public class MainActivity extends BaseARActivity
                         ids[i]  = event.getPointerId(i);
                         xPos[i] = event.getX(i);
                         yPos[i] = event.getY(i);
-                        if(ids[i] != fingerOnButtonIndex){
+                        if(ids[i] != -1){
                             FluidMechanics.updateFingerPositions(xPos[i],yPos[i],ids[i]);
                         }
                     }
@@ -1705,9 +1720,9 @@ public class MainActivity extends BaseARActivity
 
             // NativeApp.setZoom(mZoomFactor);
         }*/
-        synchronized(lock){
+        //synchronized(lock){
             loggingFunction(); 
-        }    
+        //}    
         return true;
     }
 

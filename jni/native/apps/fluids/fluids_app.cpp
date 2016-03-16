@@ -16,7 +16,7 @@
 #include "rendering/lines.h"
 
 #include <array>
-#include <time.h>
+#include <time.h> 
 
 #include <vtkSmartPointer.h>
 #include <vtkNew.h>
@@ -465,15 +465,15 @@ void FluidMechanics::Impl::releaseParticles()
 		return;
 	}
 		
-	LOGD("Conditions met to place particles");
+	//LOGD("Conditions met to place particles");
 	Matrix4 smm;
 	synchronized (state->stylusModelMatrix) {
 		smm = state->stylusModelMatrix;
 	}
-	LOGD("Got stylus Model Matrix");
+	//LOGD("Got stylus Model Matrix");
 	//const float size = 0.5f * (stylusEffectorDist + std::max(dataSpacing.x*dataDim[0], std::max(dataSpacing.y*dataDim[1], dataSpacing.z*dataDim[2])));
 	//Vector3 dataPos = posToDataCoords(smm * Matrix4::makeTransform(Vector3(-size, 0, 0)*settings->zoomFactor) * Vector3::zero());
-	Vector3 dataPos = seedingPoint ;
+	Vector3 dataPos = posToDataCoords(seedingPoint) ;
 	if (dataPos.x < 0 || dataPos.y < 0 || dataPos.z < 0
 	    || dataPos.x >= dataDim[0] || dataPos.y >= dataDim[1] || dataPos.z >= dataDim[2])
 	{
@@ -968,27 +968,63 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 	if(!data ){
 		return ;
 	}
+
 	Vector3 vec(tx,ty,tz);
 	if(tangoEnabled){
 		Quaternion quat(rx,ry,rz,q);
-		Vector3 trans = quat.inverse() * (vec-prevVec);
-		trans *= Vector3(1,-1,-1);	//Tango... -_-"
-		trans *= 300 ;
-		trans *= settings->precision ;
 
-		trans.x *= settings->considerX * settings->considerTranslation ;
-		trans.y *= settings->considerY * settings->considerTranslation ;
-		trans.z *= settings->considerZ * settings->considerTranslation ;
+		if(settings->autoConstraint){
+			/*- n = normale du plan
+			- v1 = ramener n dans le repère écran
+			- v2 = ramener le déplacement de la tablette dans le repère écran
+			- l = v2.length()
+			- d = v1.normalized().dot(v2.normalized())
+			- position du plan += n * l*d*/
 
-		if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint || interactionMode == dataSliceTouchTangible){
-			//currentSlicePos += trans ;	Version with the plane moving freely in the world
-			currentSlicePos += trans ; 	//Version with a fix plane
-		}
-		else if(interactionMode == dataTangibleOnly){
-			currentDataPos +=trans ;
+			//Vector3 normalOrigin = 
+			Vector3 trans = quat.inverse() * (vec-prevVec);
+			float l = trans.length();
+			float d = sliceNormal.normalized().dot(trans.normalized());
+			trans = sliceNormal*l*d ;
+
+			//printAny(sliceNormal,"TAGGGGGGG");
+			currentSlicePos += trans ;
+			LOGD("D = %f  --  L = %f",d,l);
+			printAny(trans, "Trans: ");
+			/*printAny(sliceNormal,"TAGGGGGGG");
+			GLfloat modelview[16]; 
+			GLfloat projection[16]; 
+			GLint viewport[4];
+			glGetFloatv(GL_MODELVIEW_MATRIX, modelview);	
+			glGetIntegerv(GL_VIEWPORT,viewport);
+			glGetFloatv(GL_PROJECTION_MATRIX, projection);
+			//Matrix4 proj(app->getProjMatrix());
+			GLdouble winX, winY, winZ;
+			gluProject(sliceNormal.x, sliceNormal.y, sliceNormal.z,modelview,projection,viewport)*/
 		}
 		
-		//updateMatrices();
+		else{
+			//Normal interaction
+			Vector3 trans = quat.inverse() * (vec-prevVec);
+			trans *= Vector3(1,-1,-1);	//Tango... -_-"
+			trans *= 300 ;
+			trans *= settings->precision ;
+
+			//To constrain interaction
+			trans.x *= settings->considerX * settings->considerTranslation ;
+			trans.y *= settings->considerY * settings->considerTranslation ;
+			trans.z *= settings->considerZ * settings->considerTranslation ;
+
+			if(interactionMode == sliceTangibleOnly || interactionMode == seedPoint || interactionMode == dataSliceTouchTangible){
+				//currentSlicePos += trans ;	Version with the plane moving freely in the world
+				currentSlicePos += trans ; 	//Version with a fix plane
+			}
+			else if(interactionMode == dataTangibleOnly){
+				currentDataPos +=trans ;
+			}
+			
+			//updateMatrices();
+		}
 	}
 	prevVec = vec ;
 
@@ -1010,7 +1046,7 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 	//LOGD("X =  %f  --  Y =  %f  --  Z = %f", axis.x, axis.y, axis.z);
 
 
-	if(settings->autoConstraint){
+	/*if(settings->autoConstraint){
 			//LOGD("Auto constrain");
 			//LOGD("X = %f  --  Y = %f  --  Z = %f",currentTabRot.x,currentTabRot.y,currentTabRot.z);
 			//First get the closest orthogonal orientation
@@ -1048,7 +1084,7 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 			}
 
 #endif
-		}
+		}*/
 		//updateMatrices();
 
 	//Now we update the rendering according to constraints and interaction mode
@@ -1080,24 +1116,69 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 	
 }
 
+bool intersectPlane(const Vector3& n, const Vector3& p0, const Vector3& l0, const Vector3& l, float& t) 
+{ 
+    // assuming vectors are all normalized
+    float denom = n.dot(l);//dotProduct(n, l); 
+    LOGD("DENOM = %f", denom);
+    if (denom < 1e-6) { 
+        Vector3 p0l0 = p0 - l0; 
+        t = p0l0.dot(n)/denom ;
+        printAny(p0l0, "POLO = ");
+        printAny(p0l0.dot(n), "p0l0.dot(n) = ");
+        LOGD("t == %f", t);
+        //t = dotProduct(p0l0, n) / denom; 
+        return (t >= 0); 
+    } 
+ 
+    return false; 
+} 
+
 void FluidMechanics::Impl::computeFingerInteraction(){
 	Vector2 currentPos ;
 	Vector2 prevPos ;
 
 	//Particle seeding case
 	//LOGD("ComputeFingerInteraction Function");
+	LOGD("%d == %d   ---  %d", interactionMode, seedPoint, fingerPositions.size());
 	if(interactionMode == seedPoint && fingerPositions.size() == 1){
 		synchronized(fingerPositions){
 			currentPos = fingerPositions[0];
 		}
-		currentPos.x /= (screenW/2) ;
-		currentPos.x -= 1 ;
-		currentPos.y /= (screenH/2) ;
-		currentPos.y -= 1 ;
 
-		LOGD("Current Pos -1/1 = %f --  %f",currentPos.x, currentPos.y);
+		//LOGD("Current Pos = %f --  %f",currentPos.x, currentPos.y);
 
-		Vector3 ray(currentPos.x, currentPos.y,1);
+		currentPos.x = (currentPos.x * 2 /screenW)-1 ;
+		currentPos.y = (currentPos.y * 2 /screenH)-1 ;
+		currentPos.y *= -1 ;
+
+		//LOGD("Current Pos -1/1 = %f --  %f",currentPos.x, currentPos.y);
+		Vector3 ray(currentPos.x, currentPos.y, 1);
+		ray = app->getProjMatrix().inverse() * ray ;
+		ray.normalize();
+		printAny(ray, "RAY == ");
+		
+		float t ;
+		printAny(sliceNormal, "SLice NOrmal =");
+		printAny(slicePoint, "Slice Point = ");
+
+		bool success = intersectPlane(sliceNormal, slicePoint, Vector3::zero(),ray, t) ;
+	
+		if(success){
+			LOGD("SUCCESS");
+			printAny(ray*t, "RAY * T");
+			seedingPoint = ray*t ;
+			releaseParticles();
+		}
+		else{
+			LOGD("FAIL");
+		}
+
+		
+
+
+
+		/*Vector3 ray(currentPos.x, currentPos.y,1);
 		ray = app->getProjMatrix().inverse() * ray ;
 		ray.normalize();
 		//synchronized(state->modelMatrix){	//FIXME Deadlock
@@ -1106,7 +1187,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		LOGD("Ray = %f  --  %f  -- %f  ",ray.x, ray.y, ray.z);
 		releaseParticles();
 		LOGD("Release Particle Done");
-		//If seeding worked
+		//If seeding worked*/
 		if(seedPointPlacement){
 			return ;
 		}
@@ -1247,7 +1328,8 @@ void FluidMechanics::Impl::updateMatrices(){
 	if(interactionMode == dataSliceTouchTangible || 
 	   interactionMode == sliceTouchOnly || 
 	   interactionMode == dataTouchTangible ||
-	   interactionMode == dataTouchOnly){
+	   interactionMode == dataTouchOnly ||
+	   interactionMode == seedPoint){
 
 			computeFingerInteraction();
 	}
