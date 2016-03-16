@@ -1392,14 +1392,16 @@ public class MainActivity extends BaseARActivity
     private void updateConstraintAuto(){
         int tmp = (this.autoConstraint) ? 1 : 0; 
         int rotationValue = (this.autoConstraint) ? 0 : 1; 
-        fluidSettings.considerX = tmp ;
-        fluidSettings.considerY = tmp ;
-        fluidSettings.considerZ = tmp ;
+        //fluidSettings.considerX = tmp ;
+        //fluidSettings.considerY = tmp ;
+        //fluidSettings.considerZ = tmp ;
         fluidSettings.considerRotation = rotationValue ;
-        fluidSettings.considerTranslation = tmp ;
+        //fluidSettings.considerTranslation = tmp ;
         Log.d(TAG,"Auto Constraint updated");
         isConstrained = autoConstraint ;
         updateDataSettings();
+        Log.d(TAG,"X = "+fluidSettings.considerX+"  -- Y = "+fluidSettings.considerY
+                        +"  -- Z = "+ fluidSettings.considerZ+"  - Rotation  = "+fluidSettings.considerRotation);
     }
 
     private void showDistanceDialog() {
@@ -1581,8 +1583,8 @@ public class MainActivity extends BaseARActivity
         }
 
 
-        Log.d(TAG,"X = "+fluidSettings.considerX+"  -- Y = "+fluidSettings.considerY
-                        +"  -- Z = "+ fluidSettings.considerZ+"  - Rotation  = "+fluidSettings.considerRotation);
+        //Log.d(TAG,"X = "+fluidSettings.considerX+"  -- Y = "+fluidSettings.considerY
+        //                +"  -- Z = "+ fluidSettings.considerZ+"  - Rotation  = "+fluidSettings.considerRotation);
         mGestureDetector.onTouchEvent(event);
 
 

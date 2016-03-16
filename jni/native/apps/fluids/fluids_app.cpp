@@ -992,16 +992,6 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 			currentSlicePos += trans ;
 			LOGD("D = %f  --  L = %f",d,l);
 			printAny(trans, "Trans: ");
-			/*printAny(sliceNormal,"TAGGGGGGG");
-			GLfloat modelview[16]; 
-			GLfloat projection[16]; 
-			GLint viewport[4];
-			glGetFloatv(GL_MODELVIEW_MATRIX, modelview);	
-			glGetIntegerv(GL_VIEWPORT,viewport);
-			glGetFloatv(GL_PROJECTION_MATRIX, projection);
-			//Matrix4 proj(app->getProjMatrix());
-			GLdouble winX, winY, winZ;
-			gluProject(sliceNormal.x, sliceNormal.y, sliceNormal.z,modelview,projection,viewport)*/
 		}
 		
 		else{
@@ -1036,58 +1026,6 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 		return ;
 	}
 
-	//First we want to update the tablet's orientation
-	Quaternion tmp = currentTabRot;
-	tmp = tmp * Quaternion(tmp.inverse() * (-Vector3::unitZ()), rz);
-	tmp = tmp * Quaternion(tmp.inverse() * -Vector3::unitY(), ry);
-	tmp = tmp * Quaternion(tmp.inverse() * Vector3::unitX(), rx);
-	currentTabRot = tmp ;
-
-	Vector3 axis = currentTabRot * Vector3(1,1,1);
-	//LOGD("X =  %f  --  Y =  %f  --  Z = %f", axis.x, axis.y, axis.z);
-
-
-	/*if(settings->autoConstraint){
-			//LOGD("Auto constrain");
-			//LOGD("X = %f  --  Y = %f  --  Z = %f",currentTabRot.x,currentTabRot.y,currentTabRot.z);
-			//First get the closest orthogonal orientation
-			LOGD("X =  %f  --  Y =  %f  --  Z = %f", abs(axis.x), abs(axis.y), abs(axis.z));
-			if(abs(axis.x) >= abs(axis.y) && abs(axis.x) >= abs(axis.z)){
-				settings->considerY = 0 ;
-				settings->considerZ = 0 ;
-				//LOGD("Case 1");
-			}
-			else if(abs(axis.y) >= abs(axis.x) && abs(axis.y) >= abs(axis.z)){
-				settings->considerX = 0 ;
-				settings->considerZ = 0 ;
-				LOGD("Case 2");
-			}
-			else{
-				settings->considerX = 0 ;
-				settings->considerY = 0 ;
-				LOGD("Case 3");
-			}
-#if 0
-			if(abs(currentTabRot.x) >= abs(currentTabRot.y) && abs(currentTabRot.x) >= abs(currentTabRot.z)){
-				settings->considerY = 0 ;
-				settings->considerZ = 0 ;
-				//LOGD("Case 1");
-			}
-			else if(abs(currentTabRot.y) >= abs(currentTabRot.x) && abs(currentTabRot.y) >= abs(currentTabRot.z)){
-				settings->considerX = 0 ;
-				settings->considerZ = 0 ;
-				LOGD("Case 2");
-			}
-			else{
-				settings->considerX = 0 ;
-				settings->considerY = 0 ;
-				LOGD("Case 3");
-			}
-
-#endif
-		}*/
-		//updateMatrices();
-
 	//Now we update the rendering according to constraints and interaction mode
 
 	rz *=settings->precision * settings->considerZ * settings->considerRotation;
@@ -1116,7 +1054,8 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 	}
 	
 }
-
+//Code adapted from 
+//http://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
 bool intersectPlane(const Vector3& n, const Vector3& p0, const Vector3& l0, const Vector3& l, float& t) 
 { 
     // assuming vectors are all normalized
@@ -1128,7 +1067,6 @@ bool intersectPlane(const Vector3& n, const Vector3& p0, const Vector3& l0, cons
         //printAny(p0l0, "POLO = ");
         //printAny(p0l0.dot(n), "p0l0.dot(n) = ");
         //LOGD("t == %f", t);
-        t = dotProduct(p0l0, n) / denom; 
         return (t >= 0); 
     } 
  
