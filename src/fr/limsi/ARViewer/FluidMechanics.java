@@ -19,6 +19,8 @@ public class FluidMechanics {
         int considerRotation ;
         int considerTranslation ;
         boolean autoConstraint ;
+        boolean translatePlane ;
+        int dataORplane ;
     }
 
     static class State {

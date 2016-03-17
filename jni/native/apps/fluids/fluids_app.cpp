@@ -1008,11 +1008,11 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 			trans.y *= settings->considerY * settings->considerTranslation ;
 			trans.z *= settings->considerZ * settings->considerTranslation ;
 
-			if(interactionMode == planeTangible || interactionMode == seedPoint || interactionMode == dataPlaneHybrid){
+			if(interactionMode == planeTangible || interactionMode == seedPoint || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTangible && settings->dataORplane == 1)){
 				//currentSlicePos += trans ;	Version with the plane moving freely in the world
 				currentSlicePos += trans ; 	//Version with a fix plane
 			}
-			else if(interactionMode == dataTangible){
+			else if(interactionMode == dataTangible || interactionMode == dataHybrid || (interactionMode == dataPlaneTangible && settings->dataORplane == 0)){
 				currentDataPos +=trans ;
 			}
 			
@@ -1035,7 +1035,7 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 	rx *=settings->precision * settings->considerX * settings->considerRotation;
 	//LOGD("Current Rot = %s", Utility::toString(currentSliceRot).c_str());
 	if(tangoEnabled){
-		if(interactionMode == planeTangible || interactionMode == seedPoint || interactionMode == dataPlaneHybrid){
+		if(interactionMode == planeTangible || interactionMode == seedPoint || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTangible && settings->dataORplane == 1)){
 			Quaternion rot = currentSliceRot;
 			rot = rot * Quaternion(rot.inverse() * (-Vector3::unitZ()), rz);
 			rot = rot * Quaternion(rot.inverse() * -Vector3::unitY(), ry);
@@ -1043,7 +1043,7 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 			//currentSliceRot = rot ; //Version with the plane moving freely in the world
 			currentSliceRot = rot ;
 		}
-		else if(interactionMode == dataTangible){
+		else if(interactionMode == dataTangible || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTangible && settings->dataORplane == 0)){
 			Quaternion rot = currentDataRot;
 			rot = rot * Quaternion(rot.inverse() * (-Vector3::unitZ()), rz);
 			rot = rot * Quaternion(rot.inverse() * -Vector3::unitY(), ry);
@@ -1134,6 +1134,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 	}
 
 	//Rotation case
+	//For the plane, it gives both rotations AND translations, depending on the state of the button
 	if(fingerPositions.size() == 1){
 		synchronized(fingerPositions){
 			currentPos = fingerPositions[0];
@@ -1152,14 +1153,30 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		//LOGD("Diff = %f -- %f", diff.x, diff.y);
 
 		if(interactionMode == planeTouch){
-			Quaternion rot = currentSliceRot;
-			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), 0);
-			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), -diff.x);
-			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), diff.y);
-			//currentSliceRot = rot ; //Version with the plane moving freely in the world
-			currentSliceRot = rot ;
+			//That's where we have to distinguish between translations and rotations
+			//Depending on the state of translationPlane in settings
+
+			//Translation case
+			LOGD("translatePlane value = %d",settings->translatePlane);
+			if(settings->translatePlane){
+				LOGD("Translate Plane %f -- %f", diff.x, diff.y);
+				diff *= settings->precision ;
+				diff *= settings->considerTranslation * settings->considerX * settings->considerY;
+				Vector3 trans = Vector3(diff.x, diff.y, 0);
+				currentSlicePos +=trans ;
+			}
+
+			else{
+				Quaternion rot = currentSliceRot;
+				rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), 0);
+				rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), -diff.x);
+				rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), diff.y);
+				//currentSliceRot = rot ; //Version with the plane moving freely in the world
+				currentSliceRot = rot ;	
+			}
+			
 		}
-		else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid){
+		else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || interactionMode == dataHybrid){
 			Quaternion rot = currentDataRot;
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), 0);
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), -diff.x);

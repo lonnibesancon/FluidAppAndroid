@@ -74,7 +74,9 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 	   considerZ(1),
 	   considerRotation(1),
 	   considerTranslation(1),
-	   autoConstraint(false)
+	   autoConstraint(false),
+	   translatePlane(false),
+	   dataORplane(0)
 	{}
 
 	static constexpr float defaultClipDist = 360.0f;
@@ -91,6 +93,8 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 	int considerRotation = 1 ;
 	int considerTranslation = 1 ;
 	bool autoConstraint = false ;
+	bool translatePlane = false ;
+	int dataORplane = 0 ; //Data
 
 	void read(JNIEnv* env, jobject obj, jclass cls) const
 	{
@@ -109,7 +113,9 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 		SET_JNI_FIELD(obj, considerY, Int, "I", considerY);
 		SET_JNI_FIELD(obj, considerZ, Int, "I", considerZ);
 		SET_JNI_FIELD(obj, considerRotation, Int, "I", considerRotation);
-		SET_JNI_FIELD(obj, considerTranslation, Int, "I", considerTranslation);		
+		SET_JNI_FIELD(obj, considerTranslation, Int, "I", considerTranslation);
+		SET_JNI_FIELD(obj, translatePlane, Boolean, "Z", translatePlane);	
+		SET_JNI_FIELD(obj, dataORplane, Int, "I", dataORplane);		
 
 		SET_JNI_FIELD(obj, sliceType, Int, "I", sliceType);
 
@@ -138,6 +144,8 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 		GET_JNI_FIELD(obj, considerZ, Int, "I", considerZ);
 		GET_JNI_FIELD(obj, considerRotation, Int, "I", considerRotation);
 		GET_JNI_FIELD(obj, considerTranslation, Int, "I", considerTranslation);	
+		GET_JNI_FIELD(obj, translatePlane, Boolean, "Z", translatePlane);
+		GET_JNI_FIELD(obj, dataORplane, Int, "I", dataORplane);	
 
 		int st;
 		GET_JNI_FIELD(obj, sliceType, Int, "I", st);

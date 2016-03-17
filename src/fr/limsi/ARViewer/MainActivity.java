@@ -24,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.ToggleButton;
 
 import android.app.*;
 import android.bluetooth.*;
@@ -69,11 +70,13 @@ public class MainActivity extends BaseARActivity
     private static final boolean DEBUG = Config.DEBUG;
 
     private Button tangibleBtn ;
-    private Button sliceBtn ;
+    //private Button sliceBtn ;
     private Button constrainXBtn ;
     private Button constrainYBtn ;
     private Button constrainZBtn ;
     private Button autoConstrainBtn ;
+    private Button translateBtn ;
+    private ToggleButton dataORplane ;
 
     public Object lock = new Object() ;
 
@@ -138,6 +141,7 @@ public class MainActivity extends BaseARActivity
     private boolean constrainTranslation ;
     private boolean autoConstraint ;
     private boolean isConstrained = false ;
+    private boolean dataOrTangibleValue = true ;
 
     // private CameraPreview mCameraPreview;
     //
@@ -236,6 +240,8 @@ public class MainActivity extends BaseARActivity
         FluidMechanics.getSettings(fluidSettings);
         FluidMechanics.getState(fluidState);
         fluidSettings.precision = 1 ;
+        fluidSettings.translatePlane = false ;
+        fluidSettings.dataORplane = 0 ; //Data 
 
         this.client = new Client();
         this.client.execute();
@@ -320,9 +326,9 @@ public class MainActivity extends BaseARActivity
             }
         });*/
 
-        this.sliceBtn = (Button) findViewById(R.id.sliceBtn);
+        //this.sliceBtn = (Button) findViewById(R.id.sliceBtn);
         //this.sliceBtn.setOnClickListener(this);
-        this.tangibleBtn.setOnTouchListener(this);
+        //this.tangibleBtn.setOnTouchListener(this);
 
         this.constrainXBtn = (Button) findViewById(R.id.constrainX);
         //this.constrainXBtn.setOnClickListener(this);
@@ -339,6 +345,34 @@ public class MainActivity extends BaseARActivity
         this.autoConstrainBtn = (Button) findViewById(R.id.autoConstrain);
         //this.autoConstrainBtn.setOnClickListener(this);
         this.autoConstrainBtn.setOnTouchListener(this);
+
+        this.translateBtn = (Button) findViewById(R.id.translateBtn);
+        this.autoConstrainBtn.setOnClickListener(this);
+        //this.translateBtn.setOnTouchListener(this);
+
+        dataORplane = (ToggleButton) findViewById(R.id.dataORplane);
+        dataORplane.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                if(interactionMode != dataPlaneTouch && interactionMode != dataPlaneTangible){
+                    //Log.d(TAG,"Can't use this button");
+                    dataORplane.toggle();
+                    return ;
+                }
+
+                //Plane is disabled, data is checked
+                if (isChecked) {
+                    fluidSettings.dataORplane = 0 ;
+                    Log.d(TAG,"Checked");
+                } else {
+                    fluidSettings.dataORplane = 1 ;
+                    Log.d(TAG,"Disabled");
+                }
+
+                updateDataSettings();
+            }
+        });
+
 
         /*this.tangibleBtn.setOnClickListener(new OnClickListener() {
             @Override
@@ -453,15 +487,18 @@ public class MainActivity extends BaseARActivity
             //         }});
             // }
         } else {
-            if(isTangibleOn){
+            //if(isTangibleOn){     //Can't use it because we still need to monitor the position of the tango
                 this.interactionType = tangibleInteraction ;
                 FluidMechanics.setTangoValues(pose.translation[0],pose.translation[1],pose.translation[2],
                                           pose.rotation[0],pose.rotation[1],pose.rotation[2],pose.rotation[3] ) ;
                 
                 //synchronized(lock){
+                if(isTangibleOn){
                     loggingFunction(); 
+                }
+                    
                 //}
-            }
+            //}
             
             // runOnUiThread(new Runnable() {
             //     @Override
@@ -1514,7 +1551,7 @@ public class MainActivity extends BaseARActivity
 
     private boolean isButton(View v){
         int id = v.getId();
-        if(id == R.id.tangibleBtn || id == R.id.sliceBtn || id == R.id.constrainX ||
+        if(id == R.id.tangibleBtn || id == R.id.constrainX ||
            id == R.id.constrainY || id == R.id.constrainZ || id == R.id.autoConstrain){
 
                 return true ;
@@ -1555,14 +1592,27 @@ public class MainActivity extends BaseARActivity
             return true ;
         }
   
-        else if(v.getId() == R.id.sliceBtn){
+        /*else if(v.getId() == R.id.sliceBtn){
             //TODO
             //return true ;
             int index = event.getActionIndex();
             //Log.d(TAG,"Slice Button");
-            fingerOnButtonIndex = event.getPointerId(index);
 
-        }
+            return true ;
+        }*/
+
+        /*else if(v.getId() == R.id.translateBtn){
+            if (event.getAction() == MotionEvent.ACTION_DOWN ){
+                fluidSettings.translatePlane = true ;
+                this.translateBtn.setPressed(true);
+            }
+            else if(event.getAction() == MotionEvent.ACTION_UP ){
+                fluidSettings.translatePlane = false ;
+                this.translateBtn.setPressed(false);
+            }
+            updateDataSettings();
+            
+        }*/
 
         else if(v.getId() == R.id.constrainX){
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
@@ -1857,6 +1907,10 @@ public class MainActivity extends BaseARActivity
     public void onClick(View v) {
         //int tmp ;
         //Log.d(TAG,"On click listener");
+        if(v.getId() == R.id.tangibleBtn){
+            fluidSettings.translatePlane = !fluidSettings.translatePlane ;
+            updateDataSettings();
+        }
         /*if(v.getId() == R.id.tangibleBtn){
             //Log.d(TAG, "Tangible Button");
             this.tangibleModeActivated = !this.tangibleModeActivated ;

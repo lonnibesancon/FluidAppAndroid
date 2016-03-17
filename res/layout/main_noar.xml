@@ -134,12 +134,27 @@
           android:text="Tangible"
             />
 
-        <Button
+        <!--<Button
           android:id="@+id/sliceBtn"
           android:layout_height="match_parent"
           android:layout_width="wrap_content"
           android:text="Cutting Plane"
-            />
+            />-->
+
+        <ToggleButton
+          android:id="@+id/dataORplane"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textOn="Data"
+          android:textOff="Plane"
+          android:checked="true" />
+
+        <Button
+          android:id="@+id/translateBtn"
+          android:layout_height="match_parent"
+          android:layout_width="wrap_content"
+          android:text="Translate"/>
+
 
       </LinearLayout>
 
