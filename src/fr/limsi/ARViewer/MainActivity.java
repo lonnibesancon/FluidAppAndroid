@@ -123,6 +123,8 @@ public class MainActivity extends BaseARActivity
     private boolean tangibleModeActivated = false ;
 
     private long initialTime ;
+    private long previousLogTime = 0 ;
+    private long logrefreshrate = 100 ;
 
 
     //LOGGING
@@ -432,11 +434,15 @@ public class MainActivity extends BaseARActivity
         long current = date.getTime();
 
         long timestamp = current - initialTime ;
-        //Log.d(TAG,"Timestamp = "+timestamp);
-        synchronized(lock){
-            logging.addLog(timestamp,fluidSettings.precision,(short)interactionMode,interactionType,phase,
+        if(timestamp - previousLogTime > logrefreshrate){
+            Log.d(TAG,"Timestamp = "+timestamp);
+            synchronized(lock){
+                logging.addLog(timestamp,fluidSettings.precision,(short)interactionMode,interactionType,phase,
                            isConstrained, constrainX, constrainY, constrainZ, autoConstraint);    
+            }
+            previousLogTime = timestamp ;
         }
+        
         
 
     }
@@ -518,9 +524,6 @@ public class MainActivity extends BaseARActivity
                                           pose.rotation[0],pose.rotation[1],pose.rotation[2],pose.rotation[3] ) ;
                 
                 //synchronized(lock){
-                if(isTangibleOn){
-                    loggingFunction(); 
-                }
                     
                 //}
             //}
@@ -531,8 +534,10 @@ public class MainActivity extends BaseARActivity
             //         mTextOverlay.setVisibility(View.INVISIBLE);
             //     }});
         }
-
-        requestRender();
+        if(isTangibleOn){
+            requestRender();    
+        }
+        
 
     }
 
@@ -562,9 +567,8 @@ public class MainActivity extends BaseARActivity
                                                 dt * event.values[1],   // ry
                                                 dt * event.values[2],0);  // rz
                    this.interactionType = tangibleInteraction ;
-                   //synchronized(lock){
-                        loggingFunction(); 
-                   //}
+                   requestRender();
+
                    
                }
            }
@@ -596,9 +600,7 @@ public class MainActivity extends BaseARActivity
        } /*else if(event.sensor.getType() == Sensor.TYPE_ORIENTATION){
             Log.d(TAG,"Rotation X = "+event.values[0]+" -- Rotation Y = "+event.values[1]+" -- Rotation Z = "+event.values[2]);
        }*/
-
-
-       requestRender();
+       
    }
 
    @Override
@@ -1851,9 +1853,7 @@ public class MainActivity extends BaseARActivity
 
             // NativeApp.setZoom(mZoomFactor);
         }*/
-        //synchronized(lock){
-            loggingFunction(); 
-        //}    
+
         return true;
     }
 
@@ -1917,6 +1917,8 @@ public class MainActivity extends BaseARActivity
             //Log.d(TAG,"RequestRender");
             mView.requestRender();
             client.setData(FluidMechanics.getData());
+            Log.d(TAG,"Request Render");
+            loggingFunction(); 
         }
             
    } 
