@@ -971,9 +971,12 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 	}
 
 	Vector3 vec(tx,ty,tz);
+
 	if(tangoEnabled){
+		LOGD("Tango Enabled");
 		Quaternion quat(rx,ry,rz,q);
 
+		LOGD("autoConstraint == %d",settings->autoConstraint);
 		if(settings->autoConstraint){
 			/*- n = normale du plan
 			- v1 = ramener n dans le repère écran
@@ -982,7 +985,6 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 			- d = v1.normalized().dot(v2.normalized())
 			- position du plan += n * l*d*/
 
-			//Vector3 normalOrigin = 
 			Vector3 trans = quat.inverse() * (vec-prevVec);
 			float l = trans.length();
 			float d = sliceNormal.normalized().dot(trans.normalized());
@@ -990,7 +992,7 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 
 			//printAny(sliceNormal,"TAGGGGGGG");
 			currentSlicePos += trans ;
-			LOGD("D = %f  --  L = %f",d,l);
+			//LOGD("D = %f  --  L = %f",d,l);
 			printAny(trans, "Trans: ");
 		}
 		

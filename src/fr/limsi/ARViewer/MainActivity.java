@@ -1567,9 +1567,11 @@ public class MainActivity extends BaseARActivity
         else if(v.getId() == R.id.constrainX){
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 constrainX = true ;
+                this.constrainXBtn.setPressed(true);
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 constrainX = false ;
+                this.constrainXBtn.setPressed(false);
             }
             //Log.d(TAG,"Touched constrainX");
             updateConstraintX();
@@ -1581,9 +1583,11 @@ public class MainActivity extends BaseARActivity
         else if(v.getId() == R.id.constrainY){
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 constrainY = true ;
+                this.constrainYBtn.setPressed(true);
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 constrainY = false ;
+                this.constrainYBtn.setPressed(false);
             }
             //Log.d(TAG,"Touched constrainY");
             updateConstraintY();
@@ -1595,9 +1599,11 @@ public class MainActivity extends BaseARActivity
         else if(v.getId() == R.id.constrainZ){
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 constrainZ = true ;
+                this.constrainZBtn.setPressed(true);
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 constrainZ = false ;
+                this.constrainZBtn.setPressed(false);
             }
             //Log.d(TAG,"Touched constrainZ");
             updateConstraintZ();
@@ -1609,9 +1615,11 @@ public class MainActivity extends BaseARActivity
         else if(v.getId() == R.id.autoConstrain ){
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 this.autoConstraint = true ;
+                this.autoConstrainBtn.setPressed(true);
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 this.autoConstraint = false ;
+                this.autoConstrainBtn.setPressed(false);
             }
             //Log.d(TAG,"Touched constrain Auto");
             updateConstraintAuto();
