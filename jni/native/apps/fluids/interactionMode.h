@@ -1,26 +1,25 @@
 #ifndef INTERACTIONMODE
 #define INTERACTIONMODE
 
-#define dataTangibleOnly  1 
-#define dataTouchOnly  2 
-//Touch for rotation, Tangible for translation
-#define dataTouchTangible  3 
-#define dataTangibleTouch  4 
+
+// Data manipulation
+#define dataTangible  1 
+#define dataTouch  2 
+#define dataHybrid  3 
+
+//Plane manipulation
+#define planeTouch  11 
+#define planeTangible  12 
+#define planeHybrid  13 
 
 
-
-#define sliceTangibleOnly  11 
-#define sliceTouchOnly  12 
-#define sliceTouchTangible  13 
-#define sliceTangibleTouch  14 
-
+// Plane + data
+#define dataPlaneTouch   21 
+#define dataPlaneTangible  22 
+#define dataPlaneHybrid 23
 
 
-#define dataSliceTouchTangible  21 
-#define dataSliceTangibleTouch  22 
-
-
-
+//Seeding point interaction
 #define seedPoint  31 
 
 
