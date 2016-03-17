@@ -1295,7 +1295,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 			//currentSliceRot = rot ; //Version with the plane moving freely in the world
 			currentSliceRot = rot ;
 		}
-		else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0)){
+		else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || interactionMode == dataHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0)){
 			Quaternion rot = currentDataRot;
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), angle);
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), 0);
