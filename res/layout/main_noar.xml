@@ -151,8 +151,8 @@
           android:id="@+id/translateBtn"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:textOn="Rotate"
-          android:textOff="Translate"
+          android:textOn="Rotate Mode"
+          android:textOff="Translate Mode"
           android:checked="true" />
 
 

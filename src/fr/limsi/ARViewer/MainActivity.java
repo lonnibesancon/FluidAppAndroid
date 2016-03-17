@@ -346,6 +346,7 @@ public class MainActivity extends BaseARActivity
         this.autoConstrainBtn = (Button) findViewById(R.id.autoConstrain);
         //this.autoConstrainBtn.setOnClickListener(this);
         this.autoConstrainBtn.setOnTouchListener(this);
+        
 
         //this.translateBtn = (Button) findViewById(R.id.translateBtn);
         //this.translateBtn.setOnClickListener(this);
