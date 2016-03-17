@@ -141,6 +141,21 @@
           android:text="Cutting Plane"
             />-->
 
+        <!--<Button
+          android:id="@+id/translateBtn"
+          android:layout_height="match_parent"
+          android:layout_width="wrap_content"
+          android:text="Translate"/>-->
+
+          <ToggleButton
+          android:id="@+id/translateBtn"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textOn="Rotate"
+          android:textOff="Translate"
+          android:checked="true" />
+
+
         <ToggleButton
           android:id="@+id/dataORplane"
           android:layout_width="wrap_content"
@@ -148,12 +163,6 @@
           android:textOn="Data"
           android:textOff="Plane"
           android:checked="true" />
-
-        <Button
-          android:id="@+id/translateBtn"
-          android:layout_height="match_parent"
-          android:layout_width="wrap_content"
-          android:text="Translate"/>
 
 
       </LinearLayout>

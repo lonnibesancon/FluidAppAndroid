@@ -75,8 +75,9 @@ public class MainActivity extends BaseARActivity
     private Button constrainYBtn ;
     private Button constrainZBtn ;
     private Button autoConstrainBtn ;
-    private Button translateBtn ;
+    //private Button translateBtn ;
     private ToggleButton dataORplane ;
+    private ToggleButton translateBtn ;
 
     public Object lock = new Object() ;
 
@@ -346,8 +347,8 @@ public class MainActivity extends BaseARActivity
         //this.autoConstrainBtn.setOnClickListener(this);
         this.autoConstrainBtn.setOnTouchListener(this);
 
-        this.translateBtn = (Button) findViewById(R.id.translateBtn);
-        this.translateBtn.setOnClickListener(this);
+        //this.translateBtn = (Button) findViewById(R.id.translateBtn);
+        //this.translateBtn.setOnClickListener(this);
         //this.translateBtn.setOnTouchListener(this);
 
         dataORplane = (ToggleButton) findViewById(R.id.dataORplane);
@@ -366,6 +367,29 @@ public class MainActivity extends BaseARActivity
                     Log.d(TAG,"Checked");
                 } else {
                     fluidSettings.dataORplane = 1 ;
+                    Log.d(TAG,"Disabled");
+                }
+
+                updateDataSettings();
+            }
+        });
+
+        translateBtn = (ToggleButton) findViewById(R.id.translateBtn);
+        translateBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                if(interactionMode != dataPlaneTouch && interactionMode != planeTouch && interactionMode != seedPoint){
+                    //Log.d(TAG,"Can't use this button");
+                    translateBtn.toggle();
+                    return ;
+                }
+
+                
+                if (isChecked) {
+                    fluidSettings.translatePlane = false ;
+                    Log.d(TAG,"Checked");
+                } else {
+                    fluidSettings.translatePlane = true ;
                     Log.d(TAG,"Disabled");
                 }
 
@@ -1913,11 +1937,11 @@ public class MainActivity extends BaseARActivity
     public void onClick(View v) {
         //int tmp ;
         //Log.d(TAG,"On click listener");
-        if(v.getId() == R.id.translateBtn){
+        /*if(v.getId() == R.id.translateBtn){
             fluidSettings.translatePlane = !fluidSettings.translatePlane ;
             Log.d(TAG,"TranslatePlane = "+fluidSettings.translatePlane);
             updateDataSettings();
-        }
+        }*/
         /*if(v.getId() == R.id.tangibleBtn){
             //Log.d(TAG, "Tangible Button");
             this.tangibleModeActivated = !this.tangibleModeActivated ;
