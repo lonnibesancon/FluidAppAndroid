@@ -347,7 +347,7 @@ public class MainActivity extends BaseARActivity
         this.autoConstrainBtn.setOnTouchListener(this);
 
         this.translateBtn = (Button) findViewById(R.id.translateBtn);
-        this.autoConstrainBtn.setOnClickListener(this);
+        this.translateBtn.setOnClickListener(this);
         //this.translateBtn.setOnTouchListener(this);
 
         dataORplane = (ToggleButton) findViewById(R.id.dataORplane);
@@ -1913,8 +1913,9 @@ public class MainActivity extends BaseARActivity
     public void onClick(View v) {
         //int tmp ;
         //Log.d(TAG,"On click listener");
-        if(v.getId() == R.id.tangibleBtn){
+        if(v.getId() == R.id.translateBtn){
             fluidSettings.translatePlane = !fluidSettings.translatePlane ;
+            Log.d(TAG,"TranslatePlane = "+fluidSettings.translatePlane);
             updateDataSettings();
         }
         /*if(v.getId() == R.id.tangibleBtn){
