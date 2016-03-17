@@ -1381,6 +1381,11 @@ public class MainActivity extends BaseARActivity
 
             case R.id.action_reset:
                 Log.d(TAG,"Reset");
+                FluidMechanics.reset();
+                fluidSettings.precision = 1 ;
+                fluidSettings.translatePlane = false ;
+                fluidSettings.dataORplane = 0 ; //Data 
+                updateDataSettings();
                 break;
 
             case R.id.action_quit:
@@ -1470,11 +1475,12 @@ public class MainActivity extends BaseARActivity
         //fluidSettings.considerZ = tmp ;
         fluidSettings.considerRotation = rotationValue ;
         //fluidSettings.considerTranslation = tmp ;
-        Log.d(TAG,"Auto Constraint updated");
+        Log.d(TAG,"Auto Constraint updated. Value = "+this.autoConstraint);
         isConstrained = autoConstraint ;
+        fluidSettings.autoConstraint = autoConstraint ;
         updateDataSettings();
-        Log.d(TAG,"X = "+fluidSettings.considerX+"  -- Y = "+fluidSettings.considerY
-                        +"  -- Z = "+ fluidSettings.considerZ+"  - Rotation  = "+fluidSettings.considerRotation);
+        //Log.d(TAG,"X = "+fluidSettings.considerX+"  -- Y = "+fluidSettings.considerY
+                        //+"  -- Z = "+ fluidSettings.considerZ+"  - Rotation  = "+fluidSettings.considerRotation);
     }
 
     private void showDistanceDialog() {

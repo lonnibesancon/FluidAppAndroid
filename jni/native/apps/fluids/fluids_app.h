@@ -24,6 +24,7 @@ public:
     void updateFingerPositions(float x, float y, int fingerID);
     void addFinger(float x, float y, int fingerID);
 	void removeFinger(int fingerID);
+	void reset();
 
     std::string getData();
 

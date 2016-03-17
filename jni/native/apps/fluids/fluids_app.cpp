@@ -73,6 +73,7 @@ extern "C" {
     JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_updateFingerPositions(JNIEnv* env, jobject obj, jfloat x, jfloat y, jint fingerID);
     JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_addFinger(JNIEnv* env, jobject obj, jfloat x, jfloat y, jint fingerID);
     JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_removeFinger(JNIEnv* env, jobject obj, jint fingerID);
+    JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_reset(JNIEnv* env, jobject obj);
 }
 
 // (end of JNI interface)
@@ -131,6 +132,7 @@ struct FluidMechanics::Impl
 	void removeFinger(int fingerID);
 	void computeFingerInteraction();
 	bool computeSeedingPlacement();
+	void reset();
 
 	Vector3 posToDataCoords(const Vector3& pos); // "pos" is in eye coordinates
 	Vector3 dataCoordsToPos(const Vector3& dataCoordsToPos);
@@ -228,8 +230,25 @@ FluidMechanics::Impl::Impl(const std::string& baseDir)
 	cylinder = LoaderOBJ::load(baseDir + "/cylinder.obj");
 	lines.reset(new Lines);
 
+
+
 	for (Particle& p : particles)
 		p.valid = false;
+}
+
+void FluidMechanics::Impl::reset(){
+	seedingPoint = Vector3(-1,-1,-1);
+	currentSliceRot = Quaternion(Vector3::unitX(), M_PI);
+	currentDataRot = Quaternion(Vector3::unitX(), M_PI);
+	currentSlicePos = Vector3(0, 0, 400);
+	currentDataPos = Vector3(0,0,400);
+	buttonIsPressed = false ;
+
+	for (Particle& p : particles)
+		p.valid = false;
+
+	setMatrices(Matrix4::makeTransform(Vector3(0, 0, 400)),Matrix4::makeTransform(Vector3(0, 0, 400)));
+	
 }
 
 void FluidMechanics::Impl::rebind()
@@ -989,8 +1008,15 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 			float l = trans.length();
 			float d = sliceNormal.normalized().dot(trans.normalized());
 			trans = sliceNormal*l*d ;
+			trans *= 300 ;
+			trans *= -1 ;
+			trans *= settings->precision ;
+			trans.x *= settings->considerX * settings->considerTranslation ;
+			trans.y *= settings->considerY * settings->considerTranslation ;
+			trans.z *= settings->considerZ * settings->considerTranslation ;
 
-			//printAny(sliceNormal,"TAGGGGGGG");
+			printAny(sliceNormal,"SliceNormal = ");
+			printAny(trans,"Trans = ");
 			currentSlicePos += trans ;
 			//LOGD("D = %f  --  L = %f",d,l);
 			printAny(trans, "Trans: ");
@@ -1001,6 +1027,7 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 			Vector3 trans = quat.inverse() * (vec-prevVec);
 			trans *= Vector3(1,-1,-1);	//Tango... -_-"
 			trans *= 300 ;
+			//trans.z *= -1 ;
 			trans *= settings->precision ;
 
 			//To constrain interaction
@@ -2100,7 +2127,8 @@ void FluidMechanics::Impl::renderObjects()
 			synchronized_if(outline) {
 				glDepthMask(true);
 				glLineWidth(2.0f);
-				outline->setColor(!velocityData ? Vector3(1.0f, 0, 0) : Vector3(0, 1.0f, 0));
+				outline->setColor(!tangoEnabled ? Vector3(1.0f, 0, 0) : Vector3(0, 1.0f, 0));
+				//outline->setColor(!velocityData ? Vector3(1.0f, 0, 0) : Vector3(0, 1.0f, 0));
 				outline->render(proj, mm);
 			}
 		}
@@ -2728,6 +2756,25 @@ JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_addFinger(JNIEnv* env, jobj
 	}
 }
 
+JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_reset(JNIEnv* env, jobject obj){
+	try {
+		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
+
+		if (!App::getInstance())
+			throw std::runtime_error("init() was not called");
+
+		if (App::getType() != App::APP_TYPE_FLUID)
+			throw std::runtime_error("Wrong application type");
+
+		FluidMechanics* instance = dynamic_cast<FluidMechanics*>(App::getInstance());
+		android_assert(instance);
+		instance->reset();
+
+	} catch (const std::exception& e) {
+		throwJavaException(env, e.what());
+	}
+}
+
 JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_removeFinger(JNIEnv* env, jobject obj, jint fingerID){
 	try {
 		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
@@ -2804,6 +2851,10 @@ void FluidMechanics::renderObjects()
 void FluidMechanics::updateSurfacePreview()
 {
 	impl->updateSurfacePreview();
+}
+
+void FluidMechanics::reset(){
+	impl->reset();
 }
 
 
