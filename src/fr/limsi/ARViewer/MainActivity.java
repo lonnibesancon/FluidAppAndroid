@@ -51,6 +51,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 
 import java.text.DecimalFormat ;
 
@@ -122,19 +125,20 @@ public class MainActivity extends BaseARActivity
     private int interactionMode = dataTangible;
     private boolean tangibleModeActivated = false ;
 
-    private long initialTime ;
-    private long previousLogTime = 0 ;
-    private long logrefreshrate = 100 ;
-
-
     //LOGGING
     private static final String FILENAME = "myFile.txt";
     private Logging logging ;
     private short phase = -1 ;
     private short interactionType ;
     private boolean isTangibleOn = false ;
+    private FileOutputStream fOut ;
+    private OutputStreamWriter outputStreamWriter ;
+    private boolean isInteracting = false ;
+    private long initialTime ;
+    private long previousLogTime = 0 ;
+    private long logrefreshrate = 50 ;
 
-
+    private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);;
 
     //Constrain interaction part 
     private boolean constrainX ;
@@ -145,6 +149,9 @@ public class MainActivity extends BaseARActivity
     private boolean autoConstraint ;
     private boolean isConstrained = false ;
     private boolean dataOrTangibleValue = true ;
+
+
+
 
     // private CameraPreview mCameraPreview;
     //
@@ -401,6 +408,7 @@ public class MainActivity extends BaseARActivity
         });
 
 
+
         /*this.tangibleBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -426,25 +434,74 @@ public class MainActivity extends BaseARActivity
         // mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_AUTORECOVERY, true); // default is true
 
         // mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_LEARNINGMODE, true);
+
+        //executor = new ScheduledThreadPoolExecutor(1);
+        try{
+            fOut = new FileOutputStream("/sdcard/test"+"/"+FILENAME);
+            outputStreamWriter = new OutputStreamWriter(fOut);
+        }
+        catch (IOException e) {
+            Log.e(TAG, "File write failed: " + e.toString());
+        } 
+
+        this.executor.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    loggingFunction();
+                }
+                catch (IOException e) {
+                    Log.e(TAG, "File write failed: " + e.toString());
+                } 
+            }
+        }, 0L, logrefreshrate , TimeUnit.MILLISECONDS);
+
+        
     }
 
 
-    private void loggingFunction(){
-        Date date = new Date();
+    protected void loggingFunction()throws IOException{
+        if(this.isInteracting == false){
+            return ;
+        }
+        else{
+            Date date = new Date();
+            long current = date.getTime();
+            long timestamp = current - initialTime ;
+            synchronized(lock){
+                writeLine(timestamp);
+            }
+            this.isInteracting = false ;
+            Log.d(TAG,"Logging");
+        }
+
+        
+        /*Date date = new Date();
         long current = date.getTime();
 
         long timestamp = current - initialTime ;
-        if(timestamp - previousLogTime > logrefreshrate){
+        //if(timestamp - previousLogTime > logrefreshrate){
             Log.d(TAG,"Timestamp = "+timestamp);
             synchronized(lock){
                 logging.addLog(timestamp,fluidSettings.precision,(short)interactionMode,interactionType,phase,
                            isConstrained, constrainX, constrainY, constrainZ, autoConstraint);    
             }
             previousLogTime = timestamp ;
-        }
+        //}*/
         
         
 
+    }
+
+    private void closeFile(){
+        try{
+            outputStreamWriter.close();
+            fOut.close();
+        }
+        
+        catch (IOException e) {
+            Log.e(TAG, "Close failed" + e.toString());
+        } 
     }
 
     /*private void writeInfo(){
@@ -465,6 +522,26 @@ public class MainActivity extends BaseARActivity
         } 
 
     }*/
+
+    private String getLogString(long timestamp){
+    
+        return (""+timestamp+";"
+                 +fluidSettings.precision+";"
+                 +interactionMode+";"
+                 +interactionType+";"
+                 +phase+";"
+                 +isConstrained+";"
+                 +constrainX+";"
+                 +constrainY+";"
+                 +constrainZ+";"
+                 +autoConstraint+";"
+                 +"\n") ;
+    }
+
+    private void writeLine(long timestamp) throws IOException{
+        outputStreamWriter.write(getLogString(timestamp));
+        //outputStreamWriter.flush();
+    }
 
 
     private void writeLogging(){
@@ -535,7 +612,8 @@ public class MainActivity extends BaseARActivity
             //     }});
         }
         if(isTangibleOn){
-            requestRender();    
+            this.isInteracting = true ;
+            requestRender();
         }
         
 
@@ -1417,7 +1495,8 @@ public class MainActivity extends BaseARActivity
 
             case R.id.action_quit:
                 Log.d(TAG,"Quit");
-                writeLogging();
+                //writeLogging();
+                closeFile();
                 //this.finish();
                 //android.os.Process.killProcess(android.os.Process.myPid());
                 System.exit(0);
@@ -1718,6 +1797,7 @@ public class MainActivity extends BaseARActivity
 
 
         if(mDatasetLoaded){
+            this.isInteracting = true ;
             this.interactionType = touchInteraction ;
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
@@ -1918,7 +1998,7 @@ public class MainActivity extends BaseARActivity
             mView.requestRender();
             client.setData(FluidMechanics.getData());
             Log.d(TAG,"Request Render");
-            loggingFunction(); 
+            //loggingFunction(); 
         }
             
    } 
