@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="fill_parent"
+              android:layout_gravity="center_vertical|right"
+                >
+
+    <LinearLayout android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center_vertical|right"
+                >       
+
+		        <TextView
+			        android:id="@+id/idparticipant"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:gravity="center"
+			        android:background="#AA000000"
+			        android:textSize="30dp"
+			        />
+
+			    <EditText
+				    android:id="@+id/IDText"
+				    android:layout_width="fill_parent"
+				    android:layout_height="wrap_content"
+				    />
+
+	</LinearLayout>
+	<LinearLayout android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center_vertical|right"
+                >  
+
+                <TextView
+			        android:id="@+id/IP"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:gravity="center"
+			        android:background="#AA000000"
+			        android:textSize="30dp"
+			        />
+
+			    <EditText
+				    android:id="@+id/IPText"
+				    android:layout_width="fill_parent"
+				    android:layout_height="wrap_content"
+				    /> 
+
+		</LinearLayout>
+
+	<Button android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="Start"
+		    android:id="@+id/startBtn"
+		    />
+
+
+</LinearLayout>

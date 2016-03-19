@@ -1221,6 +1221,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		diff.y *= settings->considerX * settings->considerRotation ;
 
 		if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || interactionMode == dataHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0)){
+			LOGD("Data interaction");
 			Quaternion rot = currentDataRot;
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), 0);
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), -diff.x);

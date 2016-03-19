@@ -150,91 +150,48 @@ public class MainActivity extends BaseARActivity
     private boolean isConstrained = false ;
     private boolean dataOrTangibleValue = true ;
 
-
-
-
-    // private CameraPreview mCameraPreview;
-    //
-    // private final static int STATE_BLUETOOTH_OFF = 1;
-    // private final static int STATE_DISCONNECTED = 2;
-    // private final static int STATE_CONNECTING = 3;
-    // private final static int STATE_CONNECTED = 4;
-    // private int state;
-    // private boolean scanStarted;
-    // private boolean scanning;
-    // private BluetoothAdapter bluetoothAdapter;
-    // private BluetoothDevice bluetoothDevice;
-    // private RFduinoService rfduinoService;
-    //
-    // private boolean mTogglingBluetooth = false;
-    //
-    // private final BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {
-    //     @Override
-    //     public void onReceive(Context context, Intent intent) {
-    //         int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-    //         if (!mTogglingBluetooth) {
-    //             if (state == BluetoothAdapter.STATE_ON) {
-    //                 upgradeState(STATE_DISCONNECTED);
-    //             } else if (state == BluetoothAdapter.STATE_OFF) {
-    //                 downgradeState(STATE_BLUETOOTH_OFF);
-    //             }
-    //         } else {
-    //             mTogglingBluetooth = false;
-    //             Log.d(TAG, "re-enabling bluetooth");
-    //             bluetoothAdapter.enable();
-    //         }
-    //     }
-    // };
-    //
-    // private final BroadcastReceiver scanModeReceiver = new BroadcastReceiver() {
-    //     @Override
-    //     public void onReceive(Context context, Intent intent) {
-    //         scanning = (bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_NONE);
-    //         scanStarted &= scanning;
-    //         updateConnectionProcess();
-    //     }
-    // };
-    //
-    // private final ServiceConnection rfduinoServiceConnection = new ServiceConnection() {
-    //     @Override
-    //     public void onServiceConnected(ComponentName name, IBinder service) {
-    //         Log.d(TAG, "onServiceConnected");
-    //         rfduinoService = ((RFduinoService.LocalBinder) service).getService();
-    //         if (rfduinoService.initialize()) {
-    //             Log.d(TAG, "initialize() OK");
-    //             // if (rfduinoService.connect("D6:97:56:25:20:CA")) {
-    //             if (rfduinoService.connect(bluetoothDevice.getAddress())) {
-    //                 Log.d(TAG, "connect() OK");
-    //                 upgradeState(STATE_CONNECTING);
-    //             }
-    //         }
-    //     }
-    //
-    //     @Override
-    //     public void onServiceDisconnected(ComponentName name) {
-    //         rfduinoService = null;
-    //         downgradeState(STATE_DISCONNECTED);
-    //     }
-    // };
-    //
-    // private final BroadcastReceiver rfduinoReceiver = new BroadcastReceiver() {
-    //     @Override
-    //     public void onReceive(Context context, Intent intent) {
-    //         final String action = intent.getAction();
-    //         if (RFduinoService.ACTION_CONNECTED.equals(action)) {
-    //             upgradeState(STATE_CONNECTED);
-    //         } else if (RFduinoService.ACTION_DISCONNECTED.equals(action)) {
-    //             downgradeState(STATE_DISCONNECTED);
-    //         } else if (RFduinoService.ACTION_DATA_AVAILABLE.equals(action)) {
-    //             addData(intent.getByteArrayExtra(RFduinoService.EXTRA_DATA));
-    //         }
-    //     }
-    // };
+    public int pId = -1 ;
 
     @Override
     protected int getAppType() {
         // return NativeApp.APP_TYPE_STUB;
         return NativeApp.APP_TYPE_FLUID;
+    }
+
+
+    private void getStartInfo(){
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        
+        alert.setTitle("Participant ID");
+        alert.setMessage("Please enter the ID");
+
+        // Set an EditText view to get user input 
+        final EditText input = new EditText(this);
+        alert.setView(input);
+
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int whichButton) {
+            if(input.getText()!= null){
+                int p = Integer.parseInt(input.getText().toString());
+                if(p < 0){
+                    System.exit(0);
+                }
+                else{
+                    pId = p ;
+                }
+            }
+            
+          
+          }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int whichButton) {
+            System.exit(0);
+          }
+        });
+
+        alert.show();
     }
 
     @Override
@@ -246,6 +203,8 @@ public class MainActivity extends BaseARActivity
 
         if (!isInitialized()) // || !isCameraAvailable())
             return;
+
+        getStartInfo();
 
         FluidMechanics.getSettings(fluidSettings);
         FluidMechanics.getState(fluidState);
