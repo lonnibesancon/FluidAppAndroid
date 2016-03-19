@@ -1148,7 +1148,12 @@ public class MainActivity extends BaseARActivity
                 }
                 //sliderPrecision.setMax(0);
                 //sliderPrecision.setProgress(0);
-                final Handler handler = new Handler();
+
+                //If we want the precision to be system-controlled
+                mPressed = false;
+
+                //If we want the precision to be user-controlled
+                /*final Handler handler = new Handler();
                 handler.postDelayed(new Runnable(){
                     @Override
                     public void run(){
@@ -1159,7 +1164,7 @@ public class MainActivity extends BaseARActivity
                         fluidSettings.precision = 1 ;
                         mPressed = false;
                     }
-                },100);
+                },100);*/
                 /*sliderPrecision.setMax( (max - min) / step ); //Have to call because setProgress does not update the view
                 sliderPrecision.customSetProgress((int)(initialPosition));
                 //sliderPrecision.setMax( (max - min) / step ); //Have to call because setProgress does not update the view
@@ -1491,7 +1496,7 @@ public class MainActivity extends BaseARActivity
                 fluidSettings.translatePlane = false ;
                 fluidSettings.dataORplane = 0 ; //Data 
                 updateDataSettings();
-                request();
+                requestRender();
                 break;
 
             case R.id.action_quit:
