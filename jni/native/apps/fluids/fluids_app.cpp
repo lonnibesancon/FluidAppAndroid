@@ -1151,7 +1151,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 	Vector2 prevPos ;
 
 	//Particle seeding case
-	//LOGD("ComputeFingerInteraction Function");
+	LOGD("ComputeFingerInteraction Function");
 	//LOGD("%d == %d   ---  %d", interactionMode, seedPoint, fingerPositions.size());
 	if(interactionMode == seedPoint && fingerPositions.size() == 1){
 		
@@ -1476,7 +1476,7 @@ void FluidMechanics::Impl::updateMatrices(){
 	//LOGD("Precision = %f",settings->precision);
 	//LOGD("ConstrainX = %d ; ConstrainY = %d ; ConstrainZ = %d", settings->considerX, settings->considerY, settings->considerZ );
 
-
+	LOGD("UPDATE MATRICES");
 	//We need to call computeFingerInteraction() if the interaction mode uses tactile
 	if(	interactionMode == dataTouch ||
 	   	interactionMode == dataHybrid ||
@@ -1485,6 +1485,7 @@ void FluidMechanics::Impl::updateMatrices(){
 	   	interactionMode == dataPlaneHybrid || 
 	   	interactionMode == seedPoint){
 
+			LOGD("Interaction Needs touch");
 			computeFingerInteraction();
 	}
 	slicem = Matrix4::makeTransform(currentSlicePos, currentSliceRot);	//Version with the plane moving freely

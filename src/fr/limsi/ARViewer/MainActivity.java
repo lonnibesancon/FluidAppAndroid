@@ -472,7 +472,7 @@ public class MainActivity extends BaseARActivity
                 writeLine(timestamp);
             }
             this.isInteracting = false ;
-            Log.d(TAG,"Logging");
+            //Log.d(TAG,"Logging");
         }
 
         
@@ -1491,6 +1491,7 @@ public class MainActivity extends BaseARActivity
                 fluidSettings.translatePlane = false ;
                 fluidSettings.dataORplane = 0 ; //Data 
                 updateDataSettings();
+                request();
                 break;
 
             case R.id.action_quit:
@@ -1797,7 +1798,6 @@ public class MainActivity extends BaseARActivity
 
 
         if(mDatasetLoaded){
-            this.isInteracting = true ;
             this.interactionType = touchInteraction ;
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
@@ -1867,7 +1867,8 @@ public class MainActivity extends BaseARActivity
                 }
                 
             }
-            
+            this.isInteracting = true ;
+            requestRender();
             // NativeApp.setZoom(mZoomFactor);
 
         }
