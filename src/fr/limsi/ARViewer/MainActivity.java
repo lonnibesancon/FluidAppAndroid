@@ -328,7 +328,7 @@ public class MainActivity extends BaseARActivity
         dataORplane.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                if(interactionMode != dataPlaneTouch && interactionMode != dataPlaneTangible){
+                if(interactionMode != dataPlaneTouch && interactionMode != dataPlaneTangible && interactionMode !=seedPointTangible && interactionMode!=seedPointTouch){
                     //Log.d(TAG,"Can't use this button");
                     dataORplane.toggle();
                     return ;
@@ -351,7 +351,7 @@ public class MainActivity extends BaseARActivity
         translateBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                if(interactionMode != dataPlaneTouch && interactionMode != planeTouch && interactionMode != seedPoint){
+                if(interactionMode != dataPlaneTouch && interactionMode != planeTouch && interactionMode != seedPointTangible && interactionMode != seedPointTouch){
                     //Log.d(TAG,"Can't use this button");
                     translateBtn.toggle();
                     return ;
@@ -1342,8 +1342,16 @@ public class MainActivity extends BaseARActivity
                 break ;
 
         /* Seeding mode */
-            case R.id.action_seeding:
-                changeInteractionMode(seedPoint);
+            case R.id.action_seedingTangible:
+                changeInteractionMode(seedPointTangible);
+                break ;
+
+            case R.id.action_seedingTouch:
+                changeInteractionMode(seedPointTouch);
+                break ;
+
+            case R.id.action_seedingHybrid:
+                changeInteractionMode(seedPointHybrid);
                 break ;
 
 
@@ -1641,11 +1649,11 @@ public class MainActivity extends BaseARActivity
     }
 
     private boolean isOnTouchButton(float x, float y){
-        if(x<=180 && y>=750){
+        if(x<=180 && y>=500){
             //Log.d(TAG,"Buttons on the left");
             return true ;
         }
-        else if(x>=1680 && y >=900){
+        else if(x>=1680 && y >=800){
             //Log.d(TAG,"Buttons on the right");
             return true ;
         }

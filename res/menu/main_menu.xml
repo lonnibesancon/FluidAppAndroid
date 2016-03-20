@@ -111,8 +111,14 @@
   <item android:title="Data+Plane Hybrid"
         android:id="@+id/action_dataPlaneHybrid"/>
 
-  <item android:title="Seeding"
-        android:id="@+id/action_seeding"/>
+  <item android:title="SeedingTangible"
+        android:id="@+id/action_seedingTangible"/>
+
+  <item android:title="SeedingTouch"
+  android:id="@+id/action_seedingTouch"/>
+
+  <item android:title="SeedingHybrid"
+  android:id="@+id/action_seedingHybrid"/>
 
   <item android:title="Change IP"
         android:id="@+id/change_IP" />
