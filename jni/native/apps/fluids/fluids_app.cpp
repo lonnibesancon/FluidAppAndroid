@@ -133,6 +133,7 @@ struct FluidMechanics::Impl
 	void computeFingerInteraction();
 	bool computeSeedingPlacement();
 	void reset();
+	int getFingerPos(int fingerID);
 
 	Vector3 posToDataCoords(const Vector3& pos); // "pos" is in eye coordinates
 	Vector3 dataCoordsToPos(const Vector3& dataCoordsToPos);
@@ -144,8 +145,8 @@ struct FluidMechanics::Impl
 	//Quaternion representing the orientation of the tablet no matter the interaction mode or constrains
 	Quaternion currentTabRot ;
 
-	Synchronized<std::vector<Vector2> > fingerPositions;
-	Synchronized<std::vector<Vector2> > prevFingerPositions ;
+	Synchronized<std::vector<Vector3> > fingerPositions;
+	Synchronized<std::vector<Vector3> > prevFingerPositions ;
 	Vector2 initialVector ;
 	Vector3 prevVec ;
 	Synchronized<Vector3> seedingPoint ;
@@ -1107,7 +1108,7 @@ bool intersectPlane(const Vector3& n, const Vector3& p0, const Vector3& l0, cons
 bool FluidMechanics::Impl::computeSeedingPlacement(){
 	Vector2 currentPos ;
 	synchronized(fingerPositions){
-		currentPos = fingerPositions[0];
+		currentPos = Vector2(fingerPositions[0].x,fingerPositions[0].y);
 	}
 
 	//LOGD("Current Pos = %f --  %f",currentPos.x, currentPos.y);
@@ -1154,7 +1155,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 	//LOGD("ComputeFingerInteraction Function");
 	//LOGD("%d == %d   ---  %d", interactionMode, seedPoint, fingerPositions.size());
 	if(interactionMode == seedPoint && fingerPositions.size() == 1 && settings->isSeeding == true){
-		LOGD("Seeding");
+		//LOGD("Seeding");
 		if(computeSeedingPlacement()){
 			return ;
 		}
@@ -1164,10 +1165,10 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 	//For the plane, it gives both rotations AND translations, depending on the state of the button
 	if( (interactionMode == planeTouch || (interactionMode == dataPlaneTouch && settings->dataORplane == 1)) && fingerPositions.size() == 1){
 		synchronized(fingerPositions){
-			currentPos = fingerPositions[0];
+			currentPos = Vector2(fingerPositions[0].x,fingerPositions[0].y);
 		}
 		synchronized(prevFingerPositions){
-			prevPos = prevFingerPositions[0];
+			prevPos = Vector2(prevFingerPositions[0].x, prevFingerPositions[0].y);
 		}
 
 		Vector2 diff = currentPos - prevPos ;
@@ -1182,7 +1183,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		LOGD("translatePlane value = %d",settings->translatePlane);
 		if(settings->translatePlane){
 			diff/= 10 ;
-			LOGD("Translate Plane %f -- %f", diff.x, diff.y);
+			//LOGD("Translate Plane %f -- %f", diff.x, diff.y);
 			diff *= settings->precision ;
 			diff *= settings->considerTranslation * settings->considerX * settings->considerY;
 			Vector3 trans = Vector3(diff.x+diff.y, diff.x+diff.y, diff.x+diff.y);
@@ -1206,12 +1207,12 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 	}
 
 	if(fingerPositions.size() == 1){
-		LOGD("Normal Finger Interaction 1 finger");
+		//LOGD("Normal Finger Interaction 1 finger");
 		synchronized(fingerPositions){
-			currentPos = fingerPositions[0];
+			currentPos = Vector2(fingerPositions[0].x,fingerPositions[0].y);
 		}
 		synchronized(prevFingerPositions){
-			prevPos = prevFingerPositions[0];
+			prevPos = Vector2(prevFingerPositions[0].x, prevFingerPositions[0].y);
 		}
 
 		Vector2 diff = currentPos - prevPos ;
@@ -1222,7 +1223,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		diff.y *= settings->considerX * settings->considerRotation ;
 
 		if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || interactionMode == dataHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || interactionMode == seedPoint){
-			LOGD("Data interaction");
+			//LOGD("Data interaction");
 			Quaternion rot = currentDataRot;
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), 0);
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), -diff.x);
@@ -1232,7 +1233,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 	}
 
 	else if(fingerPositions.size() == 2){
-		LOGD("Two finger interaction");
+		//LOGD("Two finger interaction");
 		Vector2 diff = Vector2(0,0);
 		//Scale Factor update done Java Side
 		//Nothing to do
@@ -1240,10 +1241,10 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		//Translation Computation
 		for(int i = 0 ; i < 2 ; i++){
 			synchronized(fingerPositions){
-			currentPos = fingerPositions[i];
+			currentPos = Vector2(fingerPositions[i].x,fingerPositions[i].y);
 			}
 			synchronized(prevFingerPositions){
-				prevPos = prevFingerPositions[i];
+				prevPos = Vector2(prevFingerPositions[i].x, prevFingerPositions[i].y);
 			}
 
 			diff += currentPos - prevPos ;
@@ -1635,7 +1636,7 @@ std::string FluidMechanics::Impl::getData(){
 }
 
 void FluidMechanics::Impl::addFinger(float x, float y, int fingerID){
-	Vector2 pos(x,y);
+	Vector3 pos(x,y, fingerID);
 	synchronized(prevFingerPositions){
 		prevFingerPositions.push_back(pos);
 	}
@@ -1654,24 +1655,44 @@ void FluidMechanics::Impl::addFinger(float x, float y, int fingerID){
 	}
 }
 void FluidMechanics::Impl::removeFinger(int fingerID){
+	int position = getFingerPos(fingerID);
 	synchronized(prevFingerPositions){
-		prevFingerPositions.erase(prevFingerPositions.begin()+fingerID);
+		prevFingerPositions.erase(prevFingerPositions.begin()+position);
 	}
 	synchronized(fingerPositions){
-		fingerPositions.erase(fingerPositions.begin()+fingerID);
+		fingerPositions.erase(fingerPositions.begin()+position);
 	}
+}
+
+int FluidMechanics::Impl::getFingerPos(int fingerID){
+	for(int i = 0 ; i < fingerPositions.size() ; i++){
+		if(fingerPositions[i].z == fingerID){
+			return i ;
+		}
+	}
+	return -1 ;
 }
 
 
 void FluidMechanics::Impl::updateFingerPositions(float x, float y, int fingerID){
-	Vector2 pos(x,y);
-	//LOGD("Finger %d has moved to %f -- %f",fingerID, x, y);
+	Vector3 pos(x,y, fingerID);
+	/*if(fingerID >= fingerPositions.size()){
+		LOGD("Error in Finger ID");
+		return ;
+	}*/
+	
+	int position = getFingerPos(fingerID);
+	if(position == -1){
+		LOGD("Error in Finger ID");
+		return ;
+	}
 	synchronized(prevFingerPositions){
-		prevFingerPositions[fingerID] = fingerPositions[fingerID];	
+		prevFingerPositions[position] = fingerPositions[position];	
 	}
 	synchronized(fingerPositions){
-		fingerPositions[fingerID] = pos ;	
+		fingerPositions[position] = pos ;	
 	}
+	LOGD("Finger %d has moved from %f -- %f     to     %f -- %f",fingerID,prevFingerPositions[position].x,prevFingerPositions[position].y, x, y);
 }
 
 

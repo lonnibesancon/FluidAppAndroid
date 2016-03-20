@@ -1640,24 +1640,35 @@ public class MainActivity extends BaseARActivity
         return false ;
     }
 
+    private boolean isOnTouchButton(float x, float y){
+        if(x<=180 && y>=750){
+            //Log.d(TAG,"Buttons on the left");
+            return true ;
+        }
+        else if(x>=1680 && y >=900){
+            //Log.d(TAG,"Buttons on the right");
+            return true ;
+        }
+        return false ;
+    }
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        //Log.d(TAG, "onTouch");
-
-        // // Log.d(TAG, "button state = " + event.getButtonState());
-        // if (event.getButtonState() == 1) {
-        //     FluidMechanics.releaseParticles();
-        //     return true;
-        // }
-
-        //Buttons first
-        //Log.d(TAG,"Touch event");
-        int fingerOnButtonIndex = -1 ;
+        //First compute RAW coordinates of each touch event
+        float rawPosX[] = new float[5];
+        float rawPosY[] = new float[5];
+        float ofsX = event.getRawX() - event.getX();
+        float ofsY = event.getRawY() - event.getY();
+        for (int i = 0; i < event.getPointerCount(); i++) {
+            rawPosX[i] = event.getX(i) + ofsX;
+            rawPosY[i] = event.getY(i) + ofsY;
+            //isOnTouchButton(rawPosX[i],rawPosY[i]);
+            //Log.d(TAG,"Finger "+i+" X = "+rawPosX[i]+" Y = "+rawPosY[i]);
+        }
 
 
         if(v.getId() == R.id.tangibleBtn){
             int index = event.getActionIndex();
-            fingerOnButtonIndex = event.getPointerId(index);
             //Log.d(TAG,"INDEX = "+fingerOnButtonIndex);
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 isTangibleOn = true ;
@@ -1670,7 +1681,7 @@ public class MainActivity extends BaseARActivity
                 this.tangibleBtn.setPressed(false);
             }
             
-            return true ;
+            //return true ;
         }
   
         /*else if(v.getId() == R.id.sliceBtn){
@@ -1707,8 +1718,7 @@ public class MainActivity extends BaseARActivity
             //Log.d(TAG,"Touched constrainX");
             updateConstraintX();
             int index = event.getActionIndex();
-            fingerOnButtonIndex = event.getPointerId(index);
-            return true ;
+            //return true ;
         }
 
         else if(v.getId() == R.id.constrainY){
@@ -1723,8 +1733,7 @@ public class MainActivity extends BaseARActivity
             //Log.d(TAG,"Touched constrainY");
             updateConstraintY();
             int index = event.getActionIndex();
-            fingerOnButtonIndex = event.getPointerId(index);
-            return true ;
+            //return true ;
         }
 
         else if(v.getId() == R.id.constrainZ){
@@ -1739,8 +1748,7 @@ public class MainActivity extends BaseARActivity
             //Log.d(TAG,"Touched constrainZ");
             updateConstraintZ();
             int index = event.getActionIndex();
-            fingerOnButtonIndex = event.getPointerId(index);
-            return true ;
+            //return true ;
         }
 
         else if(v.getId() == R.id.autoConstrain ){
@@ -1755,8 +1763,7 @@ public class MainActivity extends BaseARActivity
             //Log.d(TAG,"Touched constrain Auto");
             updateConstraintAuto();
             int index = event.getActionIndex();
-            fingerOnButtonIndex = event.getPointerId(index);
-            return true ;
+            //return true ;
         }
 
         else if(v.getId() == R.id.seedingBtn){
@@ -1769,16 +1776,17 @@ public class MainActivity extends BaseARActivity
                 this.seedingBtn.setPressed(false);
             }
             updateDataSettings();
-            return true ;
+            //return true ;
         }
+
 
 
         //Log.d(TAG,"X = "+fluidSettings.considerX+"  -- Y = "+fluidSettings.considerY
         //                +"  -- Z = "+ fluidSettings.considerZ+"  - Rotation  = "+fluidSettings.considerRotation);
         mGestureDetector.onTouchEvent(event);
 
-
-        if(mDatasetLoaded){
+        //Log.d(TAG, "View == "+(v.getId() == R.id.glSurfaceView));
+        if(mDatasetLoaded ){
             this.interactionType = touchInteraction ;
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
@@ -1788,9 +1796,11 @@ public class MainActivity extends BaseARActivity
                     int id = event.getPointerId(index);
                     //Log.d("Finger ID", "Finger ID = "+id);
                     //Log.d("Finger Index", "Finger Index = "+index);
-                    //if(id != -1){
+                    //Log.d(TAG, "Finger X = "+event.getRawX()+" Finger Y = "+event.getRawY());
+                    if(isOnTouchButton(rawPosX[index], rawPosY[index]) == false){
+                        Log.d(TAG, "Add Finger");
                         FluidMechanics.addFinger(event.getX(index), event.getY(index), id);    
-                    //}
+                    }
                     break ;
                 }
 
@@ -1801,9 +1811,10 @@ public class MainActivity extends BaseARActivity
                     int id = event.getPointerId(index);
                     //Log.d("Finger ID", "Finger ID = "+id);
                     //Log.d("Finger Index", "Finger Index = "+index);
-                    //if(id != -1){
+                    if(isOnTouchButton(rawPosX[index], rawPosY[index]) == false){
+                        Log.d(TAG, "Remove Finger");
                         FluidMechanics.removeFinger(id);
-                    //}
+                    }
                     break ;
                 }
 
@@ -1818,7 +1829,7 @@ public class MainActivity extends BaseARActivity
                         ids[i]  = event.getPointerId(i);
                         xPos[i] = event.getX(i);
                         yPos[i] = event.getY(i);
-                        if(ids[i] != -1){
+                        if(ids[i] != -1 && isOnTouchButton(rawPosX[i], rawPosY[i]) == false){
                             FluidMechanics.updateFingerPositions(xPos[i],yPos[i],ids[i]);
                         }
                     }
@@ -1826,26 +1837,29 @@ public class MainActivity extends BaseARActivity
                 }
             }
             if(event.getPointerCount() == 2){
-                float dx = event.getX(0) - event.getX(1);
-                float dy = event.getY(0) - event.getY(1);
-                float dist = (float)Math.sqrt(dx*dx + dy*dy);
-                this.interactionType = touchInteraction ;
-                switch (event.getActionMasked()) {
-                    case MotionEvent.ACTION_POINTER_DOWN: {
-                        mInitialPinchDist = dist;
-                        mInitialZoomFactor = settings.zoomFactor;
-                        mZoomGesture = true;
-                        break;
-                    }
-                    case MotionEvent.ACTION_MOVE: {
-                        // settings.zoomFactor = mInitialZoomFactor * (float)Math.pow(dist/mInitialPinchDist, zoomExponent);
-                        settings.zoomFactor = mInitialZoomFactor * dist/mInitialPinchDist;
-                        if (settings.zoomFactor <= 0.25f)
-                            settings.zoomFactor = 0.25f;
-                        updateSettings();
-                        break;
+                if(isOnTouchButton(rawPosX[0], rawPosY[0]) == false && isOnTouchButton(rawPosX[1], rawPosY[1]) == false){
+                    float dx = event.getX(0) - event.getX(1);
+                    float dy = event.getY(0) - event.getY(1);
+                    float dist = (float)Math.sqrt(dx*dx + dy*dy);
+                    this.interactionType = touchInteraction ;
+                    switch (event.getActionMasked()) {
+                        case MotionEvent.ACTION_POINTER_DOWN: {
+                            mInitialPinchDist = dist;
+                            mInitialZoomFactor = settings.zoomFactor;
+                            mZoomGesture = true;
+                            break;
+                        }
+                        case MotionEvent.ACTION_MOVE: {
+                            // settings.zoomFactor = mInitialZoomFactor * (float)Math.pow(dist/mInitialPinchDist, zoomExponent);
+                            settings.zoomFactor = mInitialZoomFactor * dist/mInitialPinchDist;
+                            if (settings.zoomFactor <= 0.25f)
+                                settings.zoomFactor = 0.25f;
+                            updateSettings();
+                            break;
+                        }
                     }
                 }
+                
                 
             }
 
@@ -1982,7 +1996,7 @@ public class MainActivity extends BaseARActivity
             //Log.d(TAG,"RequestRender");
             mView.requestRender();
             client.setData(FluidMechanics.getData());
-            Log.d(TAG,"Request Render");
+            //Log.d(TAG,"Request Render");
             //loggingFunction(); 
         }
             
