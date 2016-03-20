@@ -134,6 +134,13 @@
           android:text="Tangible"
             />
 
+        <Button
+          android:id="@+id/seedingBtn"
+          android:layout_height="match_parent"
+          android:layout_width="wrap_content"
+          android:text="Seed"
+            />
+
         <!--<Button
           android:id="@+id/sliceBtn"
           android:layout_height="match_parent"

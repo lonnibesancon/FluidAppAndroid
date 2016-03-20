@@ -77,6 +77,7 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 	   considerTranslation(1),
 	   autoConstraint(false),
 	   translatePlane(false),
+	   isSeeding(false),
 	   dataORplane(0)
 	{}
 
@@ -95,6 +96,7 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 	int considerTranslation = 1 ;
 	bool autoConstraint = false ;
 	bool translatePlane = false ;
+	bool isSeeding = false ;
 	int dataORplane = 0 ; //Data
 
 	void read(JNIEnv* env, jobject obj, jclass cls) const
@@ -109,6 +111,7 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 		SET_JNI_FIELD(obj, surfacePreview, Boolean, "Z", surfacePreview);
 
 		//For constraining interaction
+		SET_JNI_FIELD(obj, isSeeding, Boolean, "Z", isSeeding);
 		SET_JNI_FIELD(obj, autoConstraint, Boolean, "Z", autoConstraint);
 		SET_JNI_FIELD(obj, considerX, Int, "I", considerX);
 		SET_JNI_FIELD(obj, considerY, Int, "I", considerY);
@@ -139,6 +142,7 @@ struct FluidMechanics::Settings : public NativeApp::Settings
 		GET_JNI_FIELD(obj, precision, Float, "F", precision);
 
 		//For constraining interaction
+		GET_JNI_FIELD(obj, isSeeding, Boolean, "Z", isSeeding);
 		GET_JNI_FIELD(obj, autoConstraint, Boolean, "Z", autoConstraint);
 		GET_JNI_FIELD(obj, considerX, Int, "I", considerX);
 		GET_JNI_FIELD(obj, considerY, Int, "I", considerY);

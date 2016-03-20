@@ -18,6 +18,7 @@ public class FluidMechanics {
         int considerZ ;
         int considerRotation ;
         int considerTranslation ;
+        boolean isSeeding ;
         boolean autoConstraint ;
         boolean translatePlane ;
         int dataORplane ;

@@ -1151,10 +1151,10 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 	Vector2 prevPos ;
 
 	//Particle seeding case
-	LOGD("ComputeFingerInteraction Function");
+	//LOGD("ComputeFingerInteraction Function");
 	//LOGD("%d == %d   ---  %d", interactionMode, seedPoint, fingerPositions.size());
-	if(interactionMode == seedPoint && fingerPositions.size() == 1){
-		
+	if(interactionMode == seedPoint && fingerPositions.size() == 1 && settings->isSeeding == true){
+		LOGD("Seeding");
 		if(computeSeedingPlacement()){
 			return ;
 		}
@@ -1206,6 +1206,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 	}
 
 	if(fingerPositions.size() == 1){
+		LOGD("Normal Finger Interaction 1 finger");
 		synchronized(fingerPositions){
 			currentPos = fingerPositions[0];
 		}
@@ -1220,7 +1221,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		diff.x *= settings->considerY * settings->considerRotation ;
 		diff.y *= settings->considerX * settings->considerRotation ;
 
-		if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || interactionMode == dataHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0)){
+		if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || interactionMode == dataHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || interactionMode == seedPoint){
 			LOGD("Data interaction");
 			Quaternion rot = currentDataRot;
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), 0);
@@ -1231,6 +1232,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 	}
 
 	else if(fingerPositions.size() == 2){
+		LOGD("Two finger interaction");
 		Vector2 diff = Vector2(0,0);
 		//Scale Factor update done Java Side
 		//Nothing to do
@@ -1260,7 +1262,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		if(interactionMode == planeTouch){
 			currentSlicePos +=trans ;
 		}
-		else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) ){
+		else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || interactionMode == seedPoint ){
 			currentDataPos +=trans ;	
 		}
 
@@ -1296,7 +1298,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 			//currentSliceRot = rot ; //Version with the plane moving freely in the world
 			currentSliceRot = rot ;
 		}
-		else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || interactionMode == dataHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0)){
+		else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || interactionMode == dataHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || interactionMode == seedPoint){
 			Quaternion rot = currentDataRot;
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), angle);
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), 0);
@@ -1477,7 +1479,7 @@ void FluidMechanics::Impl::updateMatrices(){
 	//LOGD("Precision = %f",settings->precision);
 	//LOGD("ConstrainX = %d ; ConstrainY = %d ; ConstrainZ = %d", settings->considerX, settings->considerY, settings->considerZ );
 
-	LOGD("UPDATE MATRICES");
+	//LOGD("UPDATE MATRICES");
 	//We need to call computeFingerInteraction() if the interaction mode uses tactile
 	if(	interactionMode == dataTouch ||
 	   	interactionMode == dataHybrid ||
@@ -1486,7 +1488,7 @@ void FluidMechanics::Impl::updateMatrices(){
 	   	interactionMode == dataPlaneHybrid || 
 	   	interactionMode == seedPoint){
 
-			LOGD("Interaction Needs touch");
+			//LOGD("Interaction Needs touch");
 			computeFingerInteraction();
 	}
 	slicem = Matrix4::makeTransform(currentSlicePos, currentSliceRot);	//Version with the plane moving freely

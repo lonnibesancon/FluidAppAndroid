@@ -78,6 +78,7 @@ public class MainActivity extends BaseARActivity
     private Button constrainYBtn ;
     private Button constrainZBtn ;
     private Button autoConstrainBtn ;
+    private Button seedingBtn ;
     //private Button translateBtn ;
     private ToggleButton dataORplane ;
     private ToggleButton translateBtn ;
@@ -314,6 +315,9 @@ public class MainActivity extends BaseARActivity
         this.autoConstrainBtn = (Button) findViewById(R.id.autoConstrain);
         //this.autoConstrainBtn.setOnClickListener(this);
         this.autoConstrainBtn.setOnTouchListener(this);
+
+        this.seedingBtn = (Button) findViewById(R.id.seedingBtn);
+        this.seedingBtn.setOnTouchListener(this);
         
 
         //this.translateBtn = (Button) findViewById(R.id.translateBtn);
@@ -1755,6 +1759,19 @@ public class MainActivity extends BaseARActivity
             return true ;
         }
 
+        else if(v.getId() == R.id.seedingBtn){
+            if (event.getAction() == MotionEvent.ACTION_DOWN ){
+                fluidSettings.isSeeding = true ;
+                this.seedingBtn.setPressed(true);
+            }
+            else if(event.getAction() == MotionEvent.ACTION_UP ){
+                fluidSettings.isSeeding = false ;
+                this.seedingBtn.setPressed(false);
+            }
+            updateDataSettings();
+            return true ;
+        }
+
 
         //Log.d(TAG,"X = "+fluidSettings.considerX+"  -- Y = "+fluidSettings.considerY
         //                +"  -- Z = "+ fluidSettings.considerZ+"  - Rotation  = "+fluidSettings.considerRotation);
@@ -1831,6 +1848,9 @@ public class MainActivity extends BaseARActivity
                 }
                 
             }
+
+
+
             this.isInteracting = true ;
             requestRender();
             // NativeApp.setZoom(mZoomFactor);
