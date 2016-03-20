@@ -1806,7 +1806,7 @@ public class MainActivity extends BaseARActivity
                     //Log.d("Finger Index", "Finger Index = "+index);
                     //Log.d(TAG, "Finger X = "+event.getRawX()+" Finger Y = "+event.getRawY());
                     if(isOnTouchButton(rawPosX[index], rawPosY[index]) == false){
-                        Log.d(TAG, "Add Finger");
+                        //Log.d(TAG, "Add Finger");
                         FluidMechanics.addFinger(event.getX(index), event.getY(index), id);    
                     }
                     break ;
@@ -1820,7 +1820,7 @@ public class MainActivity extends BaseARActivity
                     //Log.d("Finger ID", "Finger ID = "+id);
                     //Log.d("Finger Index", "Finger Index = "+index);
                     if(isOnTouchButton(rawPosX[index], rawPosY[index]) == false){
-                        Log.d(TAG, "Remove Finger");
+                        //Log.d(TAG, "Remove Finger");
                         FluidMechanics.removeFinger(id);
                     }
                     break ;

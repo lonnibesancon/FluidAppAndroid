@@ -1185,7 +1185,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		//Depending on the state of translationPlane in settings
 
 		//Translation case
-		LOGD("translatePlane value = %d",settings->translatePlane);
+		//LOGD("translatePlane value = %d",settings->translatePlane);
 		if(settings->translatePlane){
 			diff/= 10 ;
 			//LOGD("Translate Plane %f -- %f", diff.x, diff.y);
