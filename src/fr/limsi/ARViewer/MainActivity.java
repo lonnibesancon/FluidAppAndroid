@@ -1677,7 +1677,7 @@ public class MainActivity extends BaseARActivity
             rawPosX[i] = event.getX(i) + ofsX;
             rawPosY[i] = event.getY(i) + ofsY;
             //isOnTouchButton(rawPosX[i],rawPosY[i]);
-            //Log.d(TAG,"Finger "+i+" X = "+rawPosX[i]+" Y = "+rawPosY[i]);
+            Log.d(TAG,"Finger "+i+" X = "+rawPosX[i]+" Y = "+rawPosY[i]);
         }
 
 
