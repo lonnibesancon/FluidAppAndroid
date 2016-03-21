@@ -1655,12 +1655,12 @@ public class MainActivity extends BaseARActivity
     }
 
     private boolean isOnTouchButton(float x, float y){
-        if(x<=180 && y>=500){
-            //Log.d(TAG,"Buttons on the left");
+        if(x<=190 && y>=420){
+            Log.d(TAG,"Buttons on the left");
             return true ;
         }
-        else if(x>=1680 && y >=800){
-            //Log.d(TAG,"Buttons on the right");
+        else if(x>=1420 && y >=820){
+            Log.d(TAG,"Buttons on the right");
             return true ;
         }
         return false ;
@@ -1677,7 +1677,7 @@ public class MainActivity extends BaseARActivity
             rawPosX[i] = event.getX(i) + ofsX;
             rawPosY[i] = event.getY(i) + ofsY;
             //isOnTouchButton(rawPosX[i],rawPosY[i]);
-            Log.d(TAG,"Finger "+i+" X = "+rawPosX[i]+" Y = "+rawPosY[i]);
+            //Log.d(TAG,"Finger "+i+" X = "+rawPosX[i]+" Y = "+rawPosY[i]);
         }
 
 
