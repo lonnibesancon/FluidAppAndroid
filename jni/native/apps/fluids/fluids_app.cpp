@@ -152,11 +152,13 @@ struct FluidMechanics::Impl
 	Vector2 initialVector ;
 	Vector3 prevVec ;
 	float translateBarPrevPos ;
-	float thresholdRST = 450 ;
 	bool isAboveThreshold = false ;
+	bool mInitialPinchDistSet = false ;
 	Synchronized<Vector3> seedingPoint ;
 	float screenW = 1920 ;
 	float screenH = 1104 ;
+	float mInitialZoomFactor ;
+	float mInitialPinchDist ;
 
 
 	bool tangoEnabled = false ;
@@ -1259,9 +1261,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), diff.y);
 			//currentSliceRot = rot ; //Version with the plane moving freely in the world
 			currentSliceRot = rot ;	
-		}
-		
-	
+		}	
 
 		return ;
 	}
@@ -1303,13 +1303,20 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 				currentDataRot = rot;
 			}
 		}
-		isAboveThreshold = false ;
 
 	}
 
 	else if(fingerPositions.size() == 2){
 		//LOGD("Two finger interaction");
 		Vector2 diff = Vector2(0,0);
+
+		float x1,x2,y1,y2 ;
+		x1 = fingerPositions[0].x ;
+		x2 = fingerPositions[1].x ;
+		y1 = fingerPositions[0].y ;
+		y2 = fingerPositions[1].y ;
+
+		Vector2 newVec = Vector2(x2-x1,y2-y1);
 		
 		//Scale Factor update done Java Side
 		//Nothing to do
@@ -1339,7 +1346,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		//LOGD("Diff = %f -- %f", diff.x, diff.y);
 		
 		//Compute distance between the two fingers
-		float distance = sqrt((fingerPositions[0].x-fingerPositions[1].x)*(fingerPositions[0].x-fingerPositions[1].x) + (fingerPositions[0].y-fingerPositions[1].y) * (fingerPositions[0].y-fingerPositions[1].y)    );
+		float distance = sqrt(    (x1-x2)*(x1-x2) + (y1-y2) * (y1-y2)    );
 		LOGD("Distance %f", distance);
 		if(interactionMode == planeTouch){
 			currentSlicePos +=trans ;
@@ -1352,17 +1359,10 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		//Rotation on the z axis --- Spinning 
 		if(distance> thresholdRST || isAboveThreshold){
 			isAboveThreshold = true ;
-			float x1,x2,y1,y2 ;
+			
 			LOGD("Spinning considered");
-			synchronized(fingerPositions){
-				x1 = fingerPositions[0].x ;
-				x2 = fingerPositions[1].x ;
-				y1 = fingerPositions[0].y ;
-				y2 = fingerPositions[1].y ;
-			}
+			
 	        
-	        Vector2 newVec = Vector2(x2-x1,y2-y1);
-
 	        float dot = initialVector.x * newVec.x + initialVector.y * newVec.y ;
 	        float det = initialVector.x * newVec.y - initialVector.y * newVec.x ;
 
@@ -1391,15 +1391,31 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 				currentDataRot = rot;
 			}
 
+
+			//Scale case:
+			//float dx = fingerPositions[0].x - fingerPositions[1].x;
+	        //float dy = fingerPositions[0].y - fingerPositions[1].y;
+	        //float dist = sqrt(dx*dx + dy*dy);
+	        if(mInitialPinchDistSet == false){
+	        	mInitialPinchDist = distance ;
+	        	mInitialPinchDistSet = true ;
+	        }
+        	LOGD("Initial Pinch = %f, && zoom = %f",mInitialPinchDist,settings->zoomFactor);
+            settings->zoomFactor = mInitialZoomFactor * distance/mInitialPinchDist;
+            if (settings->zoomFactor <= 0.25f){
+            	settings->zoomFactor = 0.25f;
+            }
+                
 			//LOGD("Angle == %f", angle);
 			//LOGD("New Vector = %f -- %f", newVec.x, newVec.y);
 			//LOGD("Initial Vector = %f -- %f", initialVector.x, initialVector.y);
 
 			//We set the initialVector to the new one, because relative mode
-			initialVector = newVec ;
 		}
-		
-		
+
+		//Should be done no matter what is happening with the distance between the two fingers
+		//Otherwise, spinning happens at one
+		initialVector = newVec ;
 
 	}
 	
@@ -1740,6 +1756,11 @@ void FluidMechanics::Impl::addFinger(float x, float y, int fingerID){
 			y2 = fingerPositions[1].y ;
 		}
 		initialVector = Vector2(x2-x1, y2-y1);
+		float dx = x1  - x2;
+        float dy = y1 - y2;
+        float dist = sqrt(dx*dx + dy*dy);
+        mInitialPinchDist = dist;
+        mInitialZoomFactor = settings->zoomFactor;
 	}
 }
 void FluidMechanics::Impl::removeFinger(int fingerID){
@@ -1754,6 +1775,10 @@ void FluidMechanics::Impl::removeFinger(int fingerID){
 	synchronized(fingerPositions){
 		fingerPositions.erase(fingerPositions.begin()+position);
 	}
+
+	//Reset all bools that are related to 2-finger interaction
+	mInitialPinchDistSet = false ;
+	isAboveThreshold = false ;
 }
 
 int FluidMechanics::Impl::getFingerPos(int fingerID){

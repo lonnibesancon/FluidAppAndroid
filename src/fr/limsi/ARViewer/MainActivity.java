@@ -1850,12 +1850,14 @@ public class MainActivity extends BaseARActivity
                     break ;
                 }
             }
-            if(event.getPointerCount() == 2){
+            /*if(event.getPointerCount() == 2){
                 if(isOnTouchButton(rawPosX[0], rawPosY[0]) == false && isOnTouchButton(rawPosX[1], rawPosY[1]) == false){
+
                     float dx = event.getX(0) - event.getX(1);
                     float dy = event.getY(0) - event.getY(1);
                     float dist = (float)Math.sqrt(dx*dx + dy*dy);
                     this.interactionType = touchInteraction ;
+                    
                     switch (event.getActionMasked()) {
                         case MotionEvent.ACTION_POINTER_DOWN: {
                             mInitialPinchDist = dist;
@@ -1865,17 +1867,20 @@ public class MainActivity extends BaseARActivity
                         }
                         case MotionEvent.ACTION_MOVE: {
                             // settings.zoomFactor = mInitialZoomFactor * (float)Math.pow(dist/mInitialPinchDist, zoomExponent);
-                            settings.zoomFactor = mInitialZoomFactor * dist/mInitialPinchDist;
-                            if (settings.zoomFactor <= 0.25f)
-                                settings.zoomFactor = 0.25f;
-                            updateSettings();
+                            if(dist > thresholdRST){
+                                settings.zoomFactor = mInitialZoomFactor * dist/mInitialPinchDist;
+                                if (settings.zoomFactor <= 0.25f)
+                                    settings.zoomFactor = 0.25f;
+                                updateSettings();
+                            }
                             break;
                         }
                     }
+                   
                 }
                 
                 
-            }
+            }*/
 
 
 

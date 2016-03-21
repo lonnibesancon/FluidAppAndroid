@@ -28,6 +28,9 @@ public interface InteractionMode{
 	public static final short tangibleInteraction = 2 ;
 
 
+	public static final float thresholdRST = 450 ;
+
+
 	//LOGGING HELP
 
 
