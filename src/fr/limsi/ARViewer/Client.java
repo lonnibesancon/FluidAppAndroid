@@ -16,8 +16,8 @@ import java.net.Socket;
 public class Client extends AsyncTask<String, String, String>{
 
 
-	//protected String hostName = "192.168.1.41" ;       //Aviz computer
-    protected String hostName = "192.168.0.132" ;        //Home computer
+	protected String hostName = "192.168.1.41" ;       //Home computer
+    //protected String hostName = "192.168.0.132" ;        //Aviz computer
     protected int portNumber = 8500;
     //protected Socket clientSocket ;
     protected DatagramSocket clientSocket ;
@@ -30,7 +30,7 @@ public class Client extends AsyncTask<String, String, String>{
 
     protected String dataMatrix = "1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;";
     protected String sliceMatrix = "1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;";
-    protected String seedPoint = "-1;-1;-1";
+    protected String seedPoint = "-10000.0;-10000.0;-10000.0";
                                     //Dataset+showVolume+showSurface+showStylus+showSlice+showOutline+Matrix
     protected String dataToSend = "1;1;1;1;1;1;1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;-1;-1;-1;" ;
     protected String msg ;

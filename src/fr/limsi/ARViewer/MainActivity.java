@@ -152,6 +152,7 @@ public class MainActivity extends BaseARActivity
     private boolean dataOrTangibleValue = true ;
 
     public int pId = -1 ;
+    private boolean fileOpened = false ;
 
     @Override
     protected int getAppType() {
@@ -179,6 +180,7 @@ public class MainActivity extends BaseARActivity
                 }
                 else{
                     pId = p ;
+                    openFile();
                 }
             }
             
@@ -193,6 +195,29 @@ public class MainActivity extends BaseARActivity
         });
 
         alert.show();
+    }
+
+    private void openFile(){
+        try{
+            fOut = new FileOutputStream("/sdcard/test"+"/"+pId+".csv");
+            outputStreamWriter = new OutputStreamWriter(fOut);
+        }
+        catch (IOException e) {
+            Log.e(TAG, "File write failed: " + e.toString());
+        } 
+
+        this.executor.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    loggingFunction();
+                }
+                catch (IOException e) {
+                    Log.e(TAG, "File write failed: " + e.toString());
+                } 
+            }
+        }, 0L, logrefreshrate , TimeUnit.MILLISECONDS);
+
     }
 
     @Override
@@ -399,26 +424,6 @@ public class MainActivity extends BaseARActivity
         // mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_LEARNINGMODE, true);
 
         //executor = new ScheduledThreadPoolExecutor(1);
-        try{
-            fOut = new FileOutputStream("/sdcard/test"+"/"+FILENAME);
-            outputStreamWriter = new OutputStreamWriter(fOut);
-        }
-        catch (IOException e) {
-            Log.e(TAG, "File write failed: " + e.toString());
-        } 
-
-        this.executor.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    loggingFunction();
-                }
-                catch (IOException e) {
-                    Log.e(TAG, "File write failed: " + e.toString());
-                } 
-            }
-        }, 0L, logrefreshrate , TimeUnit.MILLISECONDS);
-
         
     }
 
@@ -489,6 +494,7 @@ public class MainActivity extends BaseARActivity
     private String getLogString(long timestamp){
     
         return (""+timestamp+";"
+                 +interactionMode+";"
                  +fluidSettings.precision+";"
                  +interactionMode+";"
                  +interactionType+";"

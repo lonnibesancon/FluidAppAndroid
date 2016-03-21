@@ -134,6 +134,7 @@ struct FluidMechanics::Impl
 	bool computeSeedingPlacement();
 	void reset();
 	int getFingerPos(int fingerID);
+	bool checkPosition();
 
 	Vector3 posToDataCoords(const Vector3& pos); // "pos" is in eye coordinates
 	Vector3 dataCoordsToPos(const Vector3& dataCoordsToPos);
@@ -201,6 +202,12 @@ struct FluidMechanics::Impl
 	MeshPtr particleSphere, cylinder;
 	LinesPtr lines;
 
+
+	//Matching part
+	std::vector<Matrix4> planeMatrices ;
+	std::vector<Matrix4> dataMatrices ;
+	int targetId = 0 ;
+
 	// Matrix4 qcarProjMatrix;
 	// QCAR::DataSet* dataSetStonesAndChips;
 	// Synchronized<Matrix4> qcarModelMatrix; // XXX: test
@@ -224,15 +231,26 @@ FluidMechanics::Impl::Impl(const std::string& baseDir)
    currentTabRot(Quaternion(Vector3::unitX(), M_PI)),
    buttonIsPressed(false) 
 {
-	seedingPoint = Vector3(-1,-1,-1);
+	seedingPoint = Vector3(-10000.0,-10000.0,-10000.0);
 	cube.reset(new Cube);
 	axisCube.reset(new Cube(true));
 	particleSphere = LoaderOBJ::load(baseDir + "/sphere.obj");
 	cylinder = LoaderOBJ::load(baseDir + "/cylinder.obj");
 	lines.reset(new Lines);
 
+	dataMatrices.push_back(Matrix4(0.878712,0.130662,-0.459121,-1.755372,   -0.061530,-0.922785,-0.380378,1.588101,    -0.473370,0.362493,-0.802823,421.545746, 0.0,0.0,0.0,1.0)) ;
+	dataMatrices.push_back(Matrix4(-0.459694,-0.061793,-0.885914,0.780434,  -0.054220,-0.993750,0.097450,-4.450110,    -0.886410,0.092833,0.453489,394.229126,  0.0,0.0,0.0,1.0)) ;
+	dataMatrices.push_back(Matrix4(0.758728,-0.074798,0.647099,-66.470947,  -0.108194,-0.994055,0.011954,-10.322975,   0.642359,-0.079082,-0.762309,408.815155, 0.0,0.0,0.0,1.0)) ;
+	dataMatrices.push_back(Matrix4(0.861216,0.491835,0.128069,78.168060,    0.410995,-0.822181,0.393781,-34.478889,    0.298976,-0.286494,-0.910216,430.499512, 0.0,0.0,0.0,1.0)) ;
+	dataMatrices.push_back(Matrix4(0.714169,0.327058,0.618857,-4.563940,    0.137663,-0.932450,0.333937,-1.727744,     0.686294,-0.153290,-0.710941,341.912811, 0.0,0.0,0.0,1.0)) ;
 
+	planeMatrices.push_back(Matrix4(0.978230,-0.147384,0.146097,-11.221571,    0.018978,-0.637510,-0.770202,6.842112,     0.206655,0.756207,-0.620834,416.073578,   0.0,0.0,0.0,1.0));
+	planeMatrices.push_back(Matrix4(0.868520,-0.224136,0.442078,-8.235476,     0.078028,-0.818946,-0.568510,-12.603008,   0.489471,0.528257,-0.693780,393.382599,   0.0,0.0,0.0,1.0));
+	planeMatrices.push_back(Matrix4(0.738568,-0.041525,0.672897,-37.962921,    0.014445,-0.996888,-0.077374,-8.523600,    0.674022,0.066866,-0.735667,430.587189,   0.0,0.0,0.0,1.0));
+	planeMatrices.push_back(Matrix4(0.789141,-0.003018,0.614196,60.168903,     0.420754,-0.725801,-0.544151,-30.695087,   0.447451,0.687841,-0.571482,416.917847,   0.0,0.0,0.0,1.0));
+	planeMatrices.push_back(Matrix4(0.638353,-0.666422,-0.385177,-41.935047,   -0.679579,-0.252910,-0.688566,-34.261902,  0.361459,0.701307,-0.614332,393.426270,   0.0,0.0,0.0,1.0));
 
+	targetId = 0 ;
 	for (Particle& p : particles)
 		p.valid = false;
 }
@@ -250,6 +268,22 @@ void FluidMechanics::Impl::reset(){
 
 	setMatrices(Matrix4::makeTransform(Vector3(0, 0, 400)),Matrix4::makeTransform(Vector3(0, 0, 400)));
 	
+}
+
+bool FluidMechanics::Impl::checkPosition(){
+	Matrix4 targetData = dataMatrices[targetId];
+	Matrix4 targetSlice = planeMatrices[targetId];
+
+	Vector3 posData(targetData[3][0],targetData[3][1],targetData[3][2]);
+	Vector3 posSlice(targetSlice[3][0],targetSlice[3][1],targetSlice[3][2]);
+
+	Vector3 diffData = posData - currentDataPos ;
+	Vector3 diffSlice = posSlice - currentSlicePos ;
+	float distData = sqrt(diffData.x * diffData.x + diffData.y * diffData.y + diffData.z * diffData.z);
+	float distSlice = sqrt(diffSlice.x * diffSlice.x + diffSlice.y * diffSlice.y + diffSlice.z * diffSlice.z);
+
+	LOGD("Distance to data target = %f",distData);
+	LOGD("Distance to slice target = %f",distSlice);
 }
 
 void FluidMechanics::Impl::rebind()
@@ -481,8 +515,8 @@ float FluidMechanics::Impl::buttonReleased()
 void FluidMechanics::Impl::releaseParticles()
 {
 	if (!velocityData || !state->tangibleVisible || !state->stylusVisible || 
-		interactionMode!=seedPointTangible || interactionMode!=seedPointTouch || 
-		interactionMode != seedPointHybrid){
+		(interactionMode!=seedPointTangible && interactionMode!=seedPointTouch && 
+		interactionMode != seedPointHybrid )){
 
 		LOGD("Cannot place Seed");
 		seedPointPlacement = false ;
@@ -1139,8 +1173,9 @@ bool FluidMechanics::Impl::computeSeedingPlacement(){
 	if(success){
 		//LOGD("SUCCESS");
 		//printAny(ray*t, "RAY * T = ");
+		//To save energy with less rendering and computation, we do not render the particles on the tablet
 		seedingPoint = ray*t ;
-		releaseParticles();
+		//releaseParticles();
 		return true ;
 	}
 	else{
@@ -1160,7 +1195,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 	//LOGD("%d == %d   ---  %d", interactionMode, seedPoint, fingerPositions.size());
 	if( (interactionMode == seedPointTangible ||interactionMode == seedPointHybrid || interactionMode==seedPointTouch) 
 	   && fingerPositions.size() == 1 && settings->isSeeding == true){
-		//LOGD("Seeding");
+		LOGD("Seeding");
 		if(computeSeedingPlacement()){
 			return ;
 		}
@@ -1982,8 +2017,11 @@ void FluidMechanics::Impl::updateSlicePlanes()
 void FluidMechanics::Impl::renderObjects()
 {
 	updateMatrices();
+	//checkPosition();
 	const Matrix4 proj = app->getProjMatrix();
-
+	printAny(seedingPoint,"Seeding Point = ");
+	//printAny(state->stylusModelMatrix, "Plane  = ");
+	//printAny(state->modelMatrix, "Model Matrix Object = ");
 	glEnable(GL_DEPTH_TEST);
 
 	// // XXX: test
