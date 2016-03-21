@@ -150,6 +150,8 @@ struct FluidMechanics::Impl
 	Synchronized<std::vector<Vector3> > prevFingerPositions ;
 	Vector2 initialVector ;
 	Vector3 prevVec ;
+	float thresholdRST = 450 ;
+	bool isAboveThreshold = false ;
 	Synchronized<Vector3> seedingPoint ;
 	float screenW = 1920 ;
 	float screenH = 1104 ;
@@ -238,7 +240,9 @@ FluidMechanics::Impl::Impl(const std::string& baseDir)
 	cylinder = LoaderOBJ::load(baseDir + "/cylinder.obj");
 	lines.reset(new Lines);
 
-	dataMatrices.push_back(Matrix4(0.878712,0.130662,-0.459121,-1.755372,   -0.061530,-0.922785,-0.380378,1.588101,    -0.473370,0.362493,-0.802823,421.545746, 0.0,0.0,0.0,1.0)) ;
+	isAboveThreshold = false ;
+
+	/*dataMatrices.push_back(Matrix4(0.878712,0.130662,-0.459121,-1.755372,   -0.061530,-0.922785,-0.380378,1.588101,    -0.473370,0.362493,-0.802823,421.545746, 0.0,0.0,0.0,1.0)) ;
 	dataMatrices.push_back(Matrix4(-0.459694,-0.061793,-0.885914,0.780434,  -0.054220,-0.993750,0.097450,-4.450110,    -0.886410,0.092833,0.453489,394.229126,  0.0,0.0,0.0,1.0)) ;
 	dataMatrices.push_back(Matrix4(0.758728,-0.074798,0.647099,-66.470947,  -0.108194,-0.994055,0.011954,-10.322975,   0.642359,-0.079082,-0.762309,408.815155, 0.0,0.0,0.0,1.0)) ;
 	dataMatrices.push_back(Matrix4(0.861216,0.491835,0.128069,78.168060,    0.410995,-0.822181,0.393781,-34.478889,    0.298976,-0.286494,-0.910216,430.499512, 0.0,0.0,0.0,1.0)) ;
@@ -249,7 +253,7 @@ FluidMechanics::Impl::Impl(const std::string& baseDir)
 	planeMatrices.push_back(Matrix4(0.738568,-0.041525,0.672897,-37.962921,    0.014445,-0.996888,-0.077374,-8.523600,    0.674022,0.066866,-0.735667,430.587189,   0.0,0.0,0.0,1.0));
 	planeMatrices.push_back(Matrix4(0.789141,-0.003018,0.614196,60.168903,     0.420754,-0.725801,-0.544151,-30.695087,   0.447451,0.687841,-0.571482,416.917847,   0.0,0.0,0.0,1.0));
 	planeMatrices.push_back(Matrix4(0.638353,-0.666422,-0.385177,-41.935047,   -0.679579,-0.252910,-0.688566,-34.261902,  0.361459,0.701307,-0.614332,393.426270,   0.0,0.0,0.0,1.0));
-
+	*/
 	targetId = 0 ;
 	for (Particle& p : particles)
 		p.valid = false;
@@ -1270,15 +1274,18 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), diff.y);
 			currentDataRot = rot;
 		}
+		isAboveThreshold = false ;
 	}
 
 	else if(fingerPositions.size() == 2){
 		//LOGD("Two finger interaction");
 		Vector2 diff = Vector2(0,0);
+		
 		//Scale Factor update done Java Side
 		//Nothing to do
 
 		//Translation Computation
+
 		for(int i = 0 ; i < 2 ; i++){
 			synchronized(fingerPositions){
 			currentPos = Vector2(fingerPositions[i].x,fingerPositions[i].y);
@@ -1290,6 +1297,8 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 			diff += currentPos - prevPos ;
 		}
 
+	
+	
 		//FIXME Hardcoded
 		diff /=2 ;
 		diff /=4 ;
@@ -1299,7 +1308,9 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		Vector3 trans = Vector3(diff.x, diff.y, 0);
 		//LOGD("Diff = %f -- %f", diff.x, diff.y);
 		
-
+		//Compute distance between the two fingers
+		float distance = sqrt((fingerPositions[0].x-fingerPositions[1].x)*(fingerPositions[0].x-fingerPositions[1].x) + (fingerPositions[0].y-fingerPositions[1].y) * (fingerPositions[0].y-fingerPositions[1].y)    );
+		LOGD("Distance %f", distance);
 		if(interactionMode == planeTouch){
 			currentSlicePos +=trans ;
 		}
@@ -1309,50 +1320,55 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 
 
 		//Rotation on the z axis --- Spinning 
-		float x1,x2,y1,y2 ;
-		synchronized(fingerPositions){
-			x1 = fingerPositions[0].x ;
-			x2 = fingerPositions[1].x ;
-			y1 = fingerPositions[0].y ;
-			y2 = fingerPositions[1].y ;
+		if(distance> thresholdRST || isAboveThreshold){
+			isAboveThreshold = true ;
+			float x1,x2,y1,y2 ;
+			LOGD("Spinning considered");
+			synchronized(fingerPositions){
+				x1 = fingerPositions[0].x ;
+				x2 = fingerPositions[1].x ;
+				y1 = fingerPositions[0].y ;
+				y2 = fingerPositions[1].y ;
+			}
+	        
+	        Vector2 newVec = Vector2(x2-x1,y2-y1);
+
+	        float dot = initialVector.x * newVec.x + initialVector.y * newVec.y ;
+	        float det = initialVector.x * newVec.y - initialVector.y * newVec.x ;
+
+	        float angle = atan2(det,dot);
+	        //FIXME : to correct for the case when I remove one finger and put it back, rotate 360°
+	        if(angle == 3.141593){	//FIXME hardcoded
+	        	angle = 0 ;	
+	        }
+
+	        angle *=settings->precision ;
+	        angle *= settings->considerZ * settings->considerRotation ;
+
+	        if(interactionMode == planeTouch){
+				Quaternion rot = currentSliceRot;
+				rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), angle);
+				rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), 0);
+				rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), 0);
+				//currentSliceRot = rot ; //Version with the plane moving freely in the world
+				currentSliceRot = rot ;
+			}
+			else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || interactionMode == dataHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || interactionMode == seedPointHybrid || (interactionMode == seedPointTouch && settings->dataORplane == 0) ){
+				Quaternion rot = currentDataRot;
+				rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), angle);
+				rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), 0);
+				rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), 0);
+				currentDataRot = rot;
+			}
+
+			//LOGD("Angle == %f", angle);
+			//LOGD("New Vector = %f -- %f", newVec.x, newVec.y);
+			//LOGD("Initial Vector = %f -- %f", initialVector.x, initialVector.y);
+
+			//We set the initialVector to the new one, because relative mode
+			initialVector = newVec ;
 		}
-        
-        Vector2 newVec = Vector2(x2-x1,y2-y1);
-
-        float dot = initialVector.x * newVec.x + initialVector.y * newVec.y ;
-        float det = initialVector.x * newVec.y - initialVector.y * newVec.x ;
-
-        float angle = atan2(det,dot);
-        //FIXME : to correct for the case when I remove one finger and put it back, rotate 360°
-        if(angle == 3.141593){	//FIXME hardcoded
-        	angle = 0 ;	
-        }
-
-        angle *=settings->precision ;
-        angle *= settings->considerZ * settings->considerRotation ;
-
-        if(interactionMode == planeTouch){
-			Quaternion rot = currentSliceRot;
-			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), angle);
-			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), 0);
-			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), 0);
-			//currentSliceRot = rot ; //Version with the plane moving freely in the world
-			currentSliceRot = rot ;
-		}
-		else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || interactionMode == dataHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || interactionMode == seedPointHybrid || (interactionMode == seedPointTouch && settings->dataORplane == 0) ){
-			Quaternion rot = currentDataRot;
-			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), angle);
-			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), 0);
-			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), 0);
-			currentDataRot = rot;
-		}
-
-		//LOGD("Angle == %f", angle);
-		//LOGD("New Vector = %f -- %f", newVec.x, newVec.y);
-		//LOGD("Initial Vector = %f -- %f", initialVector.x, initialVector.y);
-
-		//We set the initialVector to the new one, because relative mode
-		initialVector = newVec ;
+		
 		
 
 	}
@@ -2019,7 +2035,7 @@ void FluidMechanics::Impl::renderObjects()
 	updateMatrices();
 	//checkPosition();
 	const Matrix4 proj = app->getProjMatrix();
-	printAny(seedingPoint,"Seeding Point = ");
+	//printAny(seedingPoint,"Seeding Point = ");
 	//printAny(state->stylusModelMatrix, "Plane  = ");
 	//printAny(state->modelMatrix, "Model Matrix Object = ");
 	glEnable(GL_DEPTH_TEST);
