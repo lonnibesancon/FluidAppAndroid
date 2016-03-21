@@ -134,6 +134,7 @@ struct FluidMechanics::Impl
 	bool computeSeedingPlacement();
 	void reset();
 	int getFingerPos(int fingerID);
+	void onTranslateBar(float pos);
 	bool checkPosition();
 
 	Vector3 posToDataCoords(const Vector3& pos); // "pos" is in eye coordinates
@@ -150,6 +151,7 @@ struct FluidMechanics::Impl
 	Synchronized<std::vector<Vector3> > prevFingerPositions ;
 	Vector2 initialVector ;
 	Vector3 prevVec ;
+	float translateBarPrevPos ;
 	float thresholdRST = 450 ;
 	bool isAboveThreshold = false ;
 	Synchronized<Vector3> seedingPoint ;
@@ -1082,7 +1084,7 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 				currentSlicePos += trans ; 	//Version with a fix plane
 			}
 			else if(interactionMode == dataTangible || (interactionMode == seedPointTangible && settings->dataORplane == 0) || 
-				    interactionMode == dataHybrid || (interactionMode == dataPlaneTangible && settings->dataORplane == 0)){
+				    (interactionMode == dataPlaneTangible && settings->dataORplane == 0)){
 				currentDataPos +=trans ;
 			}
 			
@@ -1105,7 +1107,10 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 	rx *=settings->precision * settings->considerX * settings->considerRotation;
 	//LOGD("Current Rot = %s", Utility::toString(currentSliceRot).c_str());
 	if(tangoEnabled){
-		if(interactionMode == planeTangible || (interactionMode == seedPointTangible && settings->dataORplane == 1) || interactionMode == seedPointHybrid || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTangible && settings->dataORplane == 1)){
+		if(interactionMode == planeTangible || (interactionMode == seedPointTangible && settings->dataORplane == 1) || 
+		   interactionMode == seedPointHybrid || interactionMode == dataPlaneHybrid || interactionMode == planeHybrid ||
+		   (interactionMode == dataPlaneTangible && settings->dataORplane == 1) ){
+
 			Quaternion rot = currentSliceRot;
 			rot = rot * Quaternion(rot.inverse() * (-Vector3::unitZ()), rz);
 			rot = rot * Quaternion(rot.inverse() * -Vector3::unitY(), ry);
@@ -1113,7 +1118,7 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 			//currentSliceRot = rot ; //Version with the plane moving freely in the world
 			currentSliceRot = rot ;
 		}
-		else if(interactionMode == dataTangible || (interactionMode == seedPointTangible && settings->dataORplane == 0) || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTangible && settings->dataORplane == 0)){
+		else if(interactionMode == dataTangible || (interactionMode == seedPointTangible && settings->dataORplane == 0) || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTangible && settings->dataORplane == 0) || interactionMode == dataHybrid){
 			Quaternion rot = currentDataRot;
 			rot = rot * Quaternion(rot.inverse() * (-Vector3::unitZ()), rz);
 			rot = rot * Quaternion(rot.inverse() * -Vector3::unitY(), ry);
@@ -1190,10 +1195,21 @@ bool FluidMechanics::Impl::computeSeedingPlacement(){
 
 }
 
+void FluidMechanics::Impl::onTranslateBar(float pos){
+
+	float trans = pos-translateBarPrevPos ;
+	if(interactionMode == planeTouch || interactionMode == planeHybrid ){
+
+	}
+
+	translateBarPrevPos = pos ;
+
+}
+
 void FluidMechanics::Impl::computeFingerInteraction(){
 	Vector2 currentPos ;
 	Vector2 prevPos ;
-
+	LOGD("Nb Of Fingers = %d", fingerPositions.size());
 	//Particle seeding case
 	//LOGD("ComputeFingerInteraction Function");
 	//LOGD("%d == %d   ---  %d", interactionMode, seedPoint, fingerPositions.size());
@@ -1260,21 +1276,35 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		}
 
 		Vector2 diff = currentPos - prevPos ;
-		diff /=1000 ;
-		diff *= settings->precision ;
 
-		diff.x *= settings->considerY * settings->considerRotation ;
-		diff.y *= settings->considerX * settings->considerRotation ;
+		if(interactionMode == dataHybrid){
+			diff /=2 ;
+			diff /=4 ;
+			diff *= settings->precision ;
+			diff *= settings->considerTranslation * settings->considerX * settings->considerY;
+			Vector3 trans = Vector3(diff.x, diff.y, 0);
+			currentDataPos +=trans ;
+		}
+		else{
 
-		if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || interactionMode == dataHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || interactionMode == seedPointHybrid || (interactionMode == seedPointTouch && settings->dataORplane==0)){
-			//LOGD("Data interaction");
-			Quaternion rot = currentDataRot;
-			rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), 0);
-			rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), -diff.x);
-			rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), diff.y);
-			currentDataRot = rot;
+
+			diff /=1000 ;
+			diff *= settings->precision ;
+
+			diff.x *= settings->considerY * settings->considerRotation ;
+			diff.y *= settings->considerX * settings->considerRotation ;
+
+			if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || interactionMode == dataHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || interactionMode == seedPointHybrid || (interactionMode == seedPointTouch && settings->dataORplane==0)){
+				//LOGD("Data interaction");
+				Quaternion rot = currentDataRot;
+				rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), 0);
+				rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), -diff.x);
+				rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), diff.y);
+				currentDataRot = rot;
+			}
 		}
 		isAboveThreshold = false ;
+
 	}
 
 	else if(fingerPositions.size() == 2){
@@ -1353,7 +1383,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 				//currentSliceRot = rot ; //Version with the plane moving freely in the world
 				currentSliceRot = rot ;
 			}
-			else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || interactionMode == dataHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || interactionMode == seedPointHybrid || (interactionMode == seedPointTouch && settings->dataORplane == 0) ){
+			else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || interactionMode == seedPointHybrid || (interactionMode == seedPointTouch && settings->dataORplane == 0) ){
 				Quaternion rot = currentDataRot;
 				rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), angle);
 				rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), 0);
@@ -1714,6 +1744,10 @@ void FluidMechanics::Impl::addFinger(float x, float y, int fingerID){
 }
 void FluidMechanics::Impl::removeFinger(int fingerID){
 	int position = getFingerPos(fingerID);
+	if(position == -1){
+		return ;
+	}
+	//LOGD("Size = %d, position == %d", fingerPositions.size(), position);
 	synchronized(prevFingerPositions){
 		prevFingerPositions.erase(prevFingerPositions.begin()+position);
 	}

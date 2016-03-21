@@ -130,14 +130,16 @@
         <Button
           android:id="@+id/tangibleBtn"
           android:layout_height="70dp"
-          android:layout_width="140dp"
+          android:layout_width="120dp"
+          android:layout_marginBottom="10dp"
           android:text="Tangible"
             />
 
         <Button
           android:id="@+id/seedingBtn"
           android:layout_height="70dp"
-          android:layout_width="140dp"
+          android:layout_width="120dp"
+          android:layout_marginBottom="10dp"
           android:text="Seed"
             />
 
@@ -156,8 +158,9 @@
 
           <ToggleButton
           android:id="@+id/translateBtn"
-          android:layout_width="140dp"
+          android:layout_width="120dp"
           android:layout_height="70dp"
+          android:layout_marginBottom="10dp"
           android:textOn="Rotate Mode"
           android:textOff="Translate Mode"
           android:checked="true" />
@@ -165,8 +168,9 @@
 
         <ToggleButton
           android:id="@+id/dataORplane"
-          android:layout_width="140dp"
+          android:layout_width="120dp"
           android:layout_height="70dp"
+          android:layout_marginBottom="10dp"
           android:textOn="Data"
           android:textOff="Plane"
           android:checked="true" />
