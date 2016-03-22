@@ -130,8 +130,8 @@
           android:id="@+id/tangibleBtn"
           android:layout_height="120dp"
           android:layout_width="120dp"
-          android:layout_marginBottom="10dp"
           android:background="@drawable/tango"
+          android:layout_marginBottom="90dp"
           android:text="Tangible"
             />
 

@@ -135,7 +135,7 @@ public class MainActivity extends BaseARActivity
 
     private Client client ;
 
-    private int interactionMode = dataTangible;
+    private int interactionMode = nothing;
     private boolean tangibleModeActivated = false ;
 
     //LOGGING

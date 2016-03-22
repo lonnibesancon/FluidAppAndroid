@@ -2310,7 +2310,19 @@ void FluidMechanics::Impl::renderObjects()
 			synchronized_if(outline) {
 				glDepthMask(true);
 				glLineWidth(2.0f);
-				outline->setColor(!tangoEnabled ? Vector3(1.0f, 0, 0) : Vector3(0, 1.0f, 0));
+				if(tangoEnabled && (interactionMode == dataTangible ||
+									interactionMode == planeTangible ||
+									interactionMode == dataTouchTangible ||
+									interactionMode == planeTouchTangible ||
+									interactionMode == dataPlaneTouchTangible ||
+									interactionMode == dataPlaneTangibleTouch))
+				{
+					outline->setColor(Vector3(0, 1.0f, 0));
+				}
+				else{
+					outline->setColor(Vector3(1.0f, 0, 0));	
+				}
+				//outline->setColor(tangoEnabled ? Vector3(1.0f, 0, 0) : Vector3(0, 1.0f, 0));
 				//outline->setColor(!velocityData ? Vector3(1.0f, 0, 0) : Vector3(0, 1.0f, 0));
 				outline->render(proj, mm);
 			}
