@@ -1395,8 +1395,8 @@ public class MainActivity extends BaseARActivity
                 showDistanceDialog();
                 break;
 
-    // Interaction Mode 
-        /* We manipulate DATA */
+    /*// Interaction Mode 
+        // We manipulate DATA 
             case R.id.action_dataTangible:
                 changeInteractionMode(dataTangible);
                 break;
@@ -1410,7 +1410,7 @@ public class MainActivity extends BaseARActivity
                 //changeInteractionMode(dataHybrid);
                 break ;
 
-        /* We manipulate the plane */
+        // We manipulate the plane xz
             case R.id.action_planeTouch:
                 //changeInteractionMode(planeTouch);
                 break ;
@@ -1423,7 +1423,7 @@ public class MainActivity extends BaseARActivity
                 //changeInteractionMode(planeHybrid);
                 break ;
 
-        /* We manipulate data + Plane */
+        // We manipulate data + Plane 
             case R.id.action_dataPlaneTouch:
                 //changeInteractionMode(dataPlaneTouch);
                 break ;
@@ -1436,7 +1436,7 @@ public class MainActivity extends BaseARActivity
                 //changeInteractionMode(dataPlaneHybrid);
                 break ;
 
-        /* Seeding mode */
+        // Seeding mode 
             case R.id.action_seedingTangible:
                 //changeInteractionMode(seedPointTangible);
                 break ;
@@ -1448,7 +1448,7 @@ public class MainActivity extends BaseARActivity
             case R.id.action_seedingHybrid:
                 //changeInteractionMode(seedPointHybrid);
                 break ;
-
+        */
             case R.id.change_IP:
                 changeIP();
                 break ;

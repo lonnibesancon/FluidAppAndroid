@@ -98,7 +98,7 @@
   <item android:title="Slicing distance"
         android:id="@+id/action_clipDist" />
 
-  <item android:title="Data Tangible"
+  <!--<item android:title="Data Tangible"
         android:id="@+id/action_dataTangible"/>
   
   <item android:title="Data Touch"
@@ -132,7 +132,7 @@
   android:id="@+id/action_seedingTouch"/>
 
   <item android:title="SeedingHybrid"
-  android:id="@+id/action_seedingHybrid"/>
+  android:id="@+id/action_seedingHybrid"/>-->
 
   <item android:title="Change IP"
         android:id="@+id/change_IP" />
