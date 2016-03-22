@@ -126,8 +126,66 @@
         android:layout_alignParentBottom="true"
         android:id= "@+id/linearlayout3"
          >
+          <Button
+          android:id="@+id/tangibleBtn"
+          android:layout_height="70dp"
+          android:layout_width="120dp"
+          android:layout_marginBottom="10dp"
+          android:text="Tangible"
+            />
+
+          <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:tools="http://schemas.android.com/tools"
+                  android:id="@+id/GridLayout2"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:columnCount="2"
+                  android:rowCount="2"
+                  android:orientation="horizontal"
+                  android:layout_alignParentRight="true"
+                  android:layout_gravity="bottom|left"
+                  android:background="@drawable/custom_border"
+                  tools:context=".GridXMLActivity" >
+                  
+                  <ToggleButton
+                      android:id="@+id/TangibleToggle"
+                      android:layout_gravity="left|bottom"
+                      android:layout_height="60dp"
+                      android:layout_width="120dp"
+                      android:layout_alignParentRight="true"
+                      android:textOn="Tangible On"
+                      android:textOff="Tangible Off" />
+
+                  <ToggleButton
+                      android:id="@+id/TouchToggle"
+                      android:layout_gravity="left|bottom"
+                      android:layout_height="60dp"
+                      android:layout_width="120dp"
+                      android:layout_alignParentRight="true"
+                      android:textOn="Tactile On"
+                      android:textOff="Tactile Off" />
+
+                  <ToggleButton
+                      android:id="@+id/manipTangibleToggle"
+                      android:layout_gravity="left|bottom"
+                      android:layout_height="60dp"
+                      android:layout_width="120dp"
+                      android:layout_alignParentRight="true"
+                      android:textOn="Data"
+                      android:textOff="Plane" />
+                  
+                  <ToggleButton
+                      android:id="@+id/manipTouchToggle"
+                      android:layout_gravity="left|bottom"
+                      android:layout_height="60dp"
+                      android:layout_width="120dp"
+                      android:layout_alignParentRight="true"
+                      android:textOn="Data"
+                      android:textOff="Plane" />  
+
+              </GridLayout>
         
-        <Button
+       <!--<Button
           android:id="@+id/tangibleBtn"
           android:layout_height="70dp"
           android:layout_width="120dp"
@@ -141,7 +199,7 @@
           android:layout_width="120dp"
           android:layout_marginBottom="10dp"
           android:text="Seed"
-            />
+            />-->
 
         <!--<Button
           android:id="@+id/sliceBtn"
@@ -154,7 +212,7 @@
           android:id="@+id/translateBtn"
           android:layout_height="match_parent"
           android:layout_width="wrap_content"
-          android:text="Translate"/>-->
+          android:text="Translate"/>
 
           <ToggleButton
           android:id="@+id/translateBtn"
@@ -173,7 +231,7 @@
           android:layout_marginBottom="10dp"
           android:textOn="Data"
           android:textOff="Plane"
-          android:checked="true" />
+          android:checked="true" />-->
 
 
       </LinearLayout>

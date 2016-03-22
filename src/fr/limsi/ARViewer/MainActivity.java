@@ -78,10 +78,10 @@ public class MainActivity extends BaseARActivity
     private Button constrainYBtn ;
     private Button constrainZBtn ;
     private Button autoConstrainBtn ;
-    private Button seedingBtn ;
+    //private Button seedingBtn ;
     //private Button translateBtn ;
-    private ToggleButton dataORplane ;
-    private ToggleButton translateBtn ;
+    //private ToggleButton dataORplane ;
+    //private ToggleButton translateBtn ;
 
     public Object lock = new Object() ;
 
@@ -236,7 +236,7 @@ public class MainActivity extends BaseARActivity
         FluidMechanics.getState(fluidState);
         fluidSettings.precision = 1 ;
         fluidSettings.translatePlane = false ;
-        fluidSettings.dataORplane = 0 ; //Data 
+        //fluidSettings.dataORplane = 0 ; //Data 
 
         this.client = new Client();
         this.client.execute();
@@ -341,15 +341,15 @@ public class MainActivity extends BaseARActivity
         //this.autoConstrainBtn.setOnClickListener(this);
         this.autoConstrainBtn.setOnTouchListener(this);
 
-        this.seedingBtn = (Button) findViewById(R.id.seedingBtn);
-        this.seedingBtn.setOnTouchListener(this);
+        //this.seedingBtn = (Button) findViewById(R.id.seedingBtn);
+        //this.seedingBtn.setOnTouchListener(this);
         
 
         //this.translateBtn = (Button) findViewById(R.id.translateBtn);
         //this.translateBtn.setOnClickListener(this);
         //this.translateBtn.setOnTouchListener(this);
 
-        dataORplane = (ToggleButton) findViewById(R.id.dataORplane);
+        /*dataORplane = (ToggleButton) findViewById(R.id.dataORplane);
         dataORplane.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
@@ -370,9 +370,9 @@ public class MainActivity extends BaseARActivity
 
                 updateDataSettings();
             }
-        });
+        });*/
 
-        translateBtn = (ToggleButton) findViewById(R.id.translateBtn);
+        /*translateBtn = (ToggleButton) findViewById(R.id.translateBtn);
         translateBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
@@ -393,7 +393,7 @@ public class MainActivity extends BaseARActivity
 
                 updateDataSettings();
             }
-        });
+        });*/
 
 
 
@@ -505,6 +505,7 @@ public class MainActivity extends BaseARActivity
                  +constrainZ+";"
                  +autoConstraint+";"
                  +"\n") ;
+                //LOG NBFINGERS ON SCREEN
     }
 
     private void writeLine(long timestamp) throws IOException{
@@ -1471,7 +1472,7 @@ public class MainActivity extends BaseARActivity
                 FluidMechanics.reset();
                 fluidSettings.precision = 1 ;
                 fluidSettings.translatePlane = false ;
-                fluidSettings.dataORplane = 0 ; //Data 
+                //fluidSettings.dataORplane = 0 ; //Data 
                 updateDataSettings();
                 requestRender();
                 break;
@@ -1780,7 +1781,7 @@ public class MainActivity extends BaseARActivity
             //return true ;
         }
 
-        else if(v.getId() == R.id.seedingBtn){
+        /*else if(v.getId() == R.id.seedingBtn){
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 fluidSettings.isSeeding = true ;
                 this.seedingBtn.setPressed(true);
@@ -1791,7 +1792,7 @@ public class MainActivity extends BaseARActivity
             }
             updateDataSettings();
             //return true ;
-        }
+        }*/
 
 
 

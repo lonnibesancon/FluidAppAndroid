@@ -990,9 +990,9 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 			trans *= 300 ;
 			trans *= -1 ;
 			trans *= settings->precision ;
-			trans.x *= settings->considerX * settings->considerTranslation ;
-			trans.y *= settings->considerY * settings->considerTranslation ;
-			trans.z *= settings->considerZ * settings->considerTranslation ;
+			trans.x *= settings->considerX ; //* settings->considerTranslation ;
+			trans.y *= settings->considerY ; //* settings->considerTranslation ;
+			trans.z *= settings->considerZ ; //* settings->considerTranslation ;
 
 			printAny(sliceNormal,"SliceNormal = ");
 			printAny(trans,"Trans = ");
@@ -1010,16 +1010,29 @@ void FluidMechanics::Impl::setTangoValues(double tx, double ty, double tz, doubl
 			trans *= settings->precision ;
 
 			//To constrain interaction
-			trans.x *= settings->considerX * settings->considerTranslation ;
-			trans.y *= settings->considerY * settings->considerTranslation ;
-			trans.z *= settings->considerZ * settings->considerTranslation ;
+			
 
 			if(interactionMode == planeTangible || (interactionMode == seedPointTangible && settings->dataORplane == 1) || interactionMode == seedPointHybrid || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTangible && settings->dataORplane == 1)){
 				//currentSlicePos += trans ;	Version with the plane moving freely in the world
+				Vector3 cons(settings->considerX,settings->considerY,settings->considerZ);
+
+				if(!(cons==Vector3(1,1,1)) ){
+					Vector3 tmp = state->modelMatrix.get3x3Matrix() * cons ;
+					trans = tmp.normalized() * trans.dot(tmp);
+					printAny(cons, "CONS = ");
+					printAny(tmp, "TMP = ");
+					printAny(trans, "TRANS = ");
+					//trans = trans.project(tmp);
+				}
+				
 				currentSlicePos += trans ; 	//Version with a fix plane
 			}
 			else if(interactionMode == dataTangible || (interactionMode == seedPointTangible && settings->dataORplane == 0) || 
-				    (interactionMode == dataPlaneTangible && settings->dataORplane == 0)){
+				    (interactionMode == dataPlaneTangible && settings->dataORplane == 0) || dataHybrid){
+				trans.x *= settings->considerX ;//* settings->considerTranslation ;
+				trans.y *= settings->considerY ;//* settings->considerTranslation ;
+				trans.z *= settings->considerZ ; //* settings->considerTranslation ;
+
 				currentDataPos +=trans ;
 			}
 			
@@ -1035,11 +1048,15 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 		return ;
 	}
 
+	if(settings->considerX == 0 || settings->considerZ == 0 || settings->considerY == 0){
+		return ;
+	}
+
 	//Now we update the rendering according to constraints and interaction mode
 
-	rz *=settings->precision * settings->considerZ * settings->considerRotation;
-	ry *=settings->precision * settings->considerY * settings->considerRotation;
-	rx *=settings->precision * settings->considerX * settings->considerRotation;
+	//rz *=settings->precision * settings->considerZ ; //settings->considerRotation;
+	//ry *=settings->precision * settings->considerY ; //settings->considerRotation;
+	//rx *=settings->precision * settings->considerX ; //settings->considerRotation;
 	//LOGD("Current Rot = %s", Utility::toString(currentSliceRot).c_str());
 	if(tangoEnabled){
 		if(interactionMode == planeTangible || (interactionMode == seedPointTangible && settings->dataORplane == 1) || 
@@ -1284,7 +1301,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		if(interactionMode == planeTouch){
 			currentSlicePos +=trans ;
 		}
-		else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || (interactionMode == seedPointTouch && settings->dataORplane == 0) || interactionMode == seedPointHybrid ){
+		else if(interactionMode == dataTouch || interactionMode == dataHybrid || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || (interactionMode == seedPointTouch && settings->dataORplane == 0) || interactionMode == seedPointHybrid ){
 			currentDataPos +=trans ;	
 		}
 
@@ -1316,7 +1333,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 				//currentSliceRot = rot ; //Version with the plane moving freely in the world
 				currentSliceRot = rot ;
 			}
-			else if(interactionMode == dataTouch || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || interactionMode == seedPointHybrid || (interactionMode == seedPointTouch && settings->dataORplane == 0) ){
+			else if(interactionMode == dataTouch || interactionMode == dataHybrid || interactionMode == dataPlaneHybrid || (interactionMode == dataPlaneTouch && settings->dataORplane == 0) || interactionMode == seedPointHybrid || (interactionMode == seedPointTouch && settings->dataORplane == 0) ){
 				Quaternion rot = currentDataRot;
 				rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), angle);
 				rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), 0);
@@ -2530,6 +2547,19 @@ void FluidMechanics::Impl::updateSurfacePreview()
 		synchronized_if(isosurfaceLow) {
 			isosurfaceLow->setPercentage(settings->surfacePercentage);
 		}
+	}
+	if(settings->considerX+settings->considerY+settings->considerZ == 3){
+		state->clipAxis = CLIP_NONE ;
+	}
+
+	else if(settings->considerX == 1 ){
+		state->clipAxis = CLIP_AXIS_X ;
+	}
+	else if(settings->considerY == 1 ){
+		state->clipAxis = CLIP_AXIS_Y ;
+	}
+	else if(settings->considerZ == 1 ){
+		state->clipAxis = CLIP_AXIS_Z ;
 	}
 }
 
