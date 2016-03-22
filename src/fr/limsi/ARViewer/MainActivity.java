@@ -78,6 +78,16 @@ public class MainActivity extends BaseARActivity
     private Button constrainYBtn ;
     private Button constrainZBtn ;
     private Button autoConstrainBtn ;
+    private ToggleButton dataORplaneTangibleToggle ;
+    private ToggleButton dataORplaneTouchToggle ;
+    private ToggleButton tangibleToggle ;
+    private ToggleButton touchToggle ;
+
+    private boolean isTangibleOn = false ;
+    private boolean isTouchOn = false;
+    private boolean dataORplaneTangible = true ; //Data
+    private boolean dataORplaneTouch = true ;    //Data
+
     //private Button seedingBtn ;
     //private Button translateBtn ;
     //private ToggleButton dataORplane ;
@@ -131,7 +141,6 @@ public class MainActivity extends BaseARActivity
     private Logging logging ;
     private short phase = -1 ;
     private short interactionType ;
-    private boolean isTangibleOn = false ;
     private FileOutputStream fOut ;
     private OutputStreamWriter outputStreamWriter ;
     private boolean isInteracting = false ;
@@ -341,62 +350,60 @@ public class MainActivity extends BaseARActivity
         //this.autoConstrainBtn.setOnClickListener(this);
         this.autoConstrainBtn.setOnTouchListener(this);
 
-        //this.seedingBtn = (Button) findViewById(R.id.seedingBtn);
-        //this.seedingBtn.setOnTouchListener(this);
-        
 
-        //this.translateBtn = (Button) findViewById(R.id.translateBtn);
-        //this.translateBtn.setOnClickListener(this);
-        //this.translateBtn.setOnTouchListener(this);
-
-        /*dataORplane = (ToggleButton) findViewById(R.id.dataORplane);
-        dataORplane.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        touchToggle = (ToggleButton) findViewById(R.id.touchToggle);
+        touchToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                if(interactionMode != dataPlaneTouch && interactionMode != dataPlaneTangible && interactionMode !=seedPointTangible && interactionMode!=seedPointTouch){
-                    //Log.d(TAG,"Can't use this button");
-                    dataORplane.toggle();
-                    return ;
-                }
-
-                //Plane is disabled, data is checked
-                if (isChecked) {
-                    fluidSettings.dataORplane = 0 ;
-                    Log.d(TAG,"Checked");
-                } else {
-                    fluidSettings.dataORplane = 1 ;
-                    Log.d(TAG,"Disabled");
-                }
-
-                updateDataSettings();
-            }
-        });*/
-
-        /*translateBtn = (ToggleButton) findViewById(R.id.translateBtn);
-        translateBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                if(interactionMode != dataPlaneTouch && interactionMode != planeTouch && interactionMode != seedPointTangible && interactionMode != seedPointTouch){
-                    //Log.d(TAG,"Can't use this button");
-                    translateBtn.toggle();
-                    return ;
-                }
-
                 
                 if (isChecked) {
-                    fluidSettings.translatePlane = false ;
-                    Log.d(TAG,"Checked");
+                    isTouchOn = true ;
+                    dataORplaneTouchToggle.setEnabled(true);
                 } else {
-                    fluidSettings.translatePlane = true ;
-                    Log.d(TAG,"Disabled");
+                    isTouchOn = false ;
+                    dataORplaneTouchToggle.setEnabled(false);
                 }
-
-                updateDataSettings();
             }
-        });*/
+
+        });
 
 
+        tangibleToggle = (ToggleButton) findViewById(R.id.tangibleToggle);
+        tangibleToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    isTangibleOn = true ;
+                    dataORplaneTangibleToggle.setEnabled(true);
+                } else {
+                    isTangibleOn = false ;
+                    dataORplaneTangibleToggle.setEnabled(false);
+                }
+            }
 
+        });
+
+        dataORplaneTangibleToggle = (ToggleButton) findViewById(R.id.dataORplaneTangible);
+        dataORplaneTangibleToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    dataORplaneTangible = true ;
+                } else {
+                    dataORplaneTangible = false ;
+                }
+            }
+
+        });
+
+        dataORplaneTouchToggle = (ToggleButton) findViewById(R.id.dataORplaneTouch);
+        dataORplaneTouchToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {    
+                if (isChecked) {
+                    dataORplaneTouch = true ;
+                } else {
+                    dataORplaneTouch = false ;
+                }
+            }
+
+        });
         /*this.tangibleBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {

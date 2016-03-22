@@ -148,7 +148,7 @@
                   tools:context=".GridXMLActivity" >
                   
                   <ToggleButton
-                      android:id="@+id/TangibleToggle"
+                      android:id="@+id/tangibleToggle"
                       android:layout_gravity="left|bottom"
                       android:layout_height="60dp"
                       android:layout_width="120dp"
@@ -157,7 +157,7 @@
                       android:textOff="Tangible Off" />
 
                   <ToggleButton
-                      android:id="@+id/TouchToggle"
+                      android:id="@+id/touchToggle"
                       android:layout_gravity="left|bottom"
                       android:layout_height="60dp"
                       android:layout_width="120dp"
@@ -166,7 +166,7 @@
                       android:textOff="Tactile Off" />
 
                   <ToggleButton
-                      android:id="@+id/manipTangibleToggle"
+                      android:id="@+id/dataORplaneTangible"
                       android:layout_gravity="left|bottom"
                       android:layout_height="60dp"
                       android:layout_width="120dp"
@@ -175,7 +175,7 @@
                       android:textOff="Plane" />
                   
                   <ToggleButton
-                      android:id="@+id/manipTouchToggle"
+                      android:id="@+id/dataORplaneTouch"
                       android:layout_gravity="left|bottom"
                       android:layout_height="60dp"
                       android:layout_width="120dp"
