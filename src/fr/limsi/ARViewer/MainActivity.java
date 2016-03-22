@@ -434,6 +434,58 @@ public class MainActivity extends BaseARActivity
         
     }
 
+    private void setInteractionMode(){
+        if(isTangibleOn == false){
+            if(isTouchOn == false){
+                interactionMode = nothing ;
+                //fluidSettings.interactionMode = nothing ;
+            }
+            else{
+                if(dataORplaneTouch == false){
+                    interactionMode = planeTouch ;
+                    //fluidSettings.interactionMode = planeTouch ;
+                }
+                else{
+                    interactionMode = dataTouch ;
+                    //fluidSettings.interactionMode = dataTouch ;
+                }
+            }
+        }
+
+        else{
+            if(isTouchOn == false){
+                if(dataORplaneTangible == false){
+                    interactionMode = planeTangible ;
+                    //fluidSettings.interactionMode = planeTangible ;
+                }
+                else{
+                    interactionMode = dataTangible ;
+                    //fluidSettings.interactionMode = dataTangible ;
+                }
+            }
+            else{
+                if(dataORplaneTangible == false && dataORplaneTouch == false){
+                    interactionMode = planeTouchTangible ;
+                    //fluidSettings.interactionMode = planeTouchTangible ;
+                }
+                else if(dataORplaneTangible == true && dataORplaneTouch == true){
+                    interactionMode = dataTouchTangible ;
+                    //fluidSettings.interactionMode = dataTouchTangible ;
+                }
+                else if(dataORplaneTangible == false && dataORplaneTouch == true){
+                    interactionMode = dataPlaneTangibleTouch ;
+                    //fluidSettings.interactionMode = dataPlaneTangibleTouch ;
+                }
+                else if(dataORplaneTangible == true  && dataORplaneTouch == false){
+                    interactionMode = dataPlaneTangibleTouch ;
+                    //fluidSettings.interactionMode = dataPlaneTangibleTouch ;
+                }
+            }
+        }
+
+        FluidMechanics.setInteractionMode(interactionMode);
+    }
+
 
     protected void loggingFunction()throws IOException{
         if(this.isInteracting == false){
