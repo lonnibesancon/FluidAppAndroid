@@ -362,6 +362,7 @@ public class MainActivity extends BaseARActivity
                     isTouchOn = false ;
                     dataORplaneTouchToggle.setEnabled(false);
                 }
+                setInteractionMode();
             }
 
         });
@@ -377,6 +378,7 @@ public class MainActivity extends BaseARActivity
                     isTangibleOn = false ;
                     dataORplaneTangibleToggle.setEnabled(false);
                 }
+                setInteractionMode();
             }
 
         });
@@ -389,6 +391,7 @@ public class MainActivity extends BaseARActivity
                 } else {
                     dataORplaneTangible = false ;
                 }
+                setInteractionMode();
             }
 
         });
@@ -401,6 +404,7 @@ public class MainActivity extends BaseARActivity
                 } else {
                     dataORplaneTouch = false ;
                 }
+                setInteractionMode();
             }
 
         });
@@ -1378,46 +1382,46 @@ public class MainActivity extends BaseARActivity
 
             case R.id.action_dataHybrid:
                 //changeInteractionMode(dataTouchTangible);
-                changeInteractionMode(dataHybrid);
+                //changeInteractionMode(dataHybrid);
                 break ;
 
         /* We manipulate the plane */
             case R.id.action_planeTouch:
-                changeInteractionMode(planeTouch);
+                //changeInteractionMode(planeTouch);
                 break ;
 
             case R.id.action_planeTangible:
-                changeInteractionMode(planeTangible);
+                //changeInteractionMode(planeTangible);
                 break ;
 
             case R.id.action_planeHybrid:
-                changeInteractionMode(planeHybrid);
+                //changeInteractionMode(planeHybrid);
                 break ;
 
         /* We manipulate data + Plane */
             case R.id.action_dataPlaneTouch:
-                changeInteractionMode(dataPlaneTouch);
+                //changeInteractionMode(dataPlaneTouch);
                 break ;
 
             case R.id.action_dataPlaneTangible:
-                changeInteractionMode(dataPlaneTangible);
+                //changeInteractionMode(dataPlaneTangible);
                 break ;
 
             case R.id.action_dataPlaneHybrid:
-                changeInteractionMode(dataPlaneHybrid);
+                //changeInteractionMode(dataPlaneHybrid);
                 break ;
 
         /* Seeding mode */
             case R.id.action_seedingTangible:
-                changeInteractionMode(seedPointTangible);
+                //changeInteractionMode(seedPointTangible);
                 break ;
 
             case R.id.action_seedingTouch:
-                changeInteractionMode(seedPointTouch);
+                //changeInteractionMode(seedPointTouch);
                 break ;
 
             case R.id.action_seedingHybrid:
-                changeInteractionMode(seedPointHybrid);
+                //changeInteractionMode(seedPointHybrid);
                 break ;
 
 
