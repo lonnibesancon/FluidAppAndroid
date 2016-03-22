@@ -1169,7 +1169,11 @@ void FluidMechanics::Impl::onTranslateBar(float pos){
 void FluidMechanics::Impl::computeFingerInteraction(){
 	Vector2 currentPos ;
 	Vector2 prevPos ;
+	if(fingerPositions.size() == 0){
+		return ;
+	}
 	LOGD("Nb Of Fingers = %d", fingerPositions.size());
+
 	//Particle seeding case
 	//LOGD("ComputeFingerInteraction Function");
 	//LOGD("%d == %d   ---  %d", interactionMode, seedPoint, fingerPositions.size());
@@ -1236,6 +1240,11 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		}
 
 		Vector2 diff = currentPos - prevPos ;
+		printAny(currentPos,"Current Pos = ");
+		printAny(prevPos,"Previous Pos =");
+
+		diff /=1000 ;
+		diff *= settings->precision ;
 
 		if( interactionMode == dataTouch || 
 			interactionMode == dataTouchTangible ||
@@ -1251,7 +1260,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 			     interactionMode == planeTouchTangible ||
 			     interactionMode == dataPlaneTangibleTouch)
 		{
-					Quaternion rot = currentDataRot;
+					Quaternion rot = currentSliceRot;
 					rot = rot * Quaternion(rot.inverse() * Vector3::unitZ(), 0);
 					rot = rot * Quaternion(rot.inverse() * Vector3::unitY(), -diff.x);
 					rot = rot * Quaternion(rot.inverse() * Vector3::unitX(), diff.y);
@@ -1327,7 +1336,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		
 		//Compute distance between the two fingers
 		float distance = sqrt(    (x1-x2)*(x1-x2) + (y1-y2) * (y1-y2)    );
-		LOGD("Distance %f", distance);
+		//LOGD("Distance %f", distance);
 		if( interactionMode == planeTouch ||
 			interactionMode == planeTouchTangible ||
 			interactionMode == dataPlaneTouchTangible)
@@ -1352,7 +1361,7 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		if(distance> thresholdRST || isAboveThreshold){
 			isAboveThreshold = true ;
 			
-			LOGD("Spinning considered");
+			//LOGD("Spinning considered");
 			
 	        
 	        float dot = initialVector.x * newVec.x + initialVector.y * newVec.y ;

@@ -87,6 +87,7 @@ public class MainActivity extends BaseARActivity
     private boolean isTouchOn = false;
     private boolean dataORplaneTangible = true ; //Data
     private boolean dataORplaneTouch = true ;    //Data
+    private boolean isTangiblePressed = false ;
 
     //private Button seedingBtn ;
     //private Button translateBtn ;
@@ -443,14 +444,17 @@ public class MainActivity extends BaseARActivity
             if(isTouchOn == false){
                 interactionMode = nothing ;
                 //fluidSettings.interactionMode = nothing ;
+                Log.d(TAG,"No Interaction");
             }
             else{
                 if(dataORplaneTouch == false){
                     interactionMode = planeTouch ;
+                    Log.d(TAG,"planeTouch");
                     //fluidSettings.interactionMode = planeTouch ;
                 }
                 else{
                     interactionMode = dataTouch ;
+                    Log.d(TAG,"dataTouch");
                     //fluidSettings.interactionMode = dataTouch ;
                 }
             }
@@ -460,28 +464,34 @@ public class MainActivity extends BaseARActivity
             if(isTouchOn == false){
                 if(dataORplaneTangible == false){
                     interactionMode = planeTangible ;
+                    Log.d(TAG,"planeTangible");
                     //fluidSettings.interactionMode = planeTangible ;
                 }
                 else{
                     interactionMode = dataTangible ;
+                    Log.d(TAG,"dataTangible");
                     //fluidSettings.interactionMode = dataTangible ;
                 }
             }
             else{
                 if(dataORplaneTangible == false && dataORplaneTouch == false){
                     interactionMode = planeTouchTangible ;
+                    Log.d(TAG,"planeTouchTangible");
                     //fluidSettings.interactionMode = planeTouchTangible ;
                 }
                 else if(dataORplaneTangible == true && dataORplaneTouch == true){
                     interactionMode = dataTouchTangible ;
+                    Log.d(TAG,"dataTouchTangible");
                     //fluidSettings.interactionMode = dataTouchTangible ;
                 }
                 else if(dataORplaneTangible == false && dataORplaneTouch == true){
-                    interactionMode = dataPlaneTangibleTouch ;
+                    interactionMode = dataPlaneTouchTangible ;
+                    Log.d(TAG,"dataPlaneTouchTangible");
                     //fluidSettings.interactionMode = dataPlaneTangibleTouch ;
                 }
                 else if(dataORplaneTangible == true  && dataORplaneTouch == false){
                     interactionMode = dataPlaneTangibleTouch ;
+                    Log.d(TAG,"dataPlaneTangibleTouch");
                     //fluidSettings.interactionMode = dataPlaneTangibleTouch ;
                 }
             }
@@ -644,7 +654,7 @@ public class MainActivity extends BaseARActivity
             //         mTextOverlay.setVisibility(View.INVISIBLE);
             //     }});
         }
-        if(isTangibleOn){
+        if(isTangiblePressed){
             this.isInteracting = true ;
             requestRender();
         }
@@ -673,7 +683,7 @@ public class MainActivity extends BaseARActivity
        if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE && mDatasetLoaded == true ) {
            if (mLastTimestamp != 0) {
                float dt = (event.timestamp - mLastTimestamp) * NS2S;
-               if (dt != 0 && isTangibleOn) {
+               if (dt != 0 && isTangiblePressed) {
                    FluidMechanics.setGyroValues(dt * event.values[0],   // rx
                                                 dt * event.values[1],   // ry
                                                 dt * event.values[2],0);  // rz
@@ -1720,11 +1730,11 @@ public class MainActivity extends BaseARActivity
 
     private boolean isOnTouchButton(float x, float y){
         if(x<=190 && y>=420){
-            Log.d(TAG,"Buttons on the left");
+            //Log.d(TAG,"Buttons on the left");
             return true ;
         }
         else if(x>=1420 && y >=820){
-            Log.d(TAG,"Buttons on the right");
+            //Log.d(TAG,"Buttons on the right");
             return true ;
         }
         return false ;
@@ -1749,13 +1759,13 @@ public class MainActivity extends BaseARActivity
             int index = event.getActionIndex();
             //Log.d(TAG,"INDEX = "+fingerOnButtonIndex);
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
-                isTangibleOn = true ;
+                isTangiblePressed = true ;
                 FluidMechanics.buttonPressed();
                 this.tangibleBtn.setPressed(true);
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 FluidMechanics.buttonReleased();
-                isTangibleOn = false ;
+                isTangiblePressed = false ;
                 this.tangibleBtn.setPressed(false);
             }
             
@@ -1889,10 +1899,10 @@ public class MainActivity extends BaseARActivity
                     int id = event.getPointerId(index);
                     //Log.d("Finger ID", "Finger ID = "+id);
                     //Log.d("Finger Index", "Finger Index = "+index);
-                    if(isOnTouchButton(rawPosX[index], rawPosY[index]) == false){
+                    //if(isOnTouchButton(rawPosX[index], rawPosY[index]) == false){
                         //Log.d(TAG, "Remove Finger");
                         FluidMechanics.removeFinger(id);
-                    }
+                    //}
                     break ;
                 }
 
@@ -1907,9 +1917,9 @@ public class MainActivity extends BaseARActivity
                         ids[i]  = event.getPointerId(i);
                         xPos[i] = event.getX(i);
                         yPos[i] = event.getY(i);
-                        if(ids[i] != -1 && isOnTouchButton(rawPosX[i], rawPosY[i]) == false){
+                        //if(ids[i] != -1 && isOnTouchButton(rawPosX[i], rawPosY[i]) == false){
                             FluidMechanics.updateFingerPositions(xPos[i],yPos[i],ids[i]);
-                        }
+                        //}
                     }
                     break ;
                 }
