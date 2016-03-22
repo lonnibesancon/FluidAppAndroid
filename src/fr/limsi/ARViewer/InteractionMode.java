@@ -36,6 +36,10 @@ public interface InteractionMode{
 
 	public static final float thresholdRST 				= 450 ;
 
+	public static final int ftle						= 0 ;
+	public static final int head						= 1 ;
+	public static final int ironprot					= 2 ;
+	public static final int velocities					= 3 ;
 
 	//LOGGING HELP
 

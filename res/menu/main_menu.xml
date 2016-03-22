@@ -29,8 +29,22 @@
     </menu>
   </item>
 
+  <item android:title="Data"
+        android:showAsAction="always">
+    <menu>
+      <item android:title="Ftle"
+            android:id="@+id/action_dataset_ftle" />
+      <item android:title="Head"
+            android:id="@+id/action_dataset_head" />
+      <item android:title="IronProt"
+            android:id="@+id/action_dataset_ironprot" />
+      <item android:title="Velocities"
+            android:id="@+id/action_dataset_velocities" />
+    </menu>
+  </item>
+
   <!--Menu for constrained interaction-->
-  <item android:title="Constrain"
+  <!--<item android:title="Constrain"
         android:showAsAction="always">
     <menu>
       <item android:title="Constrain X"
@@ -58,7 +72,7 @@
             android:checked="false"
             android:id="@+id/action_autoConstraint" />
     </menu>
-  </item>
+  </item>-->
 
   <!-- TODO: whether to control the clipping distance with the stylus
        or not (fixed distance), set the fixed distance value, etc. -->

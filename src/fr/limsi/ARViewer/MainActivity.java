@@ -108,7 +108,7 @@ public class MainActivity extends BaseARActivity
     private static boolean mDatasetLoaded = false;
     private static boolean mVelocityDatasetLoaded = false;
 
-    // Menu
+    // Menu            
     private static boolean menuInitialized = false;
     private MenuItem mAxisClippingMenuItem, mStylusClippingMenuItem;
 
@@ -149,6 +149,7 @@ public class MainActivity extends BaseARActivity
     private long initialTime ;
     private long previousLogTime = 0 ;
     private long logrefreshrate = 50 ;
+    private int nbOfResets = 0 ;
 
     private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);;
 
@@ -267,7 +268,7 @@ public class MainActivity extends BaseARActivity
         mView.setOnTouchListener(this);
 
         mGestureDetector = new GestureDetector(new SimpleOnGestureListener() {});
-        mGestureDetector.setOnDoubleTapListener(this);
+        //mGestureDetector.setOnDoubleTapListener(this);
         // view.setOnLongClickListener(this);
 
         setupActionBar();
@@ -390,6 +391,7 @@ public class MainActivity extends BaseARActivity
 
         dataORplaneTangibleToggle = (ToggleButton) findViewById(R.id.dataORplaneTangible);
         dataORplaneTangibleToggle.setChecked(true);
+        dataORplaneTangibleToggle.setEnabled(false);
         dataORplaneTangibleToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -404,6 +406,7 @@ public class MainActivity extends BaseARActivity
 
         dataORplaneTouchToggle = (ToggleButton) findViewById(R.id.dataORplaneTouch);
         dataORplaneTouchToggle.setChecked(true);
+        dataORplaneTouchToggle.setEnabled(false);
         dataORplaneTouchToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {    
                 if (isChecked) {
@@ -983,36 +986,40 @@ public class MainActivity extends BaseARActivity
         // TODO: load in background?
         switch (mDataSet) {
         // switch ((mDataSet++ % 3)) {
-            case 0:
+            case ftle:
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("ftlelog.vtk", false));
                 mVelocityDatasetLoaded = false;
                 client.dataset = 1 ;
                 break;
-            case 1:
+            case ironprot:
                 // FluidMechanics.loadDataset(copyAssetsFileToStorage("head.vti", false));
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("ironProt.vtk", false));
                 mVelocityDatasetLoaded = false;
                 client.dataset = 2 ;
                 break;
-            case 2:
+            case head:
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("head.vti", false));
                 mVelocityDatasetLoaded = false;
                 client.dataset = 3 ;
                 break;
-            case 3:
+            case velocities:
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("FTLE7.vtk", false));
                 FluidMechanics.loadVelocityDataset(copyAssetsFileToStorage("Velocities7.vtk", false));
                 mVelocityDatasetLoaded = true;
                 client.dataset = 4 ;
                 break;
 
-            case 4:
+            /*case 4:
                 //this.finishAffinity();
                 //android.os.Process.killProcess(android.os.Process.myPid());
                 //System.exit(0);
-                break ;
+                break ;*/
 
         }
+
+        // We want the large display to change as well:
+        client.valuesupdated = true ; 
+
 
         // Apply the computed zoom factor
         updateDataState();
@@ -1023,6 +1030,7 @@ public class MainActivity extends BaseARActivity
         updateSettings();
         mDatasetLoaded = true;
         requestRender();
+
     }
 
     // public class ContextMenuFragment extends Fragment {
@@ -1274,12 +1282,13 @@ public class MainActivity extends BaseARActivity
             settings.showCamera = menu.findItem(R.id.action_showCamera).isChecked();
             fluidSettings.showCrossingLines = menu.findItem(R.id.action_showLines).isChecked();
 
-            constrainX = menu.findItem(R.id.action_constrainX).isChecked();
+            /*constrainX = menu.findItem(R.id.action_constrainX).isChecked();
             constrainY = menu.findItem(R.id.action_constrainY).isChecked();
             constrainZ = menu.findItem(R.id.action_constrainZ).isChecked();
             constrainTranslation = menu.findItem(R.id.action_constrainTranslation).isChecked();
             constrainRotation = menu.findItem(R.id.action_constrainRotation).isChecked();
-            this.autoConstraint = menu.findItem(R.id.action_autoConstraint).isChecked();
+            this.autoConstraint = menu.findItem(R.id.action_autoConstraint).isChecked();*/
+
             updateSettings();
             updateDataSettings();
 
@@ -1295,12 +1304,12 @@ public class MainActivity extends BaseARActivity
             menu.findItem(R.id.action_axisClipping).setChecked(fluidSettings.sliceType == FluidMechanics.SLICE_AXIS);
             menu.findItem(R.id.action_stylusClipping).setChecked(fluidSettings.sliceType == FluidMechanics.SLICE_STYLUS);
 
-            menu.findItem(R.id.action_constrainX).setChecked(constrainX);
+            /*menu.findItem(R.id.action_constrainX).setChecked(constrainX);
             menu.findItem(R.id.action_constrainY).setChecked(constrainY);
             menu.findItem(R.id.action_constrainZ).setChecked(constrainZ);
             menu.findItem(R.id.action_constrainTranslation).setChecked(constrainTranslation);
             menu.findItem(R.id.action_constrainRotation).setChecked(constrainRotation);
-            menu.findItem(R.id.action_autoConstraint).setChecked(autoConstraint);
+            menu.findItem(R.id.action_autoConstraint).setChecked(autoConstraint);*/
         }
 
         return true;
@@ -1440,15 +1449,27 @@ public class MainActivity extends BaseARActivity
                 //changeInteractionMode(seedPointHybrid);
                 break ;
 
-
-
             case R.id.change_IP:
                 changeIP();
                 break ;
 
+            case R.id.action_reset:
+                Log.d(TAG,"Reset");
+                reset();
+                break;
+
+            case R.id.action_quit:
+                Log.d(TAG,"Quit");
+                //writeLogging();
+                closeFile();
+                //this.finish();
+                //android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(0);
+                break ;
+
 // End Menu Action                
 // Constraining interaction
-
+/*
             //Constraining interaction part
             case R.id.action_constrainX:
                 constrainX = !constrainX ;
@@ -1509,6 +1530,8 @@ public class MainActivity extends BaseARActivity
                 handledDataSetting = true;
                 break;
 
+
+
             case R.id.action_constrainRotation:
                 constrainRotation = !constrainRotation ;
                 //If considerX, we want to set value in JNI to 0
@@ -1546,24 +1569,23 @@ public class MainActivity extends BaseARActivity
                 handledDataSetting = true;
                 break ;
 
-            case R.id.action_reset:
-                Log.d(TAG,"Reset");
-                FluidMechanics.reset();
-                fluidSettings.precision = 1 ;
-                fluidSettings.translatePlane = false ;
-                //fluidSettings.dataORplane = 0 ; //Data 
-                updateDataSettings();
-                requestRender();
-                break;
+*/
+            
 
-            case R.id.action_quit:
-                Log.d(TAG,"Quit");
-                //writeLogging();
-                closeFile();
-                //this.finish();
-                //android.os.Process.killProcess(android.os.Process.myPid());
-                System.exit(0);
+            /* Dataset */
+            case R.id.action_dataset_ftle:
+                loadDataset(ftle);
                 break ;
+            case R.id.action_dataset_head:
+                loadDataset(head);
+                break ;
+            case R.id.action_dataset_ironprot:
+                loadDataset(ironprot);
+                break ;
+            case R.id.action_dataset_velocities:
+                loadDataset(velocities);
+                break ;
+
 
         }
 
@@ -1576,6 +1598,30 @@ public class MainActivity extends BaseARActivity
         } else {
             return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void reset(){
+        FluidMechanics.reset();
+        
+        //fluidSettings.dataORplane = 0 ; //Data 
+        
+        this.interactionMode = nothing ;
+        this.tangibleToggle.setChecked(false);
+        this.touchToggle.setChecked(false);
+        this.dataORplaneTangibleToggle.setChecked(false);
+        this.dataORplaneTouchToggle.setChecked(false);
+
+
+        isTangibleOn = false ;
+        isTouchOn = false;
+        dataORplaneTangible = true ; //Data
+        dataORplaneTouch = true ;    //Data
+        fluidSettings.precision = 1 ;
+
+        this.nbOfResets += 1 ;
+        updateDataSettings();
+        requestRender();
+
     }
 
     private void updateConstraintX(){
@@ -2062,7 +2108,7 @@ public class MainActivity extends BaseARActivity
     public boolean onDoubleTap(MotionEvent e) {
         //Log.d(TAG, "onDoubleTap");
         // loadNewData();
-        openContextMenu(findViewById(R.id.glSurfaceView));
+        //openContextMenu(findViewById(R.id.glSurfaceView));
         return true;
     }
 

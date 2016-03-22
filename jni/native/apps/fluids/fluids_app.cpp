@@ -1349,9 +1349,13 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		//LOGD("Distance %f", distance);
 		if( interactionMode == planeTouch ||
 			interactionMode == planeTouchTangible ||
-			interactionMode == dataPlaneTouchTangible)
+			interactionMode == dataPlaneTangibleTouch)
 		{
+			//We just translate along the z axis of the plane
+			trans = Vector3(0,0,diff.x);		//Consider z vector only, on screen
+			trans = state->stylusModelMatrix.get3x3Matrix() * trans ;	//Transform to plane's Z vector
 			currentSlicePos +=trans ;
+			LOGD("PLane Interaction Translation");
 		}
 		else if(interactionMode == dataTouch || 
 			    interactionMode == dataTouchTangible ||
