@@ -141,7 +141,6 @@ public class MainActivity extends BaseARActivity
     //LOGGING
     private static final String FILENAME = "myFile.txt";
     private Logging logging ;
-    private short phase = -1 ;
     private short interactionType ;
     private FileOutputStream fOut ;
     private OutputStreamWriter outputStreamWriter ;
@@ -149,6 +148,7 @@ public class MainActivity extends BaseARActivity
     private long initialTime ;
     private long previousLogTime = 0 ;
     private long logrefreshrate = 50 ;
+    private short nbOfFingers ;
     private int nbOfResets = 0 ;
 
     private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);;
@@ -162,6 +162,7 @@ public class MainActivity extends BaseARActivity
     private boolean autoConstraint ;
     private boolean isConstrained = false ;
     private boolean dataOrTangibleValue = true ;
+
 
     public int pId = -1 ;
     private boolean fileOpened = false ;
@@ -511,10 +512,10 @@ public class MainActivity extends BaseARActivity
 
 
     protected void loggingFunction()throws IOException{
-        if(this.isInteracting == false){
+        /*if(this.isInteracting == false){
             return ;
         }
-        else{
+        else{*/
             Date date = new Date();
             long current = date.getTime();
             long timestamp = current - initialTime ;
@@ -523,7 +524,7 @@ public class MainActivity extends BaseARActivity
             }
             this.isInteracting = false ;
             //Log.d(TAG,"Logging");
-        }
+        //}
 
         
         /*Date date = new Date();
@@ -574,13 +575,12 @@ public class MainActivity extends BaseARActivity
     }*/
 
     private String getLogString(long timestamp){
-    
+        Log.d(TAG,"LOGGING");
         return (""+timestamp+";"
                  +interactionMode+";"
                  +fluidSettings.precision+";"
-                 +interactionMode+";"
                  +interactionType+";"
-                 +phase+";"
+                 +nbOfFingers+";"
                  +isConstrained+";"
                  +constrainX+";"
                  +constrainY+";"
