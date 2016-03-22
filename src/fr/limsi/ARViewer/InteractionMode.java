@@ -21,10 +21,8 @@ public interface InteractionMode{
 	public static final int dataPlaneHybrid 			= 23 ;
 	public static final int dataTouchTangible 			= 24 ;
 	public static final int planeTouchTangible 			= 25 ;
-	public static final int dataPlaneTouchTouch			= 26 ;
-	public static final int dataPlaneTangibleTangible 	= 27 ;
-	public static final int dataPlaneTouchTangible		= 28 ;
-	public static final int dataPlaneTangibleTouch		= 29 ;
+	public static final int dataPlaneTouchTangible		= 26 ;
+	public static final int dataPlaneTangibleTouch		= 27 ;
 
 	//Seeding point interaction
 	public static final int seedPointTangible 			= 31 ;
