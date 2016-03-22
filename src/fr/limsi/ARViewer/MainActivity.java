@@ -90,7 +90,7 @@ public class MainActivity extends BaseARActivity
     private boolean dataORplaneTouch = true ;    //Data
     private boolean isTangiblePressed = false ;
 
-    //private Button seedingBtn ;
+    private Button seedingBtn ;
     //private Button translateBtn ;
     //private ToggleButton dataORplane ;
     //private ToggleButton translateBtn ;
@@ -351,6 +351,9 @@ public class MainActivity extends BaseARActivity
         this.autoConstrainBtn = (Button) findViewById(R.id.autoConstrain);
         //this.autoConstrainBtn.setOnClickListener(this);
         this.autoConstrainBtn.setOnTouchListener(this);
+
+        this.seedingBtn = (Button) findViewById(R.id.seedingBtn);
+        this.seedingBtn.setOnTouchListener(this);
 
 
         touchToggle = (ToggleButton) findViewById(R.id.touchToggle);
@@ -1018,8 +1021,8 @@ public class MainActivity extends BaseARActivity
         fluidSettings.showSlice = true ;
         fluidSettings.sliceType = FluidMechanics.SLICE_STYLUS ;
         updateSettings();
-
         mDatasetLoaded = true;
+        requestRender();
     }
 
     // public class ContextMenuFragment extends Fragment {
@@ -1732,11 +1735,15 @@ public class MainActivity extends BaseARActivity
     }
 
     private boolean isOnTouchButton(float x, float y){
-        if(x<=190 && y>=420){
+        if(x < 270){
+            //Log.d("Seed or Tangible");
+            return true ;
+        }
+        else if(x<=500 && y>=820){
             //Log.d(TAG,"Buttons on the left");
             return true ;
         }
-        else if(x>=1420 && y >=820){
+        else if(x>=1500 && y >=820){
             //Log.d(TAG,"Buttons on the right");
             return true ;
         }
@@ -1857,7 +1864,7 @@ public class MainActivity extends BaseARActivity
             //return true ;
         }
 
-        /*else if(v.getId() == R.id.seedingBtn){
+        else if(v.getId() == R.id.seedingBtn){
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 fluidSettings.isSeeding = true ;
                 this.seedingBtn.setPressed(true);
@@ -1868,7 +1875,7 @@ public class MainActivity extends BaseARActivity
             }
             updateDataSettings();
             //return true ;
-        }*/
+        }
 
 
 
@@ -1889,8 +1896,10 @@ public class MainActivity extends BaseARActivity
                     //Log.d("Finger Index", "Finger Index = "+index);
                     //Log.d(TAG, "Finger X = "+event.getRawX()+" Finger Y = "+event.getRawY());
                     if(isOnTouchButton(rawPosX[index], rawPosY[index]) == false){
-                        //Log.d(TAG, "Add Finger");
-                        FluidMechanics.addFinger(event.getX(index), event.getY(index), id);    
+                        //Log.d(TAG, "Add Finger X = "+event.getX(index)+"  Y = "+event.getY(index));
+                        Log.d(TAG, "Add Finger X = "+rawPosX[index]+"  Y = "+rawPosY[index]);
+                        //FluidMechanics.addFinger(event.getX(index), event.getY(index), id);    
+                        FluidMechanics.addFinger(rawPosX[index], rawPosY[index], id);    
                     }
                     break ;
                 }
@@ -1921,7 +1930,8 @@ public class MainActivity extends BaseARActivity
                         xPos[i] = event.getX(i);
                         yPos[i] = event.getY(i);
                         //if(ids[i] != -1 && isOnTouchButton(rawPosX[i], rawPosY[i]) == false){
-                            FluidMechanics.updateFingerPositions(xPos[i],yPos[i],ids[i]);
+                            //FluidMechanics.updateFingerPositions(xPos[i],yPos[i],ids[i]);
+                            FluidMechanics.updateFingerPositions(rawPosX[i], rawPosY[i], ids[i]);  
                         //}
                     }
                     break ;

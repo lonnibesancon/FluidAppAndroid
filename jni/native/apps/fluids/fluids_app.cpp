@@ -1121,6 +1121,8 @@ bool FluidMechanics::Impl::computeSeedingPlacement(){
 		currentPos = Vector2(fingerPositions[0].x,fingerPositions[0].y);
 	}
 
+	//printAny(currentPos,"Current Pos Seeding");
+
 	//LOGD("Current Pos = %f --  %f",currentPos.x, currentPos.y);
 
 	//Put screen coordinate between -1 and 1, and inverse Y to correspond to OpenGL conventions
@@ -1147,7 +1149,7 @@ bool FluidMechanics::Impl::computeSeedingPlacement(){
 		//printAny(ray*t, "RAY * T = ");
 		//To save energy with less rendering and computation, we do not render the particles on the tablet
 		seedingPoint = ray*t ;
-		//releaseParticles();
+		releaseParticles();
 		return true ;
 	}
 	else{
@@ -1175,7 +1177,12 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 	if(fingerPositions.size() == 0){
 		return ;
 	}
-	LOGD("Nb Of Fingers = %d", fingerPositions.size());
+	//LOGD("Nb Of Fingers = %d", fingerPositions.size());
+	if(settings->isSeeding && velocityData){
+		//LOGD("Seeding Case");
+		computeSeedingPlacement();
+		return ;
+	}
 
 	//Particle seeding case
 	//LOGD("ComputeFingerInteraction Function");
@@ -1243,8 +1250,8 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		}
 
 		Vector2 diff = currentPos - prevPos ;
-		printAny(currentPos,"Current Pos = ");
-		printAny(prevPos,"Previous Pos =");
+		//printAny(currentPos,"Current Pos = ");
+		//printAny(prevPos,"Previous Pos =");
 
 		diff /=1000 ;
 		diff *= settings->precision ;

@@ -135,6 +135,14 @@
           android:text="Tangible"
             />
 
+          <Button
+          android:id="@+id/seedingBtn"
+          android:layout_height="70dp"
+          android:layout_width="120dp"
+          android:layout_marginBottom="20dp"
+          android:text="Seed"
+            />
+
           <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:tools="http://schemas.android.com/tools"
                   android:id="@+id/GridLayout2"
@@ -145,9 +153,8 @@
                   android:orientation="horizontal"
                   android:layout_alignParentRight="true"
                   android:layout_gravity="bottom|left"
-                  android:background="@drawable/custom_border"
                   tools:context=".GridXMLActivity" >
-                  
+                  <!--android:background="@drawable/custom_border"-->
                   <ToggleButton
                       android:id="@+id/tangibleToggle"
                       android:layout_gravity="left|bottom"
@@ -276,7 +283,7 @@
                           android:id="@+id/constrainX"
                           android:layout_gravity="right|bottom"
                           android:layout_height="60dp"
-                          android:layout_width="120dp"
+                          android:layout_width="100dp"
                           android:layout_alignParentRight="true"
                           android:text="-X-" />
 
@@ -284,7 +291,7 @@
                           android:id="@+id/constrainY"
                           android:layout_gravity="right|bottom"
                           android:layout_height="60dp"
-                          android:layout_width="120dp"
+                          android:layout_width="100dp"
                           android:layout_alignParentRight="true"
                           android:text="-Y-" />
                       
@@ -292,7 +299,7 @@
                           android:id="@+id/constrainZ"
                           android:layout_gravity="right|bottom"
                           android:layout_height="60dp"
-                          android:layout_width="120dp"
+                          android:layout_width="100dp"
                           android:layout_alignParentRight="true"
                           android:text="-Z-" />
                       
@@ -300,7 +307,7 @@
                           android:id="@+id/autoConstrain"
                           android:layout_gravity="right|bottom"
                           android:layout_height="60dp"
-                          android:layout_width="120dp"
+                          android:layout_width="100dp"
                           android:layout_alignParentRight="true"
                           android:text="Auto" />   
                   </GridLayout>
