@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.ToggleButton;
+import android.widget.ImageButton;
 
 import android.app.*;
 import android.bluetooth.*;
@@ -72,7 +73,7 @@ public class MainActivity extends BaseARActivity
     private static final String TAG = Config.APP_TAG;
     private static final boolean DEBUG = Config.DEBUG;
 
-    private Button tangibleBtn ;
+    private ImageButton tangibleBtn ;
     //private Button sliceBtn ;
     private Button constrainXBtn ;
     private Button constrainYBtn ;
@@ -310,7 +311,7 @@ public class MainActivity extends BaseARActivity
         
         FluidMechanics.setInteractionMode(this.interactionMode);
 
-        this.tangibleBtn = (Button) findViewById(R.id.tangibleBtn);
+        this.tangibleBtn = (ImageButton) findViewById(R.id.tangibleBtn);
         //this.tangibleBtn.setOnClickListener(this);
         this.tangibleBtn.setOnTouchListener(this);
         /*this.tangibleBtn.setOnTouchListener(new View.OnTouchListener() {
@@ -385,6 +386,7 @@ public class MainActivity extends BaseARActivity
         });
 
         dataORplaneTangibleToggle = (ToggleButton) findViewById(R.id.dataORplaneTangible);
+        dataORplaneTangibleToggle.setChecked(true);
         dataORplaneTangibleToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -398,6 +400,7 @@ public class MainActivity extends BaseARActivity
         });
 
         dataORplaneTouchToggle = (ToggleButton) findViewById(R.id.dataORplaneTouch);
+        dataORplaneTouchToggle.setChecked(true);
         dataORplaneTouchToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {    
                 if (isChecked) {

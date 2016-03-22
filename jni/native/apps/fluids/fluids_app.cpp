@@ -1058,6 +1058,9 @@ void FluidMechanics::Impl::setGyroValues(double rx, double ry, double rz, double
 	//ry *=settings->precision * settings->considerY ; //settings->considerRotation;
 	//rx *=settings->precision * settings->considerX ; //settings->considerRotation;
 	//LOGD("Current Rot = %s", Utility::toString(currentSliceRot).c_str());
+	rz *=settings->precision ;
+	ry *=settings->precision ;
+	rx *=settings->precision ;
 	if(tangoEnabled){
 		/*if(interactionMode == planeTangible || (interactionMode == seedPointTangible && settings->dataORplane == 1) || 
 		   interactionMode == seedPointHybrid || interactionMode == dataPlaneHybrid || interactionMode == planeHybrid ||
