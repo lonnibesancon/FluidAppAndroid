@@ -277,7 +277,6 @@
                       android:orientation="horizontal"
                       android:layout_alignParentRight="true"
                       android:layout_gravity="bottom|right"
-                      android:background="@drawable/custom_border"
                       tools:context=".GridXMLActivity" >
                       <Button
                           android:id="@+id/constrainX"

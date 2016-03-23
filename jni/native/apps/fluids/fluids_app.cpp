@@ -74,6 +74,7 @@ extern "C" {
     JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_addFinger(JNIEnv* env, jobject obj, jfloat x, jfloat y, jint fingerID);
     JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_removeFinger(JNIEnv* env, jobject obj, jint fingerID);
     JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_reset(JNIEnv* env, jobject obj);
+    JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_resetParticles(JNIEnv* env, jobject obj);
 }
 
 // (end of JNI interface)
@@ -136,6 +137,7 @@ struct FluidMechanics::Impl
 	int getFingerPos(int fingerID);
 	void onTranslateBar(float pos);
 	bool checkPosition();
+	void resetParticles();
 
 	Vector3 posToDataCoords(const Vector3& pos); // "pos" is in eye coordinates
 	Vector3 dataCoordsToPos(const Vector3& dataCoordsToPos);
@@ -164,6 +166,7 @@ struct FluidMechanics::Impl
 	bool tangoEnabled = false ;
 	int interactionMode = dataTangible ;
 	bool seedPointPlacement = false ;
+
 
 
 	FluidMechanics* app;
@@ -509,6 +512,16 @@ float FluidMechanics::Impl::buttonReleased()
 	return 0 ;
 }
 
+void FluidMechanics::Impl::resetParticles(){
+	LOGD("Reset Particle case");
+	for (Particle& p : particles) {
+		p.pos = Vector3(0,0,0);
+		p.delayMs = 0 ;
+		p.stallMs = 0;
+		p.valid = false ;
+	}		
+}
+
 void FluidMechanics::Impl::releaseParticles()
 {
 	/*if (!velocityData || !state->tangibleVisible || !state->stylusVisible || 
@@ -555,6 +568,8 @@ void FluidMechanics::Impl::releaseParticles()
 			p.valid = true;
 		}
 	}
+
+	seedPointPlacement = true ;
 }
 
 void FluidMechanics::Impl::integrateParticleMotion(Particle& p)
@@ -1117,46 +1132,61 @@ bool intersectPlane(const Vector3& n, const Vector3& p0, const Vector3& l0, cons
 //Returns true if the seeding is successful
 bool FluidMechanics::Impl::computeSeedingPlacement(){
 	Vector2 currentPos ;
-	synchronized(fingerPositions){
-		currentPos = Vector2(fingerPositions[0].x,fingerPositions[0].y);
-	}
 
-	//printAny(currentPos,"Current Pos Seeding");
+	//The seeding button is pressed but no finger on the data and there are already particles
+	/*if(fingerPositions.size() == 0 && particles.size()!=0 && particles[0].valid && seedPointPlacement==false ){
+		LOGD("Reset Particle case");
+		for (Particle& p : particles) {
+			p.pos = Vector3(0,0,0);
+			p.delayMs = 0 ;
+			p.stallMs = 0;
+			p.valid = false ;
+		}		
+		return false;
+	}*/
+	if(fingerPositions.size()!=0){
+		synchronized(fingerPositions){
+			currentPos = Vector2(fingerPositions[0].x,fingerPositions[0].y);
+		}
 
-	//LOGD("Current Pos = %f --  %f",currentPos.x, currentPos.y);
+		//printAny(currentPos,"Current Pos Seeding");
 
-	//Put screen coordinate between -1 and 1, and inverse Y to correspond to OpenGL conventions
-	currentPos.x = (currentPos.x * 2 /screenW)-1 ;
-	currentPos.y = (currentPos.y * 2 /screenH)-1 ;
-	currentPos.y *= -1 ;
+		//LOGD("Current Pos = %f --  %f",currentPos.x, currentPos.y);
 
-	//LOGD("Current Pos -1/1 = %f --  %f",currentPos.x, currentPos.y);
+		//Put screen coordinate between -1 and 1, and inverse Y to correspond to OpenGL conventions
+		currentPos.x = (currentPos.x * 2 /screenW)-1 ;
+		currentPos.y = (currentPos.y * 2 /screenH)-1 ;
+		currentPos.y *= -1 ;
 
-	//Get the world cornidates of the finger postion accoriding to the depth of the plane
-	Vector3 ray(currentPos.x, currentPos.y, 1);
-	ray = app->getProjMatrix().inverse() * ray ;
-	ray.normalize();
-	//printAny(ray, "RAY == ");
-	
-	float t ;
-	//printAny(sliceNormal, "SLice NOrmal =");
-	//printAny(slicePoint, "Slice Point = ");
+		//LOGD("Current Pos -1/1 = %f --  %f",currentPos.x, currentPos.y);
 
-	bool success = intersectPlane(sliceNormal, slicePoint, Vector3::zero(),ray, t) ;
-
-	if(success){
-		//LOGD("SUCCESS");
-		//printAny(ray*t, "RAY * T = ");
-		//To save energy with less rendering and computation, we do not render the particles on the tablet
-		seedingPoint = ray*t ;
-		releaseParticles();
-		return true ;
-	}
-	else{
-		//LOGD("FAIL");
-		return false ;
+		//Get the world cornidates of the finger postion accoriding to the depth of the plane
+		Vector3 ray(currentPos.x, currentPos.y, 1);
+		ray = app->getProjMatrix().inverse() * ray ;
+		ray.normalize();
+		//printAny(ray, "RAY == ");
 		
+		float t ;
+		//printAny(sliceNormal, "SLice NOrmal =");
+		//printAny(slicePoint, "Slice Point = ");
+
+		bool success = intersectPlane(sliceNormal, slicePoint, Vector3::zero(),ray, t) ;
+
+		if(success){
+			//LOGD("SUCCESS");
+			//printAny(ray*t, "RAY * T = ");
+			//To save energy with less rendering and computation, we do not render the particles on the tablet
+			seedingPoint = ray*t ;
+			releaseParticles();
+			return true ;
+		}
+		else{
+			//LOGD("FAIL");
+			return false ;
+			
+		}
 	}
+	
 
 }
 
@@ -1658,8 +1688,15 @@ void FluidMechanics::Impl::removeFinger(int fingerID){
 	}
 
 	//Reset all bools that are related to 2-finger interaction
-	mInitialPinchDistSet = false ;
-	isAboveThreshold = false ;
+	if(fingerPositions.size()<2){
+		mInitialPinchDistSet = false ;
+		isAboveThreshold = false ;
+	}
+	
+	/*if(fingerPositions.size() == 0){
+		seedPointPlacement = false ;
+	}*/
+
 }
 
 int FluidMechanics::Impl::getFingerPos(int fingerID){
@@ -2841,7 +2878,6 @@ JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_buttonPressed(JNIEn
 
 JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_setTangoValues(JNIEnv* env, jobject obj,jdouble tx, jdouble ty, jdouble tz, jdouble rx, jdouble ry, jdouble rz, jdouble q){
 	try {
-		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
 
 		if (!App::getInstance())
 			throw std::runtime_error("init() was not called");
@@ -2860,7 +2896,6 @@ JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_setTangoValues(JNIE
 
 JNIEXPORT void JNICALL Java_fr_limsi_ARViewer_FluidMechanics_setGyroValues(JNIEnv* env, jobject obj, jdouble rx, jdouble ry, jdouble rz, jdouble q){
 	try {
-		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
 
 		if (!App::getInstance())
 			throw std::runtime_error("init() was not called");
@@ -2901,7 +2936,6 @@ JNIEXPORT jfloat JNICALL Java_fr_limsi_ARViewer_FluidMechanics_buttonReleased(JN
 JNIEXPORT jstring Java_fr_limsi_ARViewer_FluidMechanics_getData(JNIEnv* env, jobject obj)
 {
 	try {
-		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
 
 		if (!App::getInstance())
 			throw std::runtime_error("init() was not called");
@@ -2922,7 +2956,6 @@ JNIEXPORT jstring Java_fr_limsi_ARViewer_FluidMechanics_getData(JNIEnv* env, job
 
 JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_setInteractionMode(JNIEnv* env, jobject obj, jint mode){
 	try {
-		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
 
 		if (!App::getInstance())
 			throw std::runtime_error("init() was not called");
@@ -2941,7 +2974,6 @@ JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_setInteractionMode(JNIEnv* 
 
 JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_updateFingerPositions(JNIEnv* env, jobject obj,jfloat x, jfloat y, jint fingerID){
 	try {
-		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
 
 		if (!App::getInstance())
 			throw std::runtime_error("init() was not called");
@@ -2960,7 +2992,6 @@ JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_updateFingerPositions(JNIEn
 
 JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_addFinger(JNIEnv* env, jobject obj,jfloat x, jfloat y, jint fingerID){
 	try {
-		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
 
 		if (!App::getInstance())
 			throw std::runtime_error("init() was not called");
@@ -2979,7 +3010,6 @@ JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_addFinger(JNIEnv* env, jobj
 
 JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_reset(JNIEnv* env, jobject obj){
 	try {
-		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
 
 		if (!App::getInstance())
 			throw std::runtime_error("init() was not called");
@@ -2998,7 +3028,6 @@ JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_reset(JNIEnv* env, jobject 
 
 JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_removeFinger(JNIEnv* env, jobject obj, jint fingerID){
 	try {
-		// LOGD("(JNI) [FluidMechanics] releaseParticles()");
 
 		if (!App::getInstance())
 			throw std::runtime_error("init() was not called");
@@ -3014,6 +3043,25 @@ JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_removeFinger(JNIEnv* env, j
 		throwJavaException(env, e.what());
 	}
 }
+
+JNIEXPORT void Java_fr_limsi_ARViewer_FluidMechanics_resetParticles(JNIEnv* env, jobject obj){
+	try {
+
+		if (!App::getInstance())
+			throw std::runtime_error("init() was not called");
+
+		if (App::getType() != App::APP_TYPE_FLUID)
+			throw std::runtime_error("Wrong application type");
+
+		FluidMechanics* instance = dynamic_cast<FluidMechanics*>(App::getInstance());
+		android_assert(instance);
+		instance->resetParticles();
+
+	} catch (const std::exception& e) {
+		throwJavaException(env, e.what());
+	}
+}
+
 
 FluidMechanics::FluidMechanics(const InitParams& params)
  : NativeApp(params, SettingsPtr(new FluidMechanics::Settings), StatePtr(new FluidMechanics::State)),
@@ -3057,6 +3105,10 @@ void FluidMechanics::rebind()
 {
 	NativeApp::rebind();
 	impl->rebind();
+}
+
+void FluidMechanics::resetParticles(){
+	impl->resetParticles();
 }
 
 void FluidMechanics::setMatrices(const Matrix4& volumeMatrix, const Matrix4& stylusMatrix)

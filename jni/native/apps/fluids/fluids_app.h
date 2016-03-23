@@ -25,6 +25,7 @@ public:
     void addFinger(float x, float y, int fingerID);
 	void removeFinger(int fingerID);
 	void reset();
+	void resetParticles();
 
     std::string getData();
 

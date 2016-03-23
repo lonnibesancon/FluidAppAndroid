@@ -575,7 +575,7 @@ public class MainActivity extends BaseARActivity
     }*/
 
     private String getLogString(long timestamp){
-        Log.d(TAG,"LOGGING");
+        //Log.d(TAG,"LOGGING");
         return (""+timestamp+";"
                  +interactionMode+";"
                  +fluidSettings.precision+";"
@@ -1918,6 +1918,7 @@ public class MainActivity extends BaseARActivity
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 fluidSettings.isSeeding = false ;
                 this.seedingBtn.setPressed(false);
+                FluidMechanics.resetParticles();
             }
             updateDataSettings();
             //return true ;
