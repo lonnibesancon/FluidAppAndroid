@@ -1608,8 +1608,8 @@ public class MainActivity extends BaseARActivity
         this.interactionMode = nothing ;
         this.tangibleToggle.setChecked(false);
         this.touchToggle.setChecked(false);
-        this.dataORplaneTangibleToggle.setChecked(false);
-        this.dataORplaneTouchToggle.setChecked(false);
+        this.dataORplaneTangibleToggle.setChecked(true);
+        this.dataORplaneTouchToggle.setChecked(true);
 
 
         isTangibleOn = false ;
