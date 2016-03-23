@@ -36,7 +36,7 @@ public class Client extends AsyncTask<String, String, String>{
 
     protected String dataMatrix = "1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;";
     protected String sliceMatrix = "1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;";
-    protected String seedPoint = "-10000.0;-10000.0;-10000.0";
+    protected String seedPoint = "-1000000.0;-1000000.0;-1000000.0";
                                     //Dataset+showVolume+showSurface+showStylus+showSlice+showOutline+Matrix
     protected String dataToSend = "1;1;1;1;1;1;1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;-1;-1;-1;" ;
     protected String msg ;

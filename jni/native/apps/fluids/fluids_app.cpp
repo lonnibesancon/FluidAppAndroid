@@ -521,6 +521,7 @@ void FluidMechanics::Impl::resetParticles(){
 		p.stallMs = 0;
 		p.valid = false ;
 	}		
+	seedingPoint = Vector3(-1000000,-1000000,-1000000);
 }
 
 void FluidMechanics::Impl::releaseParticles()

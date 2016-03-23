@@ -1585,15 +1585,19 @@ public class MainActivity extends BaseARActivity
             /* Dataset */
             case R.id.action_dataset_ftle:
                 loadDataset(ftle);
+                reset();
                 break ;
             case R.id.action_dataset_head:
                 loadDataset(head);
+                reset();
                 break ;
             case R.id.action_dataset_ironprot:
                 loadDataset(ironprot);
+                reset();
                 break ;
             case R.id.action_dataset_velocities:
                 loadDataset(velocities);
+                reset();
                 break ;
 
 
@@ -1966,6 +1970,8 @@ public class MainActivity extends BaseARActivity
                 FluidMechanics.resetParticles();
                 this.nbOfFingersButton-=1 ;
                 removedButtonFinger = true ;
+                client.seedPoint = "-1000000.0;-1000000.0;-1000000.0";
+                client.valuesupdated = true ;
             }
             updateDataSettings();
             //return true ;
