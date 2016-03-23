@@ -29,6 +29,10 @@ public class Client extends AsyncTask<String, String, String>{
     protected boolean closeConnection = false ;
     protected boolean valuesupdated = false ;
     protected boolean firstConnection = true ;
+    protected short tangoEnable = 0 ;
+    protected short considerX = 1 ;
+    protected short considerY = 1 ;
+    protected short considerZ = 1 ;
 
     protected String dataMatrix = "1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;";
     protected String sliceMatrix = "1;0;0;0;0;1;0;0;0;0;1;0;0;0;0;1;";
@@ -106,7 +110,7 @@ public class Client extends AsyncTask<String, String, String>{
             //Log.d("Connected == ", "Connected = "+initDone);
             if (connected == true && initDone == true && valuesupdated == true && diff >= refresh || firstConnection){
             	//msg = ""+MATRIXCHANGED+";"+interactionMode+";"+mapperSelected+";"+matrix+PositionAndOrientation+this.seedPoint ;
-                msg = ""+dataset+";"+dataToSend;
+                msg = ""+dataset+";"+dataToSend+considerX+";"+considerY+";"+considerZ+";";
                 byte[] data = msg.getBytes();
                 DatagramPacket dp = new DatagramPacket(data, data.length, this.serverAddr, portNumber);
                 counterTries = 0 ;

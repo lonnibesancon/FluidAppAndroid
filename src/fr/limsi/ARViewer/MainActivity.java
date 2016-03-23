@@ -104,7 +104,7 @@ public class MainActivity extends BaseARActivity
     private FluidMechanics.Settings tempSettings = new FluidMechanics.Settings();
 
     // private static boolean mFluidDataLoaded = false;
-    private static int mDataSet = 0;
+    private static int mDataSet = head;
     private static boolean mDatasetLoaded = false;
     private static boolean mVelocityDatasetLoaded = false;
 
@@ -148,7 +148,8 @@ public class MainActivity extends BaseARActivity
     private long initialTime ;
     private long previousLogTime = 0 ;
     private long logrefreshrate = 50 ;
-    private short nbOfFingers ;
+    private int nbOfFingers = 0;
+    private int nbOfFingersButton = 0 ;
     private int nbOfResets = 0 ;
 
     private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);;
@@ -290,7 +291,7 @@ public class MainActivity extends BaseARActivity
         // }
 
         if (!wasInitialized) {
-            mDataSet = -1;
+            mDataSet = 0;
             loadNewData();
         }
 
@@ -446,6 +447,10 @@ public class MainActivity extends BaseARActivity
         // mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_LEARNINGMODE, true);
 
         //executor = new ScheduledThreadPoolExecutor(1);
+
+        KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Activity.KEYGUARD_SERVICE);  
+        KeyguardManager.KeyguardLock lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE);  
+        lock.disableKeyguard();  
         
     }
 
@@ -577,6 +582,7 @@ public class MainActivity extends BaseARActivity
     private String getLogString(long timestamp){
         //Log.d(TAG,"LOGGING");
         return (""+timestamp+";"
+                 +mDataSet+";"
                  +interactionMode+";"
                  +fluidSettings.precision+";"
                  +interactionType+";"
@@ -586,6 +592,9 @@ public class MainActivity extends BaseARActivity
                  +constrainY+";"
                  +constrainZ+";"
                  +autoConstraint+";"
+                 +nbOfFingers+";"
+                 +nbOfFingersButton+";"
+                 +nbOfResets+";"
                  +"\n") ;
                 //LOG NBFINGERS ON SCREEN
     }
@@ -981,6 +990,7 @@ public class MainActivity extends BaseARActivity
         mDatasetLoaded = false;
 
         mDataSet = (id % 4);
+        client.dataset = mDataSet ;
 
         // TODO: check exceptions + display error message
         // TODO: load in background?
@@ -989,24 +999,24 @@ public class MainActivity extends BaseARActivity
             case ftle:
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("ftlelog.vtk", false));
                 mVelocityDatasetLoaded = false;
-                client.dataset = ftle ;
+                //client.dataset = ftle ;
                 break;
             case ironprot:
                 // FluidMechanics.loadDataset(copyAssetsFileToStorage("head.vti", false));
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("ironProt.vtk", false));
                 mVelocityDatasetLoaded = false;
-                client.dataset = ironprot ;
+                //client.dataset = ironprot ;
                 break;
             case head:
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("head.vti", false));
                 mVelocityDatasetLoaded = false;
-                client.dataset = head ;
+                //client.dataset = head ;
                 break;
             case velocities:
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("FTLE7.vtk", false));
                 FluidMechanics.loadVelocityDataset(copyAssetsFileToStorage("Velocities7.vtk", false));
                 mVelocityDatasetLoaded = true;
-                client.dataset = velocities ;
+                //client.dataset = velocities ;
                 break;
 
             /*case 4:
@@ -1632,12 +1642,18 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerY = 0 ;
             fluidSettings.considerZ = 0 ;
             isConstrained = true ;
+            client.considerX = 1 ;
+            client.considerY = 0 ;
+            client.considerZ = 0 ;
         }
         else if(!constrainX){
 
             fluidSettings.considerX = 1 ;
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 1 ;
+            client.considerX = 1 ;
+            client.considerY = 1 ;
+            client.considerZ = 1 ;
             isConstrained = false ;
         }
         Log.d(TAG,"X Constraint updated");
@@ -1651,6 +1667,9 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerX = 0 ;
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 0 ;
+            client.considerX = 0 ;
+            client.considerY = 1 ;
+            client.considerZ = 0 ;
             isConstrained = true ;
         }
         else if(!constrainY){
@@ -1658,6 +1677,9 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 1 ;
             isConstrained = false ;
+            client.considerX = 1 ;
+            client.considerY = 1 ;
+            client.considerZ = 1 ;
         }
         Log.d(TAG,"Y Constraint updated");
         updateDataSettings();
@@ -1670,12 +1692,18 @@ public class MainActivity extends BaseARActivity
             fluidSettings.considerX = 0 ;
             fluidSettings.considerY = 0 ;
             fluidSettings.considerZ = 1 ;
+            client.considerX = 0 ;
+            client.considerY = 0 ;
+            client.considerZ = 1 ;
             isConstrained = true ;
         }
         else if(!constrainZ){
             fluidSettings.considerX = 1 ;
             fluidSettings.considerY = 1 ;
             fluidSettings.considerZ = 1 ;
+            client.considerX = 1 ;
+            client.considerY = 1 ;
+            client.considerZ = 1 ;
             isConstrained = false ;
         }
         Log.d(TAG,"Z Constraint updated");
@@ -1803,6 +1831,7 @@ public class MainActivity extends BaseARActivity
         float rawPosY[] = new float[5];
         float ofsX = event.getRawX() - event.getX();
         float ofsY = event.getRawY() - event.getY();
+        boolean removedButtonFinger = false ;
         for (int i = 0; i < event.getPointerCount(); i++) {
             rawPosX[i] = event.getX(i) + ofsX;
             rawPosY[i] = event.getY(i) + ofsY;
@@ -1818,11 +1847,14 @@ public class MainActivity extends BaseARActivity
                 isTangiblePressed = true ;
                 FluidMechanics.buttonPressed();
                 this.tangibleBtn.setPressed(true);
+                this.nbOfFingersButton+=1 ;
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 FluidMechanics.buttonReleased();
                 isTangiblePressed = false ;
                 this.tangibleBtn.setPressed(false);
+                this.nbOfFingersButton-=1 ;
+                removedButtonFinger = true ;
             }
             
             //return true ;
@@ -1854,10 +1886,13 @@ public class MainActivity extends BaseARActivity
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 constrainX = true ;
                 this.constrainXBtn.setPressed(true);
+                this.nbOfFingersButton+=1;
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 constrainX = false ;
                 this.constrainXBtn.setPressed(false);
+                this.nbOfFingersButton-=1 ;
+                removedButtonFinger = true ;
             }
             //Log.d(TAG,"Touched constrainX");
             updateConstraintX();
@@ -1869,10 +1904,13 @@ public class MainActivity extends BaseARActivity
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 constrainY = true ;
                 this.constrainYBtn.setPressed(true);
+                this.nbOfFingersButton+=1;
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 constrainY = false ;
                 this.constrainYBtn.setPressed(false);
+                this.nbOfFingersButton-=1 ;
+                removedButtonFinger = true ;
             }
             //Log.d(TAG,"Touched constrainY");
             updateConstraintY();
@@ -1884,10 +1922,13 @@ public class MainActivity extends BaseARActivity
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 constrainZ = true ;
                 this.constrainZBtn.setPressed(true);
+                this.nbOfFingersButton+=1;
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 constrainZ = false ;
                 this.constrainZBtn.setPressed(false);
+                this.nbOfFingersButton-=1 ;
+                removedButtonFinger = true ;
             }
             //Log.d(TAG,"Touched constrainZ");
             updateConstraintZ();
@@ -1899,10 +1940,13 @@ public class MainActivity extends BaseARActivity
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 this.autoConstraint = true ;
                 this.autoConstrainBtn.setPressed(true);
+                this.nbOfFingersButton+=1;
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 this.autoConstraint = false ;
                 this.autoConstrainBtn.setPressed(false);
+                this.nbOfFingersButton-=1 ;
+                removedButtonFinger = true ;
             }
             //Log.d(TAG,"Touched constrain Auto");
             updateConstraintAuto();
@@ -1914,11 +1958,14 @@ public class MainActivity extends BaseARActivity
             if (event.getAction() == MotionEvent.ACTION_DOWN ){
                 fluidSettings.isSeeding = true ;
                 this.seedingBtn.setPressed(true);
+                this.nbOfFingersButton+=1;
             }
             else if(event.getAction() == MotionEvent.ACTION_UP ){
                 fluidSettings.isSeeding = false ;
                 this.seedingBtn.setPressed(false);
                 FluidMechanics.resetParticles();
+                this.nbOfFingersButton-=1 ;
+                removedButtonFinger = true ;
             }
             updateDataSettings();
             //return true ;
@@ -1945,6 +1992,7 @@ public class MainActivity extends BaseARActivity
                     if(isOnTouchButton(rawPosX[index], rawPosY[index]) == false){
                         //Log.d(TAG, "Add Finger X = "+event.getX(index)+"  Y = "+event.getY(index));
                         Log.d(TAG, "Add Finger X = "+rawPosX[index]+"  Y = "+rawPosY[index]);
+                        this.nbOfFingers +=1 ;
                         //FluidMechanics.addFinger(event.getX(index), event.getY(index), id);    
                         FluidMechanics.addFinger(rawPosX[index], rawPosY[index], id);    
                     }
@@ -1961,6 +2009,10 @@ public class MainActivity extends BaseARActivity
                     //if(isOnTouchButton(rawPosX[index], rawPosY[index]) == false){
                         //Log.d(TAG, "Remove Finger");
                         FluidMechanics.removeFinger(id);
+                        if(removedButtonFinger == false ){
+                            this.nbOfFingers -= 1 ;    
+                        }
+                        
                     //}
                     break ;
                 }
@@ -1976,10 +2028,9 @@ public class MainActivity extends BaseARActivity
                         ids[i]  = event.getPointerId(i);
                         xPos[i] = event.getX(i);
                         yPos[i] = event.getY(i);
-                        //if(ids[i] != -1 && isOnTouchButton(rawPosX[i], rawPosY[i]) == false){
                             //FluidMechanics.updateFingerPositions(xPos[i],yPos[i],ids[i]);
                             FluidMechanics.updateFingerPositions(rawPosX[i], rawPosY[i], ids[i]);  
-                        //}
+                        
                     }
                     break ;
                 }
@@ -2020,6 +2071,8 @@ public class MainActivity extends BaseARActivity
 
             this.isInteracting = true ;
             requestRender();
+            Log.d(TAG,"NB OF FINGERS = "+this.nbOfFingers);
+            Log.d(TAG,"Nb of fingers button = "+this.nbOfFingersButton);
             // NativeApp.setZoom(mZoomFactor);
 
         }
@@ -2166,6 +2219,7 @@ public class MainActivity extends BaseARActivity
         this.interactionMode = mode ;
         FluidMechanics.setInteractionMode(mode);
    }
+
 
 
     @Override

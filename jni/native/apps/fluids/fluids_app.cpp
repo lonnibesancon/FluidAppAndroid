@@ -163,6 +163,7 @@ struct FluidMechanics::Impl
 	float mInitialPinchDist ;
 
 
+
 	bool tangoEnabled = false ;
 	int interactionMode = dataTangible ;
 	bool seedPointPlacement = false ;
@@ -2421,7 +2422,7 @@ void FluidMechanics::Impl::renderObjects()
 			switch (state->clipAxis) {
 				case CLIP_AXIS_X: case CLIP_NEG_AXIS_X: scale = Vector3(150, 0, 0); color = Vector3(1, 0, 0); break;
 				case CLIP_AXIS_Y: case CLIP_NEG_AXIS_Y: scale = Vector3(0, 150, 0); color = Vector3(0, 1, 0); break;
-				case CLIP_AXIS_Z: case CLIP_NEG_AXIS_Z: scale = Vector3(0, 0, 150); color = Vector3(0, 0, 1); break;
+				case CLIP_AXIS_Z: case CLIP_NEG_AXIS_Z: scale = Vector3(0, 0, 150); color = Vector3(0, 1, 1); break;
 				case CLIP_NONE: android_assert(false);
 			}
 
