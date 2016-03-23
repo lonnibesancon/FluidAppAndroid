@@ -1178,11 +1178,6 @@ void FluidMechanics::Impl::computeFingerInteraction(){
 		return ;
 	}
 	//LOGD("Nb Of Fingers = %d", fingerPositions.size());
-	if(settings->isSeeding && velocityData){
-		//LOGD("Seeding Case");
-		computeSeedingPlacement();
-		return ;
-	}
 
 	//Particle seeding case
 	//LOGD("ComputeFingerInteraction Function");
@@ -1463,7 +1458,14 @@ void FluidMechanics::Impl::updateMatrices(){
 	   	interactionMode == seedPointTangible ||
 	   	interactionMode == seedPointTouch ||
 	   	interactionMode == seedPointHybrid){*/
-	if( interactionMode == dataTouch ||
+
+	if(settings->isSeeding && velocityData){
+		//LOGD("Seeding Case");
+		computeSeedingPlacement();
+
+	}
+
+	else if( interactionMode == dataTouch ||
 		interactionMode == planeTouch ||
 		interactionMode == dataTouchTangible ||
 		interactionMode == planeTouchTangible ||

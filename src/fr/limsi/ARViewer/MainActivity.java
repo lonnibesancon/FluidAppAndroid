@@ -989,24 +989,24 @@ public class MainActivity extends BaseARActivity
             case ftle:
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("ftlelog.vtk", false));
                 mVelocityDatasetLoaded = false;
-                client.dataset = 1 ;
+                client.dataset = ftle ;
                 break;
             case ironprot:
                 // FluidMechanics.loadDataset(copyAssetsFileToStorage("head.vti", false));
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("ironProt.vtk", false));
                 mVelocityDatasetLoaded = false;
-                client.dataset = 2 ;
+                client.dataset = ironprot ;
                 break;
             case head:
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("head.vti", false));
                 mVelocityDatasetLoaded = false;
-                client.dataset = 3 ;
+                client.dataset = head ;
                 break;
             case velocities:
                 FluidMechanics.loadDataset(copyAssetsFileToStorage("FTLE7.vtk", false));
                 FluidMechanics.loadVelocityDataset(copyAssetsFileToStorage("Velocities7.vtk", false));
                 mVelocityDatasetLoaded = true;
-                client.dataset = 4 ;
+                client.dataset = velocities ;
                 break;
 
             /*case 4:
