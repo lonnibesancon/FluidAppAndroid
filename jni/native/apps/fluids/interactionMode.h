@@ -35,6 +35,6 @@
 #define velocity	4
 
 
-#define thresholdRST  450.0 
+#define thresholdRST  300.0 
 
 #endif

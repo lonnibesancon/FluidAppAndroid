@@ -140,6 +140,11 @@
   <item android:title="Reset"
             android:id="@+id/action_reset" />
 
+  <item android:title="Bluetooth"
+        android:id="@+id/action_bluetooth"
+        android:checkable="true"
+        android:checked="false"/>
+
   <item android:title="Quit"
         android:id="@+id/action_quit" />
 

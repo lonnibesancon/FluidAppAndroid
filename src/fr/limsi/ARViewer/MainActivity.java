@@ -45,6 +45,30 @@ import java.util.*;
 import android.view.View.OnClickListener;
 import java.lang.Object;
 
+
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+ 
+import java.util.ArrayList;
+import java.util.List;
+
+import java.util.UUID;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -67,7 +91,7 @@ import com.google.atap.tangoservice.*;
 // import com.lannbox.rfduinotest.RFduinoService;
 
 public class MainActivity extends BaseARActivity
- implements View.OnTouchListener, GestureDetector.OnDoubleTapListener, Tango.OnTangoUpdateListener, SensorEventListener, InteractionMode, OnClickListener //, BluetoothAdapter.LeScanCallback //, View.OnLongClickListener
+ implements View.OnTouchListener, GestureDetector.OnDoubleTapListener, Tango.OnTangoUpdateListener, SensorEventListener, InteractionMode, OnClickListener, BluetoothAdapter.LeScanCallback //, View.OnLongClickListener
     // , CameraPreview.SizeCallback
 {
     private static final String TAG = Config.APP_TAG;
@@ -163,10 +187,12 @@ public class MainActivity extends BaseARActivity
     private boolean autoConstraint ;
     private boolean isConstrained = false ;
     private boolean dataOrTangibleValue = true ;
+    private TextView bluetoothState ;
 
 
     public int pId = -1 ;
     private boolean fileOpened = false ;
+
 
     @Override
     protected int getAppType() {
@@ -277,18 +303,7 @@ public class MainActivity extends BaseARActivity
         //setupSlider();
         setupSliderPrecision();
 
-        // bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        // if (bluetoothAdapter.isEnabled()) {
-        //     // Reboot the bluetooth adapter to make sure the RFDuino
-        //     // will be correctly detected
-        //     mTogglingBluetooth = true;
-        //     Log.d(TAG, "toggling bluetooth...");
-        //     registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-        //     bluetoothAdapter.disable();
-        // } else {
-        //     if (!bluetoothAdapter.enable())
-        //         Log.w(TAG, "Failed to enable Bluetooth!");
-        // }
+        createBluetooth();
 
         if (!wasInitialized) {
             mDataSet = 0;
@@ -420,6 +435,8 @@ public class MainActivity extends BaseARActivity
             }
 
         });
+
+        bluetoothState = (TextView) findViewById(R.id.textOverlay);
         /*this.tangibleBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -451,6 +468,7 @@ public class MainActivity extends BaseARActivity
         KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Activity.KEYGUARD_SERVICE);  
         KeyguardManager.KeyguardLock lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE);  
         lock.disableKeyguard();  
+
         
     }
 
@@ -959,6 +977,11 @@ public class MainActivity extends BaseARActivity
     @Override
     public void onStop () {
         Log.d(TAG,"Finish Activity");
+        bluetoothAdapter.stopLeScan(this);
+
+        unregisterReceiver(scanModeReceiver);
+        unregisterReceiver(bluetoothStateReceiver);
+        unregisterReceiver(rfduinoReceiver);
         //writeLogging();
         super.onStop() ;
     }
@@ -1468,6 +1491,13 @@ public class MainActivity extends BaseARActivity
                 reset();
                 break;
 
+            case R.id.action_bluetooth:
+                item.setChecked(!item.isChecked());
+                if (item.isChecked()){
+                    connectBle();
+                }
+                break ;
+
             case R.id.action_quit:
                 Log.d(TAG,"Quit");
                 //writeLogging();
@@ -1599,6 +1629,8 @@ public class MainActivity extends BaseARActivity
                 loadDataset(velocities);
                 reset();
                 break ;
+
+
 
 
         }
@@ -2295,5 +2327,207 @@ public class MainActivity extends BaseARActivity
             updateDataSettings();
         }*/
     }
+
+
+
+
+
+
+
+
+
+
+    //Bluetooth
+
+    final private static int STATE_BLUETOOTH_OFF    = 1;
+    final private static int STATE_DISCONNECTED     = 2;
+    final private static int STATE_CONNECTING       = 3;
+    final private static int STATE_CONNECTED        = 4;
+
+    private int state;
+
+    private boolean scanStarted;
+    private boolean scanning;
+
+    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothDevice bluetoothDevice;
+    private EditData valueEdit;
+    private RFduinoService rfduinoService;
+    private String data ;
+
+
+    private final BroadcastReceiver bluetoothStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
+            if (state == BluetoothAdapter.STATE_ON) {
+                upgradeState(STATE_DISCONNECTED);
+            } else if (state == BluetoothAdapter.STATE_OFF) {
+                downgradeState(STATE_BLUETOOTH_OFF);
+            }
+        }
+    };
+
+    private final BroadcastReceiver scanModeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            scanning = (bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_NONE);
+            scanStarted &= scanning;
+            //updateUi();
+        }
+    };
+
+
+    private final ServiceConnection rfduinoServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            rfduinoService = ((RFduinoService.LocalBinder) service).getService();
+            if (rfduinoService.initialize()) {
+                if (rfduinoService.connect(bluetoothDevice.getAddress())) {
+                    upgradeState(STATE_CONNECTING);
+                }
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            rfduinoService = null;
+            downgradeState(STATE_DISCONNECTED);
+        }
+    };
+
+    private final BroadcastReceiver rfduinoReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (RFduinoService.ACTION_CONNECTED.equals(action)) {
+                upgradeState(STATE_CONNECTED);
+            } else if (RFduinoService.ACTION_DISCONNECTED.equals(action)) {
+                downgradeState(STATE_DISCONNECTED);
+            } else if (RFduinoService.ACTION_DATA_AVAILABLE.equals(action)) {
+                addData(intent.getByteArrayExtra(RFduinoService.EXTRA_DATA));
+            }
+        }
+    };
+
+    private void addData(byte[] data) {
+        //TODO
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        registerReceiver(scanModeReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
+        registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+        registerReceiver(rfduinoReceiver, RFduinoService.getIntentFilter());
+
+        updateState(bluetoothAdapter.isEnabled() ? STATE_DISCONNECTED : STATE_BLUETOOTH_OFF);
+    }
+
+
+    private void upgradeState(int newState) {
+        if (newState > state) {
+            updateState(newState);
+        }
+    }
+
+    private void downgradeState(int newState) {
+        if (newState < state) {
+            updateState(newState);
+        }
+    }
+
+    private void updateState(int newState) {
+        state = newState;
+        Log.d(TAG,"STATE updated");
+        switch (newState){
+            case STATE_BLUETOOTH_OFF:
+                bluetoothState.setText("STATE_BLUETOOTH_OFF");
+                break ;
+            case STATE_DISCONNECTED:
+                bluetoothState.setText("STATE_DISCONNECTED");
+                break ;
+            case STATE_CONNECTING:
+                bluetoothState.setText("STATE_CONNECTING");
+                break ;
+            case STATE_CONNECTED:
+                bluetoothState.setText("STATE_CONNECTED");
+                break ;
+        }
+        updateConnectionProcess();
+        
+    }
+
+
+    protected void scan(){
+        scanStarted = true;
+        Log.d(TAG, "SCANNNNNNNNNNNNNN");
+        bluetoothAdapter.startLeScan(new UUID[]{ RFduinoService.UUID_SERVICE },MainActivity.this);
+        updateConnectionProcess();
+    }
+
+    protected void connect(){
+        Intent rfduinoIntent = new Intent(MainActivity.this, RFduinoService.class);
+        bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
+        updateConnectionProcess();
+        Log.d(TAG, "CONNECT");
+    }
+
+    @Override
+    public void onLeScan(BluetoothDevice device, final int rssi, final byte[] scanRecord) {
+    Log.d(TAG, "onLeScan");
+        bluetoothAdapter.stopLeScan(this);
+        bluetoothDevice = device;
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateConnectionProcess();
+            }
+        });
+    }
+
+
+    private void updateConnectionProcess() {
+
+        Log.d(TAG, "updateConnectionProcess state=" + state);
+    
+        if (state == STATE_DISCONNECTED) {
+            Log.d(TAG, "state_disconnected bluetoothDevice=" + bluetoothDevice + " scanStarted=" + scanStarted);
+            if (bluetoothDevice == null) {
+                if (!scanStarted) {
+                    scanStarted = true;
+                    Log.d(TAG, "starting scan");
+                    bluetoothAdapter.startLeScan(new UUID[] { RFduinoService.UUID_SERVICE }, this);
+                }
+            } else {
+                Intent rfduinoIntent = new Intent(this, RFduinoService.class);
+                Log.d(TAG, "bindService");
+                bindService(rfduinoIntent, rfduinoServiceConnection, BIND_AUTO_CREATE);
+            }
+        }
+    }
+
+    protected void createBluetooth(){
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        // if (bluetoothAdapter.isEnabled()) {
+             // Reboot the bluetooth adapter to make sure the RFDuino
+             // will be correctly detected
+        //     mTogglingBluetooth = true;
+             Log.d(TAG, "toggling bluetooth...");
+        //     registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+        //     bluetoothAdapter.disable();
+        // } else {
+        //     if (!bluetoothAdapter.enable())
+        //         Log.w(TAG, "Failed to enable Bluetooth!");
+        // }
+    }
+
+    protected void connectBle(){
+        scan();
+        connect();
+    }
+
 
 }
