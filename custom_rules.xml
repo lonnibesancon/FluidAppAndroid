@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <!-- Disable "-set-mode-check" -->
+  <target name="-set-mode-check">
+  </target>
+</project>
