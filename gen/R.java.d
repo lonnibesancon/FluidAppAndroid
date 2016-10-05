@@ -18,4 +18,10 @@
 /private/tmp/FluidAppAndroid/res/values/colors.xml \
 /private/tmp/FluidAppAndroid/res/values/CustomTheme.xml \
 /private/tmp/FluidAppAndroid/res/values/strings.xml \
+/private/tmp/FluidAppAndroid/bin/res/drawable/bouton.png \
+/private/tmp/FluidAppAndroid/bin/res/drawable/boutonactif.png \
+/private/tmp/FluidAppAndroid/bin/res/drawable/tango.png \
+/private/tmp/FluidAppAndroid/bin/res/drawable-hdpi/ic_launcher.png \
+/private/tmp/FluidAppAndroid/bin/res/drawable-ldpi/ic_launcher.png \
+/private/tmp/FluidAppAndroid/bin/res/drawable-mdpi/ic_launcher.png \
 /private/tmp/FluidAppAndroid/bin/AndroidManifest.xml \
